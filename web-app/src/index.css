@@ -1,6 +1,10 @@
 /*noinspection CssInvalidAtRule*/
 @tailwind base;
 
+html {
+    @apply bg-background-gray;
+}
+
 /*noinspection CssInvalidAtRule*/
 @tailwind components;
 
