@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Auth } from 'aws-amplify';
 import BrandHeader from '../../Components/BrandHeader';
+import AsyncButton from '../../Components/AsyncButton';
 
 export default function Login() {
   const [status, setStatus] = useState('Not Logged In');
@@ -81,15 +82,14 @@ export default function Login() {
               })
             }
           />
-          <button
+          <AsyncButton
+            text="Login"
+            enabledClassName={enabledButtonStyle}
+            disabledClassName={disabledButtonStyle}
             disabled={!validateForm()}
             type="submit"
-            className={
-              validateForm() ? enabledButtonStyle : disabledButtonStyle
-            }
-          >
-            Login
-          </button>
+            isLoading={status === 'Authenticating'}
+          />
         </form>
       </div>
     </>
