@@ -36,10 +36,9 @@ export class EmsStack extends cdk.Stack {
     userPool.addClient('web-dashboard', {
       userPoolClientName: 'WebDashboard',
       authFlows: {
-        userPassword: true,
+        userSrp: true
       },
       disableOAuth: true,
-      generateSecret: true,
     })
   }
 }
