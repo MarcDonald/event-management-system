@@ -15,7 +15,7 @@ interface AsyncButtonPropTypes {
 export default function AsyncButton(props: AsyncButtonPropTypes) {
   return (
     <button
-      disabled={props.disabled}
+      disabled={props.disabled || props.isLoading}
       type={props.type}
       className={
         props.disabled ? props.disabledClassName : props.enabledClassName

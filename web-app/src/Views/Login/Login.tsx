@@ -1,14 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Auth } from 'aws-amplify';
 import BrandHeader from '../../Components/BrandHeader';
 import AsyncButton from '../../Components/AsyncButton';
+import useLocalAuth from '../../Hooks/useLoggedInUser';
 
 export default function Login() {
+  const localAuth = useLocalAuth();
   const [status, setStatus] = useState('Not Logged In');
   const [fields, setFields] = useState({
     username: '',
     password: '',
   });
+
+  useEffect(() => {
+    const onLoad = async () => {
+      const user = await localAuth.getLoggedInUser();
+      if (user) {
+        setStatus(
+          `Logged in as ${user.username} - ${
+            user.getSignInUserSession().getIdToken().payload['custom:jobRole']
+          }`
+        );
+      }
+    };
+
+    onLoad().then();
+  }, []);
 
   const validateForm = () => {
     return fields.username.length > 0 && fields.password.length >= 8;
@@ -22,10 +39,13 @@ export default function Login() {
     try {
       const result = await Auth.signIn(fields.username, fields.password);
       setStatus(
-        `Logged in as ${result.username} - ${result.challengeParam.userAttributes['custom:jobRole']}`
+        `Logged in as ${result.username} - ${
+          result.getSignInUserSession().getIdToken().payload['custom:jobRole']
+        }`
       );
     } catch (e) {
       setStatus('Login Failure');
+      setFields({ ...fields, password: '' });
       alert(e.message);
     }
   };
@@ -40,7 +60,7 @@ export default function Login() {
       <BrandHeader />
       <div className="grid grid-cols-5">
         <form
-          onSubmit={(event) => submit(event)}
+          onSubmit={submit}
           className="
           xl:col-start-3 xl:col-end-4
           col-start-2 col-end-5
