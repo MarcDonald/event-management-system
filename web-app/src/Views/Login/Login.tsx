@@ -6,16 +6,24 @@ import AsyncButton from '../../Components/AsyncButton';
 import useLocalAuth from '../../Hooks/useLocalAuth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { useFormFields } from '../../Hooks/useFormFields';
+
+interface LoginFormFields {
+  username: string;
+  password: string;
+}
 
 export default function Login() {
   const localAuth = useLocalAuth();
   const history = useHistory();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [fields, setFields] = useState({
-    username: '',
-    password: '',
-  });
+  const [fields, setFields, setFieldsDirectly] = useFormFields<LoginFormFields>(
+    {
+      username: '',
+      password: '',
+    }
+  );
 
   useEffect(() => {
     const onLoad = async () => {
@@ -43,7 +51,7 @@ export default function Login() {
     } catch (e) {
       setIsLoading(false);
       setError(e);
-      setFields({ ...fields, password: '' });
+      setFieldsDirectly({ ...fields, password: '' });
     }
   };
 
@@ -66,12 +74,8 @@ export default function Login() {
             value={fields.username}
             className="outline-none border border-gray-400 focus:border-brand rounded-md p-2"
             placeholder="Username"
-            // TODO this feels like it can be extracted out to a hook
             onChange={(event) => {
-              setFields({
-                ...fields,
-                username: event.target.value,
-              });
+              setFields(event);
               setError(null);
             }}
           />
@@ -86,10 +90,7 @@ export default function Login() {
             className="outline-none border border-gray-400 focus:border-brand rounded-md p-2"
             placeholder="Password"
             onChange={(event) => {
-              setFields({
-                ...fields,
-                password: event.target.value,
-              });
+              setFields(event);
               setError(null);
             }}
           />
