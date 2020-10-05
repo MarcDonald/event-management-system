@@ -3,8 +3,11 @@ import { Route, Switch } from 'react-router-dom';
 import Home from './Views/Home';
 import NotFound from './Views/NotFound';
 import Login from './Views/Login';
+import useLocalAuth from './Hooks/useLocalAuth';
 
 function Routes() {
+  const localAuth = useLocalAuth();
+
   return (
     <Switch>
       <Route exact path="/">

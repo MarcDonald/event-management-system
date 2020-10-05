@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Auth } from 'aws-amplify';
 import BrandHeader from '../../Components/BrandHeader';
 import AsyncButton from '../../Components/AsyncButton';
-import useLocalAuth from '../../Hooks/useLoggedInUser';
+import useLocalAuth from '../../Hooks/useLocalAuth';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 export default function Login() {
   const localAuth = useLocalAuth();
-  const [status, setStatus] = useState('Not Logged In');
+  const history = useHistory();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   const [fields, setFields] = useState({
     username: '',
     password: '',
@@ -16,11 +21,7 @@ export default function Login() {
     const onLoad = async () => {
       const user = await localAuth.getLoggedInUser();
       if (user) {
-        setStatus(
-          `Logged in as ${user.username} - ${
-            user.getSignInUserSession().getIdToken().payload['custom:jobRole']
-          }`
-        );
+        history.replace('/');
       }
     };
 
@@ -34,26 +35,17 @@ export default function Login() {
   const submit = async (event: React.FormEvent<HTMLElement>) => {
     event.preventDefault();
 
-    setStatus('Authenticating');
+    setIsLoading(true);
 
     try {
-      const result = await Auth.signIn(fields.username, fields.password);
-      setStatus(
-        `Logged in as ${result.username} - ${
-          result.getSignInUserSession().getIdToken().payload['custom:jobRole']
-        }`
-      );
+      await Auth.signIn(fields.username, fields.password);
+      history.replace('/');
     } catch (e) {
-      setStatus('Login Failure');
+      setIsLoading(false);
+      setError(e);
       setFields({ ...fields, password: '' });
-      alert(e.message);
     }
   };
-
-  const enabledButtonStyle =
-    'bg-brand rounded-md text-white font-semibold p-2 mt-4 hover:bg-brand-light focus:bg-brand-light focus:outline-none';
-  const disabledButtonStyle =
-    'bg-gray-500 rounded-md text-white font-semibold p-2 mt-4 cursor-not-allowed focus:outline-none';
 
   return (
     <>
@@ -64,12 +56,8 @@ export default function Login() {
           className="
           xl:col-start-3 xl:col-end-4
           col-start-2 col-end-5
-          flex flex-col"
+          flex flex-col mt-4"
         >
-          <div className="text-center mt-2 mb-8">
-            <span>Status: {status}</span>
-          </div>
-
           <label htmlFor="username">Username</label>
           <input
             id="username"
@@ -78,12 +66,14 @@ export default function Login() {
             value={fields.username}
             className="outline-none border border-gray-400 focus:border-brand rounded-md p-2"
             placeholder="Username"
-            onChange={(event) =>
+            // TODO this feels like it can be extracted out to a hook
+            onChange={(event) => {
               setFields({
                 ...fields,
                 username: event.target.value,
-              })
-            }
+              });
+              setError(null);
+            }}
           />
           <label htmlFor="password" className="mt-2">
             Password
@@ -95,21 +85,29 @@ export default function Login() {
             value={fields.password}
             className="outline-none border border-gray-400 focus:border-brand rounded-md p-2"
             placeholder="Password"
-            onChange={(event) =>
+            onChange={(event) => {
               setFields({
                 ...fields,
                 password: event.target.value,
-              })
-            }
+              });
+              setError(null);
+            }}
           />
           <AsyncButton
             text="Login"
-            enabledClassName={enabledButtonStyle}
-            disabledClassName={disabledButtonStyle}
             disabled={!validateForm()}
             type="submit"
-            isLoading={status === 'Authenticating'}
+            isLoading={isLoading}
           />
+          {error && (
+            <div className="text-center mt-2 mb-8">
+              <FontAwesomeIcon
+                icon={faExclamationTriangle}
+                className="text-error mr-2"
+              />
+              <span>{error.message}</span>
+            </div>
+          )}
         </form>
       </div>
     </>
