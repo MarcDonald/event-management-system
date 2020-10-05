@@ -3,14 +3,12 @@ import { useHistory } from 'react-router-dom';
 import BrandHeader from '../../Components/BrandHeader';
 import useLocalAuth from '../../Hooks/useLocalAuth';
 import { CognitoUser } from 'amazon-cognito-identity-js';
-import { Auth } from 'aws-amplify';
-import AsyncButton from '../../Components/AsyncButton';
+import LoggedInUser from '../../Components/LoggedInUser';
 
-function Home() {
+export default function Home() {
   const localAuth = useLocalAuth();
   const history = useHistory();
   const [user, setUser] = useState<null | CognitoUser>(null);
-  const [isLoadingLogout, setIsLoadingLogout] = useState(false);
 
   useEffect(() => {
     const redirectToLogin = async () => {
@@ -25,27 +23,62 @@ function Home() {
     redirectToLogin().then();
   }, []);
 
-  const logout = async () => {
-    await Auth.signOut();
-    history.replace('/login');
-  };
-
   if (user) {
     return (
-      <>
-        <BrandHeader />
-        <h1 className="text-xl">Home</h1>
-        <h2>{user.getUsername()}</h2>
-        <AsyncButton
-          onClick={logout}
-          isLoading={isLoadingLogout}
-          text="Log Out"
-        />
-      </>
+      <div
+        className="min-h-screen bg-background-gray"
+        style={{
+          display: 'grid',
+          gridTemplateRows: 'auto 1fr auto',
+          gridTemplateColumns: '100%',
+        }}
+      >
+        <div className="row-start-1 h-auto">
+          <BrandHeader />
+        </div>
+        <div className="row-start-2 grid grid-cols-4">
+          <div className="col-start-1 grid">
+            <div className="self-end m-2">
+              <div style={{ width: '250px' }}>
+                <LoggedInUser />
+              </div>
+            </div>
+          </div>
+          <div className="col-start-2 col-span-2">
+            <section>
+              <h1 className="text-3xl font-bold text-center mt-4">
+                Upcoming Events
+              </h1>
+              <div>TODO</div>
+            </section>
+            <section className="flex flex-col">
+              <h2 className="text-2xl font-bold text-center mt-4">
+                Management
+              </h2>
+              <button
+                className="btn w-1/2 self-center m-2"
+                onClick={() => history.push('/management/venues')}
+              >
+                Manage Venues
+              </button>
+              <button
+                className="btn w-1/2 self-center m-2"
+                onClick={() => history.push('/management/events')}
+              >
+                Manage Events
+              </button>
+              <button
+                className="btn w-1/2 self-center m-2"
+                onClick={() => history.push('/management/staff')}
+              >
+                Manage Staff
+              </button>
+            </section>
+          </div>
+        </div>
+      </div>
     );
   } else {
     return <></>;
   }
 }
-
-export default Home;

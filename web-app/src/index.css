@@ -5,6 +5,18 @@ html {
     @apply bg-background-gray;
 }
 
+.btn {
+    @apply bg-brand rounded-md text-white font-semibold p-2;
+}
+
+.btn:hover {
+    @apply bg-brand-light;
+}
+
+.btn:focus {
+    @apply bg-brand-light outline-none;
+}
+
 /*noinspection CssInvalidAtRule*/
 @tailwind components;
 
