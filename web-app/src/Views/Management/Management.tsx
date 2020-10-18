@@ -5,6 +5,7 @@ import BrandHeader from '../../Components/BrandHeader';
 import LoggedInUser from '../../Components/LoggedInUser';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
+import ManageStaff from './ManageStaff/ManageStaff';
 
 export enum ManagementPage {
   Venues = 'venues',
@@ -54,7 +55,7 @@ export default function Management(props: ManagementPropTypes) {
       <div className="row-start-2 grid grid-cols-6">
         <div className="col-start-1 grid bg-white">
           <section>
-            <h1 className="text-center font-bold text-2xl mt-2">Management</h1>
+            <h1 className="side-nav-title">Management</h1>
             <nav className="mt-8">
               <ul>
                 <li
@@ -104,10 +105,10 @@ export default function Management(props: ManagementPropTypes) {
             </div>
           </section>
         </div>
-        <div className="col-start-2 col-span-2">
+        <div className="col-start-2 col-span-5">
           {selectedPage === ManagementPage.Venues && <div>Venues</div>}
           {selectedPage === ManagementPage.Events && <div>Events</div>}
-          {selectedPage === ManagementPage.Staff && <div>Staff</div>}
+          {selectedPage === ManagementPage.Staff && <ManageStaff />}
         </div>
       </div>
     </div>
