@@ -1,6 +1,9 @@
 /*noinspection CssInvalidAtRule*/
 @tailwind base;
 
+/*noinspection CssInvalidAtRule*/
+@tailwind components;
+
 html {
     @apply bg-background-gray;
 }
@@ -17,8 +20,13 @@ html {
     @apply bg-brand-light outline-none;
 }
 
-/*noinspection CssInvalidAtRule*/
-@tailwind components;
+.side-nav {
+    @apply cursor-pointer
+}
+
+.side-nav-selected {
+    @apply font-semibold bg-inactive-gray;
+}
 
 /*noinspection CssInvalidAtRule*/
 @tailwind utilities;

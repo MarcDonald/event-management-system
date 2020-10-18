@@ -18,8 +18,8 @@ export default function LoggedInUser() {
       const currentUser = await localAuth.getLoggedInUser();
       const { attributes } = currentUser;
       setUser({
-        name: `${attributes['given_name']} ${attributes['family_name']}`,
-        role: attributes['custom:jobRole'],
+        name: `${attributes.givenName} ${attributes.familyName}`,
+        role: attributes.role,
       });
     };
 
@@ -41,9 +41,6 @@ export default function LoggedInUser() {
           Logged in as <span className="font-semibold">{user.name}</span>
         </span>
         <span className="text-sm">{user.role}</span>
-      </div>
-      <div>
-        <FontAwesomeIcon icon={faCaretDown} />
       </div>
     </div>
   );

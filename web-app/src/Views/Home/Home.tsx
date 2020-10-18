@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import BrandHeader from '../../Components/BrandHeader';
-import useLocalAuth from '../../Hooks/useLocalAuth';
-import { CognitoUser } from 'amazon-cognito-identity-js';
+import useLocalAuth, { User } from '../../Hooks/useLocalAuth';
 import LoggedInUser from '../../Components/LoggedInUser';
 
 export default function Home() {
   const localAuth = useLocalAuth();
   const history = useHistory();
-  const [user, setUser] = useState<null | CognitoUser>(null);
+  const [user, setUser] = useState<null | User>(null);
 
   useEffect(() => {
     const redirectToLogin = async () => {
@@ -51,29 +50,31 @@ export default function Home() {
               </h1>
               <div>TODO</div>
             </section>
-            <section className="flex flex-col">
-              <h2 className="text-2xl font-bold text-center mt-4">
-                Management
-              </h2>
-              <button
-                className="btn w-1/2 self-center m-2"
-                onClick={() => history.push('/management/venues')}
-              >
-                Manage Venues
-              </button>
-              <button
-                className="btn w-1/2 self-center m-2"
-                onClick={() => history.push('/management/events')}
-              >
-                Manage Events
-              </button>
-              <button
-                className="btn w-1/2 self-center m-2"
-                onClick={() => history.push('/management/staff')}
-              >
-                Manage Staff
-              </button>
-            </section>
+            {localAuth.isAdmin(user) && (
+              <section className="flex flex-col">
+                <h2 className="text-2xl font-bold text-center mt-4">
+                  Management
+                </h2>
+                <button
+                  className="btn w-1/2 self-center m-2"
+                  onClick={() => history.push('/management/venues')}
+                >
+                  Manage Venues
+                </button>
+                <button
+                  className="btn w-1/2 self-center m-2"
+                  onClick={() => history.push('/management/events')}
+                >
+                  Manage Events
+                </button>
+                <button
+                  className="btn w-1/2 self-center m-2"
+                  onClick={() => history.push('/management/staff')}
+                >
+                  Manage Staff
+                </button>
+              </section>
+            )}
           </div>
         </div>
       </div>

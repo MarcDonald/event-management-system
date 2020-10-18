@@ -1,22 +1,52 @@
 import { Auth } from 'aws-amplify';
-import { CognitoUser } from 'amazon-cognito-identity-js';
 
 interface LoggedInUser {
-  getLoggedInUser: () => any;
+  getLoggedInUser: () => Promise<User> | any;
+  isAdmin: (user: User) => boolean;
+}
+
+export enum Role {
+  Administrator = 'Administrator',
+  Steward = 'Steward',
+  ControlRoomOperator = 'ControlRoomOperator',
+}
+
+export interface User {
+  username: string;
+  attributes: {
+    sub: string;
+    role: Role;
+    givenName: string;
+    familyName: string;
+  };
 }
 
 export default function useLocalAuth(): LoggedInUser {
-  const getLoggedInUser = async (): Promise<CognitoUser | null> => {
+  const getLoggedInUser = async (): Promise<User | null> => {
     try {
       await Auth.currentSession();
-      return Auth.currentAuthenticatedUser();
+      const authUser = await Auth.currentAuthenticatedUser();
+      return {
+        username: authUser.username,
+        attributes: {
+          sub: authUser.sub,
+          role: authUser.attributes['custom:jobRole'],
+          givenName: authUser.attributes['given_name'],
+          familyName: authUser.attributes['family_name'],
+        },
+      };
     } catch (err) {
       console.log(err);
       return null;
     }
   };
 
+  const isAdmin = (user: User): boolean => {
+    return user.attributes.role === Role.Administrator;
+  };
+
   return {
     getLoggedInUser,
+    isAdmin,
   };
 }
