@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import BrandHeader from '../../Components/BrandHeader';
-import useLocalAuth, { User } from '../../Hooks/useLocalAuth';
+import useLocalAuth from '../../Hooks/useLocalAuth';
+import User from '../../Models/User';
 import LoggedInUser from '../../Components/LoggedInUser';
 
 export default function Home() {

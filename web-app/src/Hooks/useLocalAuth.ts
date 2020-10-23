@@ -1,24 +1,10 @@
 import { Auth } from 'aws-amplify';
+import User from '../Models/User';
+import UserRole from '../Models/UserRole';
 
 interface LoggedInUser {
   getLoggedInUser: () => Promise<User> | any;
   isAdmin: (user: User) => boolean;
-}
-
-export enum Role {
-  Administrator = 'Administrator',
-  Steward = 'Steward',
-  ControlRoomOperator = 'ControlRoomOperator',
-}
-
-export interface User {
-  username: string;
-  attributes: {
-    sub: string;
-    role: Role;
-    givenName: string;
-    familyName: string;
-  };
 }
 
 export default function useLocalAuth(): LoggedInUser {
@@ -42,7 +28,7 @@ export default function useLocalAuth(): LoggedInUser {
   };
 
   const isAdmin = (user: User): boolean => {
-    return user.attributes.role === Role.Administrator;
+    return user.attributes.role === UserRole.Administrator;
   };
 
   return {

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import useLocalAuth from '../Hooks/useLocalAuth';
 import { Auth } from 'aws-amplify';
 

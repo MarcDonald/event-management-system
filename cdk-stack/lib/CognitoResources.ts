@@ -15,9 +15,10 @@ import {
   Role,
 } from '@aws-cdk/aws-iam';
 
-export class CognitoResources {
+export default class CognitoResources {
   public readonly userPool: UserPool;
   public readonly webDashboardUserPoolClient: UserPoolClient;
+  public readonly apiUserPoolClient: UserPoolClient;
   public readonly identityPool: CfnIdentityPool;
   public readonly defaultUnauthenticatedRole: Role;
   public readonly defaultAuthenticatedRole: Role;
@@ -28,6 +29,7 @@ export class CognitoResources {
     this.webDashboardUserPoolClient = this.createWebDashboardClient(
       this.userPool
     );
+    this.apiUserPoolClient = this.createApiClient(this.userPool);
     this.identityPool = this.createIdentityPool(scope, [
       {
         clientId: this.webDashboardUserPoolClient.userPoolClientId,
@@ -73,7 +75,7 @@ export class CognitoResources {
           mutable: true,
         },
       },
-      selfSignUpEnabled: true,
+      selfSignUpEnabled: false,
       customAttributes: {
         jobRole: new StringAttribute({ mutable: true }),
       },
@@ -87,6 +89,16 @@ export class CognitoResources {
         userSrp: true,
       },
       disableOAuth: true,
+      supportedIdentityProviders: [UserPoolClientIdentityProvider.COGNITO],
+    });
+
+  private createApiClient = (userPool: UserPool): UserPoolClient =>
+    userPool.addClient('api', {
+      userPoolClientName: 'API',
+      preventUserExistenceErrors: false,
+      authFlows: {
+        adminUserPassword: true,
+      },
       supportedIdentityProviders: [UserPoolClientIdentityProvider.COGNITO],
     });
 

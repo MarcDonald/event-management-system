@@ -2,7 +2,7 @@
   "name": "event-management-system-api",
   "version": "0.1.0",
   "bin": {
-    "api": "bin/api.js"
+    "api": "bin/CdkApp.js"
   },
   "scripts": {
     "build": "tsc",
@@ -15,6 +15,7 @@
   "devDependencies": {
     "@types/node": "10.17.5",
     "aws-cdk": "1.27.0",
+    "aws-sdk": "^2.773.0",
     "jest": "^24.9.0",
     "prettier": "^2.0.5",
     "ts-node": "^8.1.0",
@@ -22,7 +23,10 @@
   },
   "dependencies": {
     "@aws-cdk/aws-cognito": "1.66.0",
-    "@aws-cdk/aws-iam": "^1.66.0",
+    "@aws-cdk/aws-apigatewayv2": "1.66.0",
+    "@aws-cdk/aws-lambda": "1.66.0",
+    "@aws-cdk/aws-lambda-event-sources": "1.66.0",
+    "@aws-cdk/aws-iam": "1.66.0",
     "@aws-cdk/core": "1.66.0",
     "source-map-support": "^0.5.16"
   }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { SideNavSearch } from '../../../Components/SideNavSearch';
 import ManagementEditHeader from '../ManagementEditHeader';
-import { Role, User } from '../../../Hooks/useLocalAuth';
+import User from '../../../Models/User';
 import StaffCard from './StaffCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -9,32 +9,43 @@ import {
   faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { useFormFields } from '../../../Hooks/useFormFields';
+import UserRole from '../../../Models/UserRole';
+import {
+  createNewUser,
+  deleteUser,
+  getAllUsers,
+  updateExistingUser,
+} from '../../../Services/UserService';
 
-interface EditUserFields {
+interface ManageStaffFormFields {
   username: string;
   password: string;
   confirmPassword: string;
   givenName: string;
   familyName: string;
-  role: Role;
+  role: UserRole;
   isNew: boolean;
 }
+
+const emptyFormFields = {
+  username: '',
+  password: '',
+  confirmPassword: '',
+  givenName: '',
+  familyName: '',
+  role: UserRole.Steward,
+  isNew: true,
+};
 
 export default function ManageStaff() {
   const [allStaff, setAllStaff] = useState<User[]>([]);
   const [displayedStaff, setDisplayedStaff] = useState<User[]>([]);
-  const [fields, setFields, setFieldsDirectly] = useFormFields<EditUserFields>({
-    username: '',
-    password: '',
-    confirmPassword: '',
-    givenName: '',
-    familyName: '',
-    role: Role.Steward,
-    isNew: true,
-  });
+  const [fields, setFields, setFieldsDirectly] = useFormFields<
+    ManageStaffFormFields
+  >(emptyFormFields);
   const [error, setError] = useState<Error | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [isDeleting, setIsDelete] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const userSearch = (searchContent: string) => {
     if (searchContent) {
@@ -56,50 +67,17 @@ export default function ManageStaff() {
   };
 
   const setupNewUser = () => {
-    setFieldsDirectly({
-      username: '',
-      password: '',
-      confirmPassword: '',
-      givenName: '',
-      familyName: '',
-      role: Role.Steward,
-      isNew: true,
-    });
+    setFieldsDirectly(emptyFormFields);
   };
 
   useEffect(() => {
-    setupNewUser();
-    const staffList = [
-      {
-        username: 'testUser1',
-        attributes: {
-          sub: '1234',
-          role: Role.Administrator,
-          givenName: 'Marc',
-          familyName: 'Donald',
-        },
-      },
-      {
-        username: 'testUser2',
-        attributes: {
-          sub: '1235',
-          role: Role.Steward,
-          givenName: 'John',
-          familyName: 'Smith',
-        },
-      },
-      {
-        username: 'testUser3',
-        attributes: {
-          sub: '1236',
-          role: Role.ControlRoomOperator,
-          givenName: 'Joe',
-          familyName: 'Bloggs',
-        },
-      },
-    ];
-    setAllStaff(staffList);
-    setDisplayedStaff(staffList);
+    const setup = async () => {
+      setupNewUser();
+      const staffList = await getAllUsers();
+      setAllStaff(staffList);
+      setDisplayedStaff(staffList);
+    };
+    setup().then();
   }, []);
 
   const selectUserToEdit = (username: string) => {
@@ -132,10 +110,39 @@ export default function ManageStaff() {
     });
   };
 
-  const submitForm = () => {
+  const formSave = async () => {
     if (validateForm()) {
-      console.log('Submit');
+      setIsSaving(true);
+      const userDetails = {
+        username: fields.username,
+        role: fields.role,
+        givenName: fields.givenName,
+        familyName: fields.familyName,
+        password: fields.password,
+      };
+
+      let newUser;
+      if (fields.isNew) {
+        newUser = await createNewUser(userDetails);
+      } else {
+        newUser = await updateExistingUser(userDetails);
+      }
+      allStaff.push(newUser);
+      setupNewUser();
+      setIsSaving(false);
     }
+  };
+
+  const formDelete = async () => {
+    setIsDeleting(true);
+    await deleteUser(fields.username);
+    const listWithoutDeletedUser = allStaff.filter(
+      (user) => user.username !== fields.username
+    );
+    setAllStaff(listWithoutDeletedUser);
+    setDisplayedStaff(listWithoutDeletedUser);
+    setupNewUser();
+    setIsDeleting(false);
   };
 
   const validateForm = (): boolean => {
@@ -166,7 +173,7 @@ export default function ManageStaff() {
 
   const userDetailsForm = () => {
     return (
-      <form onSubmit={submitForm} className="flex flex-col mt-4">
+      <form onSubmit={formSave} className="flex flex-col mt-4">
         <label htmlFor="username">Username</label>
         <input
           id="username"
@@ -259,18 +266,18 @@ export default function ManageStaff() {
       <div className="col-span-4 mx-16">
         {(fields.givenName || fields.familyName) && (
           <ManagementEditHeader
-            delete={() => console.log('Delete')}
+            delete={formDelete}
             title={`${fields.givenName} ${fields.familyName}`}
-            save={submitForm}
+            save={formSave}
             isDeleting={isDeleting}
             isSaving={isSaving}
           />
         )}
         {!fields.givenName && !fields.familyName && (
           <ManagementEditHeader
-            delete={() => console.log('Delete')}
+            delete={formDelete}
             title="New User"
-            save={submitForm}
+            save={formSave}
             isDeleting={isDeleting}
             isSaving={isSaving}
           />
