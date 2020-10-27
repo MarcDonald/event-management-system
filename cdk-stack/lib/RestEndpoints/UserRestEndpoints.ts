@@ -40,6 +40,12 @@ export default class UserRestEndpoints {
       userPoolArn
     );
 
+    const getUserHandler = this.createGetUserHandler(
+      scope,
+      userPoolId,
+      userPoolArn
+    );
+
     api.addRoutes({
       path: '/users',
       methods: [HttpMethod.POST],
@@ -62,6 +68,12 @@ export default class UserRestEndpoints {
       path: '/users/{username}',
       methods: [HttpMethod.PUT],
       integration: updateUserHandler,
+    });
+
+    api.addRoutes({
+      path: '/users/{username}',
+      methods: [HttpMethod.GET],
+      integration: getUserHandler,
     });
   }
 
@@ -175,6 +187,32 @@ export default class UserRestEndpoints {
 
     return new LambdaProxyIntegration({
       handler: updateUserFunc,
+    });
+  };
+
+  private createGetUserHandler = (
+    scope: cdk.Construct,
+    userPoolId: string,
+    userPoolArn: string
+  ): LambdaProxyIntegration => {
+    const getUserFunc = new Function(scope, 'getUserFunction', {
+      runtime: Runtime.NODEJS_12_X,
+      handler: 'index.handler',
+      functionName: 'EmsGetUser',
+      code: Code.fromAsset('./lambdas/getUser'),
+      environment: {
+        USER_POOL_ID: userPoolId,
+      },
+    });
+
+    const policyStatement = new PolicyStatement();
+    policyStatement.addResources(userPoolArn);
+    policyStatement.addActions('cognito-idp:AdminGetUser');
+
+    getUserFunc.addToRolePolicy(policyStatement);
+
+    return new LambdaProxyIntegration({
+      handler: getUserFunc,
     });
   };
 }
