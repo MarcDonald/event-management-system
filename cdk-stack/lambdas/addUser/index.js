@@ -6,7 +6,10 @@ exports.handler = async (event) => {
   if (!event.body) {
     return {
       statusCode: 400,
-      body: `Request must contain a body containing username, password, givenName, familyName, and role`,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        error: `Request must contain a body containing username, password, givenName, familyName, and role`,
+      }),
     };
   }
 
@@ -17,8 +20,10 @@ exports.handler = async (event) => {
   if (!username || !password || !givenName || !familyName || !role) {
     return {
       statusCode: 400,
-      body:
-        'Request must contain username, password, givenName, familyName, and role',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        error: `Request must contain username, password, givenName, familyName, and role`,
+      }),
     };
   }
 
@@ -76,13 +81,15 @@ exports.handler = async (event) => {
     console.log('User created successfully');
     return {
       statusCode: 201,
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ username, givenName, familyName, role }),
     };
   } catch (e) {
     console.log(`Caught Error - ${JSON.stringify(e, null, 2)}`);
     return {
       statusCode: 500,
-      body: `Error creating user - ${e.message}`,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ error: `Error creating user - ${e.message}` }),
     };
   }
 };

@@ -28,6 +28,12 @@ export default class UserRestEndpoints {
       userPoolArn
     );
 
+    const deleteUserHandler = this.createDeleteUserHandler(
+      scope,
+      userPoolId,
+      userPoolArn
+    );
+
     api.addRoutes({
       path: '/users',
       methods: [HttpMethod.POST],
@@ -38,6 +44,12 @@ export default class UserRestEndpoints {
       path: '/users',
       methods: [HttpMethod.GET],
       integration: getAllUsersHandler,
+    });
+
+    api.addRoutes({
+      path: '/users/{username}',
+      methods: [HttpMethod.DELETE],
+      integration: deleteUserHandler,
     });
   }
 
@@ -96,6 +108,32 @@ export default class UserRestEndpoints {
 
     return new LambdaProxyIntegration({
       handler: getAllUsersFunc,
+    });
+  };
+
+  private createDeleteUserHandler = (
+    scope: cdk.Construct,
+    userPoolId: string,
+    userPoolArn: string
+  ): LambdaProxyIntegration => {
+    const deleteUserFunc = new Function(scope, 'deleteUserFunction', {
+      runtime: Runtime.NODEJS_12_X,
+      handler: 'index.handler',
+      functionName: 'EmsDeleteUser',
+      code: Code.fromAsset('./lambdas/deleteUser'),
+      environment: {
+        USER_POOL_ID: userPoolId,
+      },
+    });
+
+    const policyStatement = new PolicyStatement();
+    policyStatement.addResources(userPoolArn);
+    policyStatement.addActions('cognito-idp:AdminDeleteUser');
+
+    deleteUserFunc.addToRolePolicy(policyStatement);
+
+    return new LambdaProxyIntegration({
+      handler: deleteUserFunc,
     });
   };
 }

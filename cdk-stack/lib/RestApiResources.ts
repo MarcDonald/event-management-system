@@ -1,11 +1,10 @@
 import * as cdk from '@aws-cdk/core';
 import { HttpApi } from '@aws-cdk/aws-apigatewayv2';
-import CognitoResources from './CognitoResources';
 
 export default class RestApiResources {
   public readonly api: HttpApi;
 
-  constructor(scope: cdk.Construct, cognitoResources: CognitoResources) {
+  constructor(scope: cdk.Construct) {
     this.api = this.createApi(scope);
   }
 
