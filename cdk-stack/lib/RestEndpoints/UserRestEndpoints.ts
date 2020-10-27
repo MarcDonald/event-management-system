@@ -1,5 +1,10 @@
 import * as cdk from '@aws-cdk/core';
-import { HttpMethod, LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2';
+import {
+  CfnRoute,
+  HttpMethod,
+  HttpRoute,
+  LambdaProxyIntegration,
+} from '@aws-cdk/aws-apigatewayv2';
 import { Code, Function, Runtime } from '@aws-cdk/aws-lambda';
 import CognitoResources from '../CognitoResources';
 import { PolicyStatement } from '@aws-cdk/aws-iam';
@@ -8,8 +13,8 @@ import RestApiResources from '../RestApiResources';
 export default class UserRestEndpoints {
   constructor(
     scope: cdk.Construct,
-    cognitoResources: CognitoResources,
-    restApiResources: RestApiResources
+    private cognitoResources: CognitoResources,
+    private restApiResources: RestApiResources
   ) {
     const { userPoolId, userPoolArn } = cognitoResources.userPool;
     const { userPoolClientId } = cognitoResources.apiUserPoolClient;
@@ -21,59 +26,67 @@ export default class UserRestEndpoints {
       userPoolClientId,
       userPoolArn
     );
+    const addUserRoutes = api.addRoutes({
+      path: '/users',
+      methods: [HttpMethod.POST],
+      integration: addUserHandler,
+    });
+    this.addAuthorizerToRoutes(addUserRoutes);
 
     const getAllUsersHandler = this.createGetAllUsersHandler(
       scope,
       userPoolId,
       userPoolArn
     );
+    const getAllUsersRoutes = api.addRoutes({
+      path: '/users',
+      methods: [HttpMethod.GET],
+      integration: getAllUsersHandler,
+    });
+    this.addAuthorizerToRoutes(getAllUsersRoutes);
 
     const deleteUserHandler = this.createDeleteUserHandler(
       scope,
       userPoolId,
       userPoolArn
     );
+    const deleteUserRoutes = api.addRoutes({
+      path: '/users/{username}',
+      methods: [HttpMethod.DELETE],
+      integration: deleteUserHandler,
+    });
+    this.addAuthorizerToRoutes(deleteUserRoutes);
 
     const updateUserHandler = this.createUpdateUserHandler(
       scope,
       userPoolId,
       userPoolArn
     );
+    const updateUserRoutes = api.addRoutes({
+      path: '/users/{username}',
+      methods: [HttpMethod.PUT],
+      integration: updateUserHandler,
+    });
+    this.addAuthorizerToRoutes(updateUserRoutes);
 
     const getUserHandler = this.createGetUserHandler(
       scope,
       userPoolId,
       userPoolArn
     );
-
-    api.addRoutes({
-      path: '/users',
-      methods: [HttpMethod.POST],
-      integration: addUserHandler,
-    });
-
-    api.addRoutes({
-      path: '/users',
-      methods: [HttpMethod.GET],
-      integration: getAllUsersHandler,
-    });
-
-    api.addRoutes({
-      path: '/users/{username}',
-      methods: [HttpMethod.DELETE],
-      integration: deleteUserHandler,
-    });
-
-    api.addRoutes({
-      path: '/users/{username}',
-      methods: [HttpMethod.PUT],
-      integration: updateUserHandler,
-    });
-
-    api.addRoutes({
+    const getOneRoutes = api.addRoutes({
       path: '/users/{username}',
       methods: [HttpMethod.GET],
       integration: getUserHandler,
+    });
+    this.addAuthorizerToRoutes(getOneRoutes);
+  }
+
+  private addAuthorizerToRoutes(routes: HttpRoute[]) {
+    routes.forEach((route: HttpRoute) => {
+      const routeCfn = route.node.defaultChild as CfnRoute;
+      routeCfn.authorizerId = this.restApiResources.basicUserJwtAuthorizer.ref;
+      routeCfn.authorizationType = 'JWT';
     });
   }
 

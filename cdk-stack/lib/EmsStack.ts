@@ -8,7 +8,7 @@ export class EmsStack extends cdk.Stack {
     super(scope, id, props);
 
     const cognitoResources = new CognitoResources(this);
-    const restAPIResources = new RestApiResources(this);
+    const restAPIResources = new RestApiResources(this, cognitoResources);
     const userRestEndpoints = new UserRestEndpoints(
       this,
       cognitoResources,
