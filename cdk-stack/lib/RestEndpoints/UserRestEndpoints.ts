@@ -34,6 +34,12 @@ export default class UserRestEndpoints {
       userPoolArn
     );
 
+    const updateUserHandler = this.createUpdateUserHandler(
+      scope,
+      userPoolId,
+      userPoolArn
+    );
+
     api.addRoutes({
       path: '/users',
       methods: [HttpMethod.POST],
@@ -50,6 +56,12 @@ export default class UserRestEndpoints {
       path: '/users/{username}',
       methods: [HttpMethod.DELETE],
       integration: deleteUserHandler,
+    });
+
+    api.addRoutes({
+      path: '/users/{username}',
+      methods: [HttpMethod.PUT],
+      integration: updateUserHandler,
     });
   }
 
@@ -134,6 +146,35 @@ export default class UserRestEndpoints {
 
     return new LambdaProxyIntegration({
       handler: deleteUserFunc,
+    });
+  };
+
+  private createUpdateUserHandler = (
+    scope: cdk.Construct,
+    userPoolId: string,
+    userPoolArn: string
+  ): LambdaProxyIntegration => {
+    const updateUserFunc = new Function(scope, 'updateUserFunction', {
+      runtime: Runtime.NODEJS_12_X,
+      handler: 'index.handler',
+      functionName: 'EmsUpdateUser',
+      code: Code.fromAsset('./lambdas/updateUser'),
+      environment: {
+        USER_POOL_ID: userPoolId,
+      },
+    });
+
+    const policyStatement = new PolicyStatement();
+    policyStatement.addResources(userPoolArn);
+    policyStatement.addActions(
+      'cognito-idp:AdminUpdateUserAttributes',
+      'cognito-idp:AdminSetUserPassword'
+    );
+
+    updateUserFunc.addToRolePolicy(policyStatement);
+
+    return new LambdaProxyIntegration({
+      handler: updateUserFunc,
     });
   };
 }
