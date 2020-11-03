@@ -31,7 +31,7 @@ export default class UserRestEndpoints {
       methods: [HttpMethod.POST],
       integration: addUserHandler,
     });
-    this.addAuthorizerToRoutes(addUserRoutes);
+    this.addAdminJwtAuthorizer(addUserRoutes);
 
     const getAllUsersHandler = this.createGetAllUsersHandler(
       scope,
@@ -43,7 +43,7 @@ export default class UserRestEndpoints {
       methods: [HttpMethod.GET],
       integration: getAllUsersHandler,
     });
-    this.addAuthorizerToRoutes(getAllUsersRoutes);
+    this.addAdminJwtAuthorizer(getAllUsersRoutes);
 
     const deleteUserHandler = this.createDeleteUserHandler(
       scope,
@@ -55,7 +55,7 @@ export default class UserRestEndpoints {
       methods: [HttpMethod.DELETE],
       integration: deleteUserHandler,
     });
-    this.addAuthorizerToRoutes(deleteUserRoutes);
+    this.addAdminJwtAuthorizer(deleteUserRoutes);
 
     const updateUserHandler = this.createUpdateUserHandler(
       scope,
@@ -67,7 +67,7 @@ export default class UserRestEndpoints {
       methods: [HttpMethod.PUT],
       integration: updateUserHandler,
     });
-    this.addAuthorizerToRoutes(updateUserRoutes);
+    this.addAdminJwtAuthorizer(updateUserRoutes);
 
     const getUserHandler = this.createGetUserHandler(
       scope,
@@ -79,14 +79,22 @@ export default class UserRestEndpoints {
       methods: [HttpMethod.GET],
       integration: getUserHandler,
     });
-    this.addAuthorizerToRoutes(getOneRoutes);
+    this.addAdminJwtAuthorizer(getOneRoutes);
   }
 
-  private addAuthorizerToRoutes(routes: HttpRoute[]) {
+  private addJwtAuthorizer(routes: HttpRoute[]) {
     routes.forEach((route: HttpRoute) => {
       const routeCfn = route.node.defaultChild as CfnRoute;
-      routeCfn.authorizerId = this.restApiResources.basicUserJwtAuthorizer.ref;
+      routeCfn.authorizerId = this.restApiResources.jwtAuthorizer.ref;
       routeCfn.authorizationType = 'JWT';
+    });
+  }
+
+  private addAdminJwtAuthorizer(routes: HttpRoute[]) {
+    routes.forEach((route: HttpRoute) => {
+      const routeCfn = route.node.defaultChild as CfnRoute;
+      routeCfn.authorizerId = this.restApiResources.adminJwtAuthorizer.ref;
+      routeCfn.authorizationType = 'CUSTOM';
     });
   }
 
