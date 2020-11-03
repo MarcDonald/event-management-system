@@ -1,11 +1,9 @@
 import * as cdk from '@aws-cdk/core';
-import { CfnAuthorizer, HttpApi } from '@aws-cdk/aws-apigatewayv2';
+import { CfnAuthorizer, HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2';
 import CognitoResources from './CognitoResources';
 import { Code, Function, Runtime } from '@aws-cdk/aws-lambda';
 import {
-  ArnPrincipal,
   Effect,
-  FederatedPrincipal,
   PolicyStatement,
   Role,
   ServicePrincipal,
@@ -39,6 +37,26 @@ export default class RestApiResources {
     const api = new HttpApi(scope, 'RestAPI', {
       apiName: 'EmsRestApi',
       createDefaultStage: false,
+      corsPreflight: {
+        allowOrigins: ['*'],
+        allowHeaders: [
+          'content-type',
+          'x-amz-date',
+          'authorization',
+          'x-api-key',
+          'x-amz-security-token',
+          'x-amz-user-agent',
+        ],
+        allowMethods: [
+          HttpMethod.GET,
+          HttpMethod.DELETE,
+          HttpMethod.HEAD,
+          HttpMethod.OPTIONS,
+          HttpMethod.POST,
+          HttpMethod.PUT,
+          HttpMethod.PATCH,
+        ],
+      },
     });
 
     api.addStage('production', {
