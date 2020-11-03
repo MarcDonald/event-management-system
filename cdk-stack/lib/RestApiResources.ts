@@ -77,7 +77,11 @@ export default class RestApiResources {
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
       functionName: 'EmsAdminAuthorizer',
-      code: Code.fromAsset('./lambdas/adminAuthorizer'),
+      code: Code.fromAsset('./lambdas/authorizers/adminAuthorizer'),
+      environment: {
+        USER_POOL_ID: cognitoResources.userPool.userPoolId,
+        REGION: region,
+      },
     });
 
     const testRole = new Role(scope, 'EmsTestRole', {
