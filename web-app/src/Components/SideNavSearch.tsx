@@ -23,7 +23,7 @@ export function SideNavSearch(props: SideNavSearchPropTypes) {
         id="user-search"
         type="search"
         onChange={(event) => props.search(event.target.value)}
-        className="placeholder-gray-600 bg-inactive-gray appearance-none outline-none px-8 py-1 rounded-md w-4/5"
+        className="placeholder-gray-600 bg-lighter-gray appearance-none outline-none px-8 py-1 rounded-md w-4/5"
       />
     </form>
   );

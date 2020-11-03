@@ -95,7 +95,7 @@ export default function Management(props: ManagementPropTypes) {
             <div className="self-end m-2 flex flex-row justify-between">
               <div
                 onClick={() => history.push('/')}
-                className="bg-inactive-gray text-center w-1/5 align-middle mr-2 text-2xl rounded-md hover:bg-active-gray cursor-pointer"
+                className="bg-lighter-gray text-center w-1/5 align-middle mr-2 text-2xl rounded-md hover:bg-darker-gray cursor-pointer"
               >
                 <FontAwesomeIcon icon={faHome} className="h-full" />
               </div>

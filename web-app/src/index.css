@@ -37,7 +37,7 @@ html {
 }
 
 .side-nav-selected {
-    @apply font-semibold bg-inactive-gray;
+    @apply font-semibold bg-lighter-gray;
 }
 
 /*noinspection CssInvalidAtRule*/

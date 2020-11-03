@@ -14,12 +14,10 @@ export default function useLocalAuth(): LoggedInUser {
       const authUser = await Auth.currentAuthenticatedUser();
       return {
         username: authUser.username,
-        attributes: {
-          sub: authUser.sub,
-          role: authUser.attributes['custom:jobRole'],
-          givenName: authUser.attributes['given_name'],
-          familyName: authUser.attributes['family_name'],
-        },
+        sub: authUser.sub,
+        role: authUser.attributes['custom:jobRole'],
+        givenName: authUser.attributes['given_name'],
+        familyName: authUser.attributes['family_name'],
       };
     } catch (err) {
       console.log(err);
@@ -28,7 +26,7 @@ export default function useLocalAuth(): LoggedInUser {
   };
 
   const isAdmin = (user: User): boolean => {
-    return user.attributes.role === UserRole.Administrator;
+    return user.role === UserRole.Administrator;
   };
 
   return {

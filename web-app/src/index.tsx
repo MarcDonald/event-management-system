@@ -9,9 +9,9 @@ Amplify.configure({
   Auth: {
     mandatorySignIn: true,
     region: config.REGION,
-    userPoolId: config.cognito.USER_POOL_ID,
-    userPoolWebClientId: config.cognito.APP_CLIENT_ID,
-    identityPoolId: config.cognito.IDENTITY_POOL_ID,
+    userPoolId: config.COGNITO.USER_POOL_ID,
+    userPoolWebClientId: config.COGNITO.APP_CLIENT_ID,
+    identityPoolId: config.COGNITO.IDENTITY_POOL_ID,
   },
 });
 

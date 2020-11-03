@@ -14,10 +14,9 @@ export default function LoggedInUser() {
   useEffect(() => {
     const onLoad = async () => {
       const currentUser = await localAuth.getLoggedInUser();
-      const { attributes } = currentUser;
       setUser({
-        name: `${attributes.givenName} ${attributes.familyName}`,
-        role: attributes.role,
+        name: `${currentUser.givenName} ${currentUser.familyName}`,
+        role: currentUser.role,
       });
     };
 
@@ -32,7 +31,7 @@ export default function LoggedInUser() {
   return (
     <div
       onClick={logout}
-      className="bg-inactive-gray hover:bg-active-gray cursor-pointer rounded-md items-center flex flex-row justify-around py-1"
+      className="bg-lighter-gray hover:bg-darker-gray cursor-pointer rounded-md items-center flex flex-row justify-around py-1"
     >
       <div className="flex flex-col text-right">
         <span className="text-md">

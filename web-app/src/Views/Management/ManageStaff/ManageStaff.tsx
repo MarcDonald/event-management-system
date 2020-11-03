@@ -54,8 +54,8 @@ export default function ManageStaff() {
         displayedStaff.filter((user) => {
           if (
             user.username.toLowerCase().includes(searchContent) ||
-            user.attributes.familyName.toLowerCase().includes(searchContent) ||
-            user.attributes.givenName.toLowerCase().includes(searchContent)
+            user.familyName.toLowerCase().includes(searchContent) ||
+            user.givenName.toLowerCase().includes(searchContent)
           ) {
             return user;
           }
@@ -87,9 +87,9 @@ export default function ManageStaff() {
         username: user.username,
         password: '',
         confirmPassword: '',
-        givenName: user.attributes.givenName,
-        familyName: user.attributes.familyName,
-        role: user.attributes.role,
+        givenName: user.givenName,
+        familyName: user.familyName,
+        role: user.role,
         isNew: false,
       });
     } else {
@@ -101,8 +101,8 @@ export default function ManageStaff() {
     return displayedStaff.map((user) => {
       return (
         <StaffCard
-          key={user.attributes.sub}
-          name={`${user.attributes.givenName} ${user.attributes.familyName}`}
+          key={user.username}
+          name={`${user.givenName} ${user.familyName}`}
           username={user.username}
           onClick={() => selectUserToEdit(user.username)}
         />
@@ -121,13 +121,19 @@ export default function ManageStaff() {
         password: fields.password,
       };
 
-      let newUser;
       if (fields.isNew) {
-        newUser = await createNewUser(userDetails);
+        const newUser = await createNewUser(userDetails);
+        allStaff.push(newUser);
       } else {
-        newUser = await updateExistingUser(userDetails);
+        const updatedUser = await updateExistingUser(userDetails);
+        const indexOfUser = allStaff.findIndex(
+          (user) => user.username === userDetails.username
+        );
+        allStaff[indexOfUser] = {
+          ...allStaff[indexOfUser],
+          ...updatedUser,
+        };
       }
-      allStaff.push(newUser);
       setupNewUser();
       setIsSaving(false);
     }
