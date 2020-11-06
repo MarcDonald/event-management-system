@@ -1,10 +1,15 @@
+const response = {
+  headers: { 'content-type': 'application/json' },
+  statusCode: 500,
+};
+
 module.exports = (dependencies) => async (event) => {
-  const { Cognito, USER_POOL_ID } = dependencies;
+  const { Cognito, userPoolId } = dependencies;
   const { username } = event.pathParameters;
 
   try {
     const user = await Cognito.adminGetUser({
-      UserPoolId: USER_POOL_ID,
+      UserPoolId: userPoolId,
       Username: username,
     }).promise();
 
@@ -17,16 +22,17 @@ module.exports = (dependencies) => async (event) => {
     };
 
     return {
+      ...response,
       statusCode: 200,
-      headers: { 'content-type': 'application/json' },
       body: JSON.stringify(formattedUser),
     };
   } catch (e) {
     console.error(`${e.code} - ${e.message}`);
+
     if (e.code === 'UserNotFoundException') {
       return {
+        ...response,
         statusCode: 404,
-        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           message: 'User could not be found',
         }),
@@ -34,8 +40,7 @@ module.exports = (dependencies) => async (event) => {
     }
 
     return {
-      statusCode: 500,
-      headers: { 'content-type': 'application/json' },
+      ...response,
       body: JSON.stringify({
         message: `Error getting user '${username}' - ${e.message}`,
       }),

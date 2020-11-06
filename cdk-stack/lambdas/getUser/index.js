@@ -3,6 +3,6 @@ const { USER_POOL_ID } = process.env;
 const Cognito = new aws.CognitoIdentityServiceProvider();
 
 exports.handler = require('./handler')({
-  USER_POOL_ID,
+  userPoolId: USER_POOL_ID,
   Cognito,
 });
