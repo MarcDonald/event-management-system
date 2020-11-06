@@ -9,7 +9,7 @@ import {
   ServicePrincipal,
 } from '@aws-cdk/aws-iam';
 
-export default class RestApiResources {
+export default class HttpApiResources {
   public readonly api: HttpApi;
   public readonly jwtAuthorizer: CfnAuthorizer;
   public readonly adminJwtAuthorizer: CfnAuthorizer;
@@ -34,8 +34,8 @@ export default class RestApiResources {
   }
 
   private createApi = (scope: cdk.Construct): HttpApi => {
-    const api = new HttpApi(scope, 'RestAPI', {
-      apiName: 'EmsRestApi',
+    const api = new HttpApi(scope, 'HttpApi', {
+      apiName: 'EmsHttpApi',
       createDefaultStage: false,
       corsPreflight: {
         allowOrigins: ['*'],
@@ -72,7 +72,7 @@ export default class RestApiResources {
     api: HttpApi,
     cognitoResources: CognitoResources
   ): CfnAuthorizer =>
-    new CfnAuthorizer(scope, 'EmsJWTAuthorizer', {
+    new CfnAuthorizer(scope, 'JwtAuthorizerFunction', {
       apiId: api.httpApiId,
       authorizerType: 'JWT',
       identitySource: ['$request.header.Authorization'],
@@ -91,7 +91,7 @@ export default class RestApiResources {
     cognitoResources: CognitoResources,
     region: string
   ): CfnAuthorizer => {
-    const authorizerFunc = new Function(scope, 'AdminAuthorizerFunction', {
+    const authorizerFunc = new Function(scope, 'AdminJwtAuthorizerFunction', {
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
       functionName: 'EmsAdminAuthorizer',
@@ -102,12 +102,12 @@ export default class RestApiResources {
       },
     });
 
-    const testRole = new Role(scope, 'EmsTestRole', {
-      roleName: 'EmsTestRole',
+    const adminAuthorizerRole = new Role(scope, 'AdminAuthorizerRole', {
+      roleName: 'EmsAdminAuthorizerRole',
       assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
     });
 
-    testRole.addToPolicy(
+    adminAuthorizerRole.addToPolicy(
       new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['lambda:InvokeFunction'],
@@ -122,7 +122,7 @@ export default class RestApiResources {
       authorizerResultTtlInSeconds: 300,
       name: 'ems-admin-authorizer',
       enableSimpleResponses: true,
-      authorizerCredentialsArn: testRole.roleArn,
+      authorizerCredentialsArn: adminAuthorizerRole.roleArn,
       authorizerPayloadFormatVersion: '2.0',
       authorizerUri: `arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${authorizerFunc.functionArn}/invocations`,
     });

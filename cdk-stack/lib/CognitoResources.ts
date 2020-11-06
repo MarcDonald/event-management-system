@@ -53,8 +53,8 @@ export default class CognitoResources {
   }
 
   private createUserPool = (scope: cdk.Construct): UserPool =>
-    new UserPool(scope, 'ems-user-pool', {
-      userPoolName: 'EMS-User-Pool',
+    new UserPool(scope, 'UserPool', {
+      userPoolName: 'EmsUserPool',
       accountRecovery: AccountRecovery.NONE,
       signInAliases: {
         username: true,
@@ -82,7 +82,7 @@ export default class CognitoResources {
     });
 
   private createWebDashboardClient = (userPool: UserPool): UserPoolClient =>
-    userPool.addClient('web-dashboard', {
+    userPool.addClient('WebDashboard', {
       userPoolClientName: 'WebDashboard',
       preventUserExistenceErrors: true,
       authFlows: {
@@ -93,7 +93,7 @@ export default class CognitoResources {
     });
 
   private createApiClient = (userPool: UserPool): UserPoolClient =>
-    userPool.addClient('api', {
+    userPool.addClient('Api', {
       userPoolClientName: 'API',
       preventUserExistenceErrors: false,
       authFlows: {
@@ -108,9 +108,9 @@ export default class CognitoResources {
       | Array<CfnIdentityPool.CognitoIdentityProviderProperty | cdk.IResolvable>
       | cdk.IResolvable
   ): CfnIdentityPool =>
-    new CfnIdentityPool(scope, 'ems-identity-pool', {
+    new CfnIdentityPool(scope, 'IdentityPool', {
       allowUnauthenticatedIdentities: false,
-      identityPoolName: 'EMS-Identity-Pool',
+      identityPoolName: 'EmsIdentityPool',
       cognitoIdentityProviders,
     });
 
@@ -118,25 +118,21 @@ export default class CognitoResources {
     scope: cdk.Construct,
     identityPool: CfnIdentityPool
   ): Role => {
-    const unauthenticatedRole = new Role(
-      scope,
-      'EMSDefaultUnauthenticatedRole',
-      {
-        roleName: 'EMS-Default-Unauthenticated',
-        assumedBy: new FederatedPrincipal(
-          'cognito-identity.amazonaws.com',
-          {
-            StringEquals: {
-              'cognito-identity.amazonaws.com:aud': identityPool.ref,
-            },
-            'ForAnyValue:StringLike': {
-              'cognito-identity.amazonaws.com:amr': 'unauthenticated',
-            },
+    const unauthenticatedRole = new Role(scope, 'DefaultUnauthenticatedRole', {
+      roleName: 'EmsDefaultUnauthenticated',
+      assumedBy: new FederatedPrincipal(
+        'cognito-identity.amazonaws.com',
+        {
+          StringEquals: {
+            'cognito-identity.amazonaws.com:aud': identityPool.ref,
           },
-          'sts:AssumeRoleWithWebIdentity'
-        ),
-      }
-    );
+          'ForAnyValue:StringLike': {
+            'cognito-identity.amazonaws.com:amr': 'unauthenticated',
+          },
+        },
+        'sts:AssumeRoleWithWebIdentity'
+      ),
+    });
 
     unauthenticatedRole.addToPolicy(
       new PolicyStatement({
@@ -152,8 +148,8 @@ export default class CognitoResources {
     scope: cdk.Construct,
     identityPool: CfnIdentityPool
   ): Role => {
-    const authenticatedRole = new Role(scope, 'EMSDefaultAuthenticatedRole', {
-      roleName: 'EMS-Default-Authenticated',
+    const authenticatedRole = new Role(scope, 'DefaultAuthenticatedRole', {
+      roleName: 'EmsDefaultAuthenticated',
       assumedBy: new FederatedPrincipal(
         'cognito-identity.amazonaws.com',
         {
@@ -189,7 +185,7 @@ export default class CognitoResources {
     unauthenticatedRole: Role,
     authenticatedRole: Role
   ): CfnIdentityPoolRoleAttachment =>
-    new CfnIdentityPoolRoleAttachment(scope, 'EMSIdentityPoolRoleAttachment', {
+    new CfnIdentityPoolRoleAttachment(scope, 'IdentityPoolRoleAttachment', {
       identityPoolId: identityPool.ref,
       roles: {
         unauthenticated: unauthenticatedRole.roleArn,

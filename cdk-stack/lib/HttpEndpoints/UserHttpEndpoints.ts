@@ -8,17 +8,17 @@ import {
 import { Code, Function, Runtime } from '@aws-cdk/aws-lambda';
 import CognitoResources from '../CognitoResources';
 import { PolicyStatement } from '@aws-cdk/aws-iam';
-import RestApiResources from '../RestApiResources';
+import HttpApiResources from '../HttpApiResources';
 
-export default class UserRestEndpoints {
+export default class UserHttpEndpoints {
   constructor(
     scope: cdk.Construct,
     private cognitoResources: CognitoResources,
-    private restApiResources: RestApiResources
+    private httpApiResources: HttpApiResources
   ) {
     const { userPoolId, userPoolArn } = cognitoResources.userPool;
     const { userPoolClientId } = cognitoResources.apiUserPoolClient;
-    const { api } = restApiResources;
+    const { api } = httpApiResources;
 
     const addUserHandler = this.createAddUserHandler(
       scope,
@@ -85,7 +85,7 @@ export default class UserRestEndpoints {
   private addJwtAuthorizer(routes: HttpRoute[]) {
     routes.forEach((route: HttpRoute) => {
       const routeCfn = route.node.defaultChild as CfnRoute;
-      routeCfn.authorizerId = this.restApiResources.jwtAuthorizer.ref;
+      routeCfn.authorizerId = this.httpApiResources.jwtAuthorizer.ref;
       routeCfn.authorizationType = 'JWT';
     });
   }
@@ -93,7 +93,7 @@ export default class UserRestEndpoints {
   private addAdminJwtAuthorizer(routes: HttpRoute[]) {
     routes.forEach((route: HttpRoute) => {
       const routeCfn = route.node.defaultChild as CfnRoute;
-      routeCfn.authorizerId = this.restApiResources.adminJwtAuthorizer.ref;
+      routeCfn.authorizerId = this.httpApiResources.adminJwtAuthorizer.ref;
       routeCfn.authorizationType = 'CUSTOM';
     });
   }
@@ -104,7 +104,7 @@ export default class UserRestEndpoints {
     clientId: string,
     userPoolArn: string
   ): LambdaProxyIntegration => {
-    const addUserFunc = new Function(scope, 'addUserFunction', {
+    const addUserFunc = new Function(scope, 'AddUserFunction', {
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
       functionName: 'EmsAddUser',
@@ -135,7 +135,7 @@ export default class UserRestEndpoints {
     userPoolId: string,
     userPoolArn: string
   ): LambdaProxyIntegration => {
-    const getAllUsersFunc = new Function(scope, 'getAllUsersFunction', {
+    const getAllUsersFunc = new Function(scope, 'GetAllUsersFunction', {
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
       functionName: 'EmsGetAllUsers',
@@ -161,7 +161,7 @@ export default class UserRestEndpoints {
     userPoolId: string,
     userPoolArn: string
   ): LambdaProxyIntegration => {
-    const deleteUserFunc = new Function(scope, 'deleteUserFunction', {
+    const deleteUserFunc = new Function(scope, 'DeleteUserFunction', {
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
       functionName: 'EmsDeleteUser',
@@ -187,7 +187,7 @@ export default class UserRestEndpoints {
     userPoolId: string,
     userPoolArn: string
   ): LambdaProxyIntegration => {
-    const updateUserFunc = new Function(scope, 'updateUserFunction', {
+    const updateUserFunc = new Function(scope, 'UpdateUserFunction', {
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
       functionName: 'EmsUpdateUser',
@@ -216,7 +216,7 @@ export default class UserRestEndpoints {
     userPoolId: string,
     userPoolArn: string
   ): LambdaProxyIntegration => {
-    const getUserFunc = new Function(scope, 'getUserFunction', {
+    const getUserFunc = new Function(scope, 'GetUserFunction', {
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
       functionName: 'EmsGetUser',
