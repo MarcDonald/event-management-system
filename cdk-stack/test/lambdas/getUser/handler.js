@@ -16,7 +16,7 @@ const {
   validUserPoolId,
 } = testValues;
 
-describe('handler', async () => {
+describe('getUser', async () => {
   let handler;
   let adminGetUserStub = sinon.stub(AWSCognito, 'adminGetUser');
 

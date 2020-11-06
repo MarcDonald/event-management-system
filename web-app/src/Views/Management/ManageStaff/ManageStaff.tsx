@@ -121,6 +121,7 @@ export default function ManageStaff() {
         password: fields.password,
       };
 
+      // TODO error handling
       if (fields.isNew) {
         const newUser = await createNewUser(userDetails);
         allStaff.push(newUser);

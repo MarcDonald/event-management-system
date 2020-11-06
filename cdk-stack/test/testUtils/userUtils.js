@@ -25,8 +25,12 @@ const cognitoUserBuilder = (username, sub, role, givenName, familyName) => {
 const testValues = {
   validUserPoolId: 'validUserPoolId',
   invalidUserPoolId: 'invalidUserPoolId',
+  validApiClientId: 'validApiClientId',
+  invalidApiClientId: 'invalidApiClientId',
   validUsername: 'validUsername',
   invalidUsername: 'invalidUsername',
+  validPassword: 'validPassword',
+  invalidPassword: 'invalidPassword',
   validSub: 'validSub',
   invalidSub: 'invalidSub',
   validRole: 'validRole',

@@ -11,7 +11,7 @@ module.exports = (dependencies) => async (event) => {
       ...response,
       statusCode: 400,
       body: JSON.stringify({
-        error: `Request must contain a body containing username, password, givenName, familyName, and role`,
+        message: `Request must contain a body containing a username, password, givenName, familyName, and role`,
       }),
     };
   }
@@ -25,7 +25,7 @@ module.exports = (dependencies) => async (event) => {
       ...response,
       statusCode: 400,
       body: JSON.stringify({
-        error: `Request must contain username, password, givenName, familyName, and role`,
+        message: `Request must contain a username, password, givenName, familyName, and role`,
       }),
     };
   }
@@ -88,11 +88,20 @@ module.exports = (dependencies) => async (event) => {
       body: JSON.stringify({ username, givenName, familyName, role }),
     };
   } catch (e) {
-    console.log(`Caught Error - ${JSON.stringify(e, null, 2)}`);
+    console.log(`Caught Error - ${e.code}: ${e.message}`);
+
+    if (e.code === 'UsernameExistsException') {
+      return {
+        ...response,
+        statusCode: 400,
+        body: JSON.stringify({ message: 'Username has already been taken' }),
+      };
+    }
+
     return {
       ...response,
       statusCode: 500,
-      body: JSON.stringify({ error: `Error creating user - ${e.message}` }),
+      body: JSON.stringify({ message: `Error creating user - ${e.message}` }),
     };
   }
 };
