@@ -1,17 +1,9 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
-
-const AWS = require('aws-sdk');
-const AWSCognito = new AWS.CognitoIdentityServiceProvider();
-
-const { cognitoUserBuilder, testValues } = require('../../testUtils/userUtils');
+const { testValues } = require('../../testUtils/userUtils');
 const MockAWSError = require('../../testUtils/MockAWSError');
 const {
   validUsername,
   invalidUsername,
   validPassword,
-  invalidPassword,
-  validSub,
   validRole,
   validGivenName,
   validFamilyName,
@@ -19,349 +11,331 @@ const {
   validApiClientId,
 } = testValues;
 
-describe('addUser', async () => {
-  let handler;
+let adminCreateUserMock = jest.fn();
+let adminInitiateAuthMock = jest.fn();
+let adminRespondToAuthChallengeMock = jest.fn();
 
-  let adminCreateUserStub = sinon.stub(AWSCognito, 'adminCreateUser');
-  let adminInitiateAuthStub = sinon.stub(AWSCognito, 'adminInitiateAuth');
-  let adminRespondToAuthChallengeStub = sinon.stub(
-    AWSCognito,
-    'adminRespondToAuthChallenge'
+beforeEach(() => {
+  const Cognito = {
+    adminCreateUser: adminCreateUserMock,
+    adminInitiateAuth: adminInitiateAuthMock,
+    adminRespondToAuthChallenge: adminRespondToAuthChallengeMock,
+  };
+
+  const dependencies = {
+    userPoolId: validUserPoolId,
+    apiClientId: validApiClientId,
+    Cognito,
+  };
+
+  handler = require('../../../lambdas/addUser/handler')(dependencies);
+});
+
+afterEach(() => {
+  jest.resetAllMocks();
+});
+
+let handler;
+
+test('Should create user and return formatted user object when provided with a valid event', async () => {
+  const eventBody = JSON.stringify({
+    username: validUsername,
+    password: validPassword,
+    givenName: validGivenName,
+    familyName: validFamilyName,
+    role: validRole,
+  });
+  const event = { body: eventBody };
+
+  adminCreateUserMock.mockReturnValue({
+    promise: () => {},
+  });
+
+  adminInitiateAuthMock.mockReturnValue({
+    promise: () => {
+      return {
+        Session: 'session',
+      };
+    },
+  });
+
+  adminRespondToAuthChallengeMock.mockReturnValue({
+    promise: () => {},
+  });
+
+  const { statusCode, body } = await handler(event);
+
+  expect(adminCreateUserMock).toBeCalledWith({
+    UserPoolId: validUserPoolId,
+    Username: validUsername,
+    TemporaryPassword: expect.any(String),
+    UserAttributes: [
+      {
+        Name: 'given_name',
+        Value: validGivenName,
+      },
+      {
+        Name: 'family_name',
+        Value: validFamilyName,
+      },
+      {
+        Name: 'custom:jobRole',
+        Value: validRole,
+      },
+    ],
+  });
+  expect(adminCreateUserMock).toBeCalledTimes(1);
+
+  expect(adminInitiateAuthMock).toBeCalledWith({
+    AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
+    ClientId: validApiClientId,
+    UserPoolId: validUserPoolId,
+    AuthParameters: {
+      USERNAME: validUsername,
+      PASSWORD: expect.any(String),
+    },
+  });
+  expect(adminInitiateAuthMock).toBeCalledTimes(1);
+
+  expect(adminRespondToAuthChallengeMock).toBeCalledWith({
+    ClientId: validApiClientId,
+    UserPoolId: validUserPoolId,
+    ChallengeName: 'NEW_PASSWORD_REQUIRED',
+    ChallengeResponses: {
+      USERNAME: validUsername,
+      NEW_PASSWORD: validPassword,
+    },
+    Session: 'session',
+  });
+  expect(adminRespondToAuthChallengeMock).toBeCalledTimes(1);
+
+  expect(statusCode).toBe(201);
+  expect(body).toBe(
+    JSON.stringify({
+      username: validUsername,
+      givenName: validGivenName,
+      familyName: validFamilyName,
+      role: validRole,
+    })
   );
+});
 
-  beforeEach(() => {
-    const Cognito = {
-      adminCreateUser: adminCreateUserStub,
-      adminInitiateAuth: adminInitiateAuthStub,
-      adminRespondToAuthChallenge: adminRespondToAuthChallengeStub,
-    };
+test('Should return 400 when called with an event with no body ', async () => {
+  const event = {};
 
-    const dependencies = {
-      userPoolId: validUserPoolId,
-      apiClientId: validApiClientId,
-      Cognito,
-    };
+  const { statusCode, body } = await handler(event);
 
-    handler = require('../../../lambdas/addUser/handler')(dependencies);
+  expect(statusCode).toBe(400);
+  expect(body).toBe(
+    JSON.stringify({
+      message:
+        'Request must contain a body containing a username, password, givenName, familyName, and role',
+    })
+  );
+});
+
+test('Should return 400 when called with an event with an empty body ', async () => {
+  const event = { body: '' };
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(400);
+  expect(body).toBe(
+    JSON.stringify({
+      message:
+        'Request must contain a body containing a username, password, givenName, familyName, and role',
+    })
+  );
+});
+
+test('Should return 400 when called with an event with no username', async () => {
+  const eventBody = JSON.stringify({
+    password: validPassword,
+    givenName: validGivenName,
+    familyName: validFamilyName,
+    role: validRole,
+  });
+  const event = { body: eventBody };
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(400);
+  expect(body).toBe(
+    JSON.stringify({
+      message:
+        'Request must contain a username, password, givenName, familyName, and role',
+    })
+  );
+});
+
+test('Should return 400 when called with an event with no password', async () => {
+  const eventBody = JSON.stringify({
+    username: validUsername,
+    givenName: validGivenName,
+    familyName: validFamilyName,
+    role: validRole,
+  });
+  const event = { body: eventBody };
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(400);
+  expect(body).toBe(
+    JSON.stringify({
+      message:
+        'Request must contain a username, password, givenName, familyName, and role',
+    })
+  );
+});
+test('Should return 400 when called with an event with no givenName', async () => {
+  const eventBody = JSON.stringify({
+    username: validUsername,
+    password: validPassword,
+    familyName: validFamilyName,
+    role: validRole,
+  });
+  const event = { body: eventBody };
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(400);
+  expect(body).toBe(
+    JSON.stringify({
+      message:
+        'Request must contain a username, password, givenName, familyName, and role',
+    })
+  );
+});
+
+test('Should return 400 when called with an event with no familyName', async () => {
+  const eventBody = JSON.stringify({
+    username: validUsername,
+    password: validPassword,
+    givenName: validGivenName,
+    role: validRole,
+  });
+  const event = { body: eventBody };
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(400);
+  expect(body).toBe(
+    JSON.stringify({
+      message:
+        'Request must contain a username, password, givenName, familyName, and role',
+    })
+  );
+});
+
+test('Should return 400 when called with an event with no role', async () => {
+  const eventBody = JSON.stringify({
+    username: validUsername,
+    password: validPassword,
+    givenName: validGivenName,
+    familyName: validFamilyName,
+  });
+  const event = { body: eventBody };
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(400);
+  expect(body).toBe(
+    JSON.stringify({
+      message:
+        'Request must contain a username, password, givenName, familyName, and role',
+    })
+  );
+});
+
+test('Should return 400 when username is already taken', async () => {
+  const eventBody = JSON.stringify({
+    username: invalidUsername,
+    password: validPassword,
+    givenName: validGivenName,
+    familyName: validFamilyName,
+    role: validRole,
+  });
+  const event = { body: eventBody };
+
+  adminCreateUserMock.mockImplementation(() => {
+    throw new MockAWSError(
+      'User account already exists',
+      'UsernameExistsException'
+    );
   });
 
-  afterEach(sinon.reset);
+  const { statusCode, body } = await handler(event);
 
-  describe('when a valid event is passed in', () => {
-    it('should create user and return formatted user object', async () => {
-      const eventBody = JSON.stringify({
-        username: validUsername,
-        password: validPassword,
-        givenName: validGivenName,
-        familyName: validFamilyName,
-        role: validRole,
-      });
-      const event = { body: eventBody };
+  expect(adminCreateUserMock).toBeCalledWith({
+    UserPoolId: validUserPoolId,
+    Username: invalidUsername,
+    TemporaryPassword: expect.any(String),
+    UserAttributes: [
+      {
+        Name: 'given_name',
+        Value: validGivenName,
+      },
+      {
+        Name: 'family_name',
+        Value: validFamilyName,
+      },
+      {
+        Name: 'custom:jobRole',
+        Value: validRole,
+      },
+    ],
+  });
+  expect(adminCreateUserMock).toBeCalledTimes(1);
+  expect(adminInitiateAuthMock).toBeCalledTimes(0);
+  expect(adminRespondToAuthChallengeMock).toBeCalledTimes(0);
 
-      adminCreateUserStub.returns({
-        promise: () => {},
-      });
+  expect(statusCode).toBe(400);
+  expect(body).toBe(
+    JSON.stringify({ message: 'Username has already been taken' })
+  );
+});
 
-      adminInitiateAuthStub.returns({
-        promise: () => {
-          return {
-            Session: 'session',
-          };
-        },
-      });
+test('Should return 500 when another error is thrown', async () => {
+  const eventBody = JSON.stringify({
+    username: validUsername,
+    password: validPassword,
+    givenName: validGivenName,
+    familyName: validFamilyName,
+    role: validRole,
+  });
+  const event = { body: eventBody };
 
-      adminRespondToAuthChallengeStub.returns({
-        promise: () => {},
-      });
-
-      const { statusCode, body } = await handler(event);
-
-      expect(
-        adminCreateUserStub.calledWith({
-          UserPoolId: validUserPoolId,
-          Username: validUsername,
-          TemporaryPassword: sinon.match.string,
-          UserAttributes: [
-            {
-              Name: 'given_name',
-              Value: validGivenName,
-            },
-            {
-              Name: 'family_name',
-              Value: validFamilyName,
-            },
-            {
-              Name: 'custom:jobRole',
-              Value: validRole,
-            },
-          ],
-        })
-      ).to.be.true;
-      expect(adminCreateUserStub.calledOnce).to.be.true;
-
-      expect(
-        adminInitiateAuthStub.calledWith({
-          AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
-          ClientId: validApiClientId,
-          UserPoolId: validUserPoolId,
-          AuthParameters: {
-            USERNAME: validUsername,
-            PASSWORD: sinon.match.string,
-          },
-        })
-      ).to.be.true;
-      expect(adminInitiateAuthStub.calledOnce).to.be.true;
-
-      expect(
-        adminRespondToAuthChallengeStub.calledWith({
-          ClientId: validApiClientId,
-          UserPoolId: validUserPoolId,
-          ChallengeName: 'NEW_PASSWORD_REQUIRED',
-          ChallengeResponses: {
-            USERNAME: validUsername,
-            NEW_PASSWORD: validPassword,
-          },
-          Session: 'session',
-        })
-      ).to.be.true;
-      expect(adminInitiateAuthStub.calledOnce).to.be.true;
-
-      expect(statusCode).to.equal(201);
-      expect(body).to.equal(
-        JSON.stringify({
-          username: validUsername,
-          givenName: validGivenName,
-          familyName: validFamilyName,
-          role: validRole,
-        })
-      );
-    });
+  adminCreateUserMock.mockImplementation(() => {
+    throw new MockAWSError('Error message', 'UnknownException');
   });
 
-  describe('when an invalid event is passed in', () => {
-    it('when there is no body should return 400', async () => {
-      const event = {};
+  const { statusCode, body } = await handler(event);
 
-      const { statusCode, body } = await handler(event);
-
-      expect(statusCode).to.equal(400);
-      expect(body).to.equal(
-        JSON.stringify({
-          message:
-            'Request must contain a body containing a username, password, givenName, familyName, and role',
-        })
-      );
-    });
-
-    it('when there is an empty body should return 400', async () => {
-      const event = { body: '' };
-
-      const { statusCode, body } = await handler(event);
-
-      expect(statusCode).to.equal(400);
-      expect(body).to.equal(
-        JSON.stringify({
-          message:
-            'Request must contain a body containing a username, password, givenName, familyName, and role',
-        })
-      );
-    });
-
-    it('when the body does not contain a username should return 400', async () => {
-      const eventBody = JSON.stringify({
-        password: validPassword,
-        givenName: validGivenName,
-        familyName: validFamilyName,
-        role: validRole,
-      });
-      const event = { body: eventBody };
-
-      const { statusCode, body } = await handler(event);
-
-      expect(statusCode).to.equal(400);
-      expect(body).to.equal(
-        JSON.stringify({
-          message:
-            'Request must contain a username, password, givenName, familyName, and role',
-        })
-      );
-    });
-
-    it('when the body does not contain a password should return 400', async () => {
-      const eventBody = JSON.stringify({
-        username: validUsername,
-        givenName: validGivenName,
-        familyName: validFamilyName,
-        role: validRole,
-      });
-      const event = { body: eventBody };
-
-      const { statusCode, body } = await handler(event);
-
-      expect(statusCode).to.equal(400);
-      expect(body).to.equal(
-        JSON.stringify({
-          message:
-            'Request must contain a username, password, givenName, familyName, and role',
-        })
-      );
-    });
-
-    it('when the body does not contain a givenName should return 400', async () => {
-      const eventBody = JSON.stringify({
-        username: validUsername,
-        password: validPassword,
-        familyName: validFamilyName,
-        role: validRole,
-      });
-      const event = { body: eventBody };
-
-      const { statusCode, body } = await handler(event);
-
-      expect(statusCode).to.equal(400);
-      expect(body).to.equal(
-        JSON.stringify({
-          message:
-            'Request must contain a username, password, givenName, familyName, and role',
-        })
-      );
-    });
-
-    it('when the body does not contain a familyName should return 400', async () => {
-      const eventBody = JSON.stringify({
-        username: validUsername,
-        password: validPassword,
-        givenName: validGivenName,
-        role: validRole,
-      });
-      const event = { body: eventBody };
-
-      const { statusCode, body } = await handler(event);
-
-      expect(statusCode).to.equal(400);
-      expect(body).to.equal(
-        JSON.stringify({
-          message:
-            'Request must contain a username, password, givenName, familyName, and role',
-        })
-      );
-    });
-
-    it('when the body does not contain a familyName should return 400', async () => {
-      const eventBody = JSON.stringify({
-        username: validUsername,
-        password: validPassword,
-        givenName: validGivenName,
-        familyName: validFamilyName,
-      });
-      const event = { body: eventBody };
-
-      const { statusCode, body } = await handler(event);
-
-      expect(statusCode).to.equal(400);
-      expect(body).to.equal(
-        JSON.stringify({
-          message:
-            'Request must contain a username, password, givenName, familyName, and role',
-        })
-      );
-    });
-
-    it('when the username is already taken should return 400', async () => {
-      const eventBody = JSON.stringify({
-        username: invalidUsername,
-        password: validPassword,
-        givenName: validGivenName,
-        familyName: validFamilyName,
-        role: validRole,
-      });
-      const event = { body: eventBody };
-
-      adminCreateUserStub.throws(
-        new MockAWSError(
-          'User account already exists',
-          'UsernameExistsException'
-        )
-      );
-
-      const { statusCode, body } = await handler(event);
-
-      expect(
-        adminCreateUserStub.calledWith({
-          UserPoolId: validUserPoolId,
-          Username: invalidUsername,
-          TemporaryPassword: sinon.match.string,
-          UserAttributes: [
-            {
-              Name: 'given_name',
-              Value: validGivenName,
-            },
-            {
-              Name: 'family_name',
-              Value: validFamilyName,
-            },
-            {
-              Name: 'custom:jobRole',
-              Value: validRole,
-            },
-          ],
-        })
-      ).to.be.true;
-      expect(adminCreateUserStub.calledOnce).to.be.true;
-      expect(adminInitiateAuthStub.notCalled).to.be.true;
-      expect(adminRespondToAuthChallengeStub.notCalled).to.be.true;
-
-      expect(statusCode).to.equal(400);
-      expect(body).to.equal(
-        JSON.stringify({ message: 'Username has already been taken' })
-      );
-    });
-
-    it('when another error occurs should return 500', async () => {
-      const eventBody = JSON.stringify({
-        username: validUsername,
-        password: validPassword,
-        givenName: validGivenName,
-        familyName: validFamilyName,
-        role: validRole,
-      });
-      const event = { body: eventBody };
-
-      adminCreateUserStub.throws(
-        new MockAWSError('Error message', 'UnknownException')
-      );
-
-      const { statusCode, body } = await handler(event);
-
-      expect(
-        adminCreateUserStub.calledWith({
-          UserPoolId: validUserPoolId,
-          Username: validUsername,
-          TemporaryPassword: sinon.match.string,
-          UserAttributes: [
-            {
-              Name: 'given_name',
-              Value: validGivenName,
-            },
-            {
-              Name: 'family_name',
-              Value: validFamilyName,
-            },
-            {
-              Name: 'custom:jobRole',
-              Value: validRole,
-            },
-          ],
-        })
-      ).to.be.true;
-      expect(adminCreateUserStub.calledOnce).to.be.true;
-      expect(adminInitiateAuthStub.notCalled).to.be.true;
-      expect(adminRespondToAuthChallengeStub.notCalled).to.be.true;
-
-      expect(statusCode).to.equal(500);
-      expect(body).to.equal(
-        JSON.stringify({ message: 'Error creating user - Error message' })
-      );
-    });
+  expect(adminCreateUserMock).toBeCalledWith({
+    UserPoolId: validUserPoolId,
+    Username: validUsername,
+    TemporaryPassword: expect.any(String),
+    UserAttributes: [
+      {
+        Name: 'given_name',
+        Value: validGivenName,
+      },
+      {
+        Name: 'family_name',
+        Value: validFamilyName,
+      },
+      {
+        Name: 'custom:jobRole',
+        Value: validRole,
+      },
+    ],
   });
+  expect(adminCreateUserMock).toBeCalledTimes(1);
+  expect(adminInitiateAuthMock).toBeCalledTimes(0);
+  expect(adminRespondToAuthChallengeMock).toBeCalledTimes(0);
+
+  expect(statusCode).toBe(500);
+  expect(body).toBe(
+    JSON.stringify({ message: 'Error creating user - Error message' })
+  );
 });

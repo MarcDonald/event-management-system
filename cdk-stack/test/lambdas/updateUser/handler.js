@@ -1,24 +1,15 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
-
-const AWS = require('aws-sdk');
-
 const MockAWSError = require('../../testUtils/MockAWSError');
 
-describe('updateUser', async () => {
-  let handler;
+let handler;
 
-  beforeEach(() => {
-    const dependencies = {};
+beforeEach(() => {
+  const dependencies = {};
 
-    handler = require('../../../lambdas/updateUser/handler')(dependencies);
-  });
+  handler = require('../../../lambdas/updateUser/handler')(dependencies);
+});
 
-  afterEach(sinon.reset);
+afterEach(jest.resetAllMocks);
 
-  describe('when a valid event is passed in', () => {
-    it('should work', async () => {
-      // TODO tests
-    });
-  });
+test('TODO', async () => {
+  expect(true).toBeTruthy();
 });

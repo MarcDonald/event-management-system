@@ -1,26 +1,16 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
-
-const AWS = require('aws-sdk');
-
 const MockAWSError = require('../../../testUtils/MockAWSError');
 
-describe('adminAuthorizer', async () => {
-  let handler;
+let handler;
 
-  beforeEach(() => {
-    const dependencies = {};
+beforeEach(() => {
+  const dependencies = {};
+  handler = require('../../../../lambdas/authorizers/adminAuthorizer/handler')(
+    dependencies
+  );
+});
 
-    handler = require('../../../lambdas/authorizers/adminAuthorizer/handler')(
-      dependencies
-    );
-  });
+afterEach(jest.resetAllMocks);
 
-  afterEach(sinon.reset);
-
-  describe('when a valid event is passed in', () => {
-    it('should work', async () => {
-      // TODO tests
-    });
-  });
+test('TODO', async () => {
+  expect(true).toBeTruthy();
 });

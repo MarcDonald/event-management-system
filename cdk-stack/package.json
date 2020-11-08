@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "mocha test/**/*",
+    "test": "jest --coverage=true",
+    "test:watch": "jest --watchAll --coverage=true",
     "cdk": "cdk",
     "lint": "prettier -c 'lib/**/*{.ts,.js}' && prettier -c 'lambdas/**/*{.ts,.js}'",
     "lint:fix": "prettier --write 'lib/**/*{.ts,.tsx,.js}' && prettier --write 'lambdas/**/*{.ts,.js}' && prettier --write 'test/**/*{.ts,.js}'"
@@ -16,10 +17,8 @@
     "@types/node": "10.17.5",
     "aws-cdk": "1.27.0",
     "aws-sdk": "^2.773.0",
-    "chai": "^4.2.0",
-    "mocha": "^8.2.1",
+    "jest": "^26.6.3",
     "prettier": "^2.0.5",
-    "sinon": "^9.2.1",
     "ts-node": "^8.1.0",
     "typescript": "~3.7.2"
   },
