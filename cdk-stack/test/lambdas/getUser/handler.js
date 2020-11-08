@@ -53,6 +53,7 @@ test('Should return formatted user object when provided with a valid username', 
     UserPoolId: validUserPoolId,
     Username: validUsername,
   });
+  expect(adminGetUserMock).toBeCalledTimes(1);
   expect(statusCode).toBe(200);
   expect(body).toBe(
     JSON.stringify({
@@ -80,6 +81,19 @@ test('Should return 404 if the user cannot be found', async () => {
 
   expect(statusCode).toBe(404);
   expect(body).toBe(JSON.stringify({ message: 'User could not be found' }));
+  expect(adminGetUserMock).toBeCalledTimes(1);
+});
+
+test('Should return 400 if a username is not provided', async () => {
+  const event = {
+    pathParameters: {},
+  };
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(400);
+  expect(body).toBe(JSON.stringify({ message: 'Username must be provided' }));
+  expect(adminGetUserMock).toBeCalledTimes(0);
 });
 
 test('Should return 500 if another error is thrown', async () => {

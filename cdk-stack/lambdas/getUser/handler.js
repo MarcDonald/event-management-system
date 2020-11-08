@@ -7,6 +7,14 @@ module.exports = (dependencies) => async (event) => {
   const { Cognito, userPoolId } = dependencies;
   const { username } = event.pathParameters;
 
+  if (!username) {
+    return {
+      ...response,
+      statusCode: 400,
+      body: JSON.stringify({ message: 'Username must be provided' }),
+    };
+  }
+
   try {
     const user = await Cognito.adminGetUser({
       UserPoolId: userPoolId,

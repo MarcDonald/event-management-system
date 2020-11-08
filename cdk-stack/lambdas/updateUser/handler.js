@@ -7,12 +7,22 @@ module.exports = (dependencies) => async (event) => {
   const { Cognito, userPoolId } = dependencies;
   const { username } = event.pathParameters;
 
+  if (!username) {
+    return {
+      ...response,
+      statusCode: 400,
+      body: JSON.stringify({
+        message: 'Username must be provided',
+      }),
+    };
+  }
+
   if (!event.body) {
     return {
       ...response,
       statusCode: 400,
       body: JSON.stringify({
-        error: `Request must contain a body containing at least one of the following: password, givenName, familyName, role`,
+        message: `Request must contain a body containing at least one of the following: password, givenName, familyName, role`,
       }),
     };
   }
@@ -55,16 +65,27 @@ module.exports = (dependencies) => async (event) => {
     }
   } catch (e) {
     console.log(`Caught Error - ${e.message}`);
+
+    if (e.code === 'UserNotFoundException') {
+      return {
+        ...response,
+        statusCode: 404,
+        body: JSON.stringify({
+          message: `Cannot update user that does not exist`,
+        }),
+      };
+    }
+
     return {
       ...response,
       statusCode: 500,
-      body: JSON.stringify({ error: `Error updating user - ${e.message}` }),
+      body: JSON.stringify({ message: `Error updating user - ${e.message}` }),
     };
   }
 
   return {
     ...response,
     statusCode: 200,
-    body: `${username} updated successfully`,
+    body: JSON.stringify({ message: `${username} updated successfully` }),
   };
 };

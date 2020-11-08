@@ -1,25 +1,35 @@
-const cognitoUserBuilder = (username, sub, role, givenName, familyName) => {
-  return {
+const cognitoUserBuilder = (
+  username,
+  sub,
+  role,
+  givenName,
+  familyName,
+  attributeKeyName = 'UserAttributes'
+) => {
+  const user = {
     Username: username,
-    UserAttributes: [
-      {
-        Name: 'sub',
-        Value: sub,
-      },
-      {
-        Name: 'custom:jobRole',
-        Value: role,
-      },
-      {
-        Name: 'givenName',
-        Value: givenName,
-      },
-      {
-        Name: 'familyName',
-        Value: familyName,
-      },
-    ],
   };
+
+  user[attributeKeyName] = [
+    {
+      Name: 'sub',
+      Value: sub,
+    },
+    {
+      Name: 'custom:jobRole',
+      Value: role,
+    },
+    {
+      Name: 'givenName',
+      Value: givenName,
+    },
+    {
+      Name: 'familyName',
+      Value: familyName,
+    },
+  ];
+
+  return user;
 };
 
 const testValues = {

@@ -120,7 +120,7 @@ test('Should create user and return formatted user object when provided with a v
   );
 });
 
-test('Should return 400 when called with an event with no body ', async () => {
+test('Should return 400 when called with an event with no body', async () => {
   const event = {};
 
   const { statusCode, body } = await handler(event);
@@ -134,7 +134,7 @@ test('Should return 400 when called with an event with no body ', async () => {
   );
 });
 
-test('Should return 400 when called with an event with an empty body ', async () => {
+test('Should return 400 when called with an event with an empty body', async () => {
   const event = { body: '' };
 
   const { statusCode, body } = await handler(event);
