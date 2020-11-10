@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { SideNavSearch } from '../../../Components/SideNavSearch';
 import ManagementEditHeader from '../ManagementEditHeader';
 import User from '../../../Models/User';
 import StaffCard from './StaffCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faExclamationTriangle,
-  faPlus,
-} from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useFormFields } from '../../../Hooks/useFormFields';
 import UserRole from '../../../Models/UserRole';
 import {
@@ -18,6 +14,7 @@ import {
 } from '../../../Services/UserService';
 import Loading from '../../../Components/Loading';
 import Dropdown from '../../../Components/Dropdown';
+import ListPanel from '../ListPanel';
 
 interface ManageStaffFormFields {
   username: string;
@@ -324,20 +321,6 @@ export default function ManageStaff() {
     );
   };
 
-  const rightSide = () => {
-    return (
-      <div className="bg-white h-full flex flex-col items-center">
-        <h2 className="side-nav-title">Staff</h2>
-        <SideNavSearch search={userSearch} />
-        <button className="btn w-4/5 mt-2" onClick={setupNewUser}>
-          <FontAwesomeIcon icon={faPlus} className="mr-4" />
-          <span>New Staff Member</span>
-        </button>
-        <div className="w-4/5">{displayStaffList()}</div>
-      </div>
-    );
-  };
-
   return (
     <div className="grid grid-cols-5 h-full">
       <div className="col-span-4 mx-16">
@@ -361,7 +344,13 @@ export default function ManageStaff() {
         )}
         {userDetailsForm()}
       </div>
-      {rightSide()}
+      <ListPanel
+        title="Staff"
+        newButtonClick={setupNewUser}
+        newButtonText="New Staff Member"
+        onSearch={userSearch}
+        displayedList={displayStaffList()}
+      />
     </div>
   );
 }
