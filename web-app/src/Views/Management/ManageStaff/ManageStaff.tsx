@@ -16,6 +16,7 @@ import {
   getAllUsers,
   updateExistingUser,
 } from '../../../Services/UserService';
+import Loading from '../../../Components/Loading';
 
 interface ManageStaffFormFields {
   username: string;
@@ -46,6 +47,9 @@ export default function ManageStaff() {
   const [error, setError] = useState<Error | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isLoadingStaffMembers, setIsLoadingStaffMembers] = useState<boolean>(
+    true
+  );
 
   const userSearch = (searchContent: string) => {
     if (searchContent) {
@@ -74,6 +78,7 @@ export default function ManageStaff() {
     const setup = async () => {
       setupNewUser();
       const staffList = await getAllUsers();
+      setIsLoadingStaffMembers(false);
       setAllStaff(staffList);
       setDisplayedStaff(staffList);
     };
@@ -98,16 +103,20 @@ export default function ManageStaff() {
   };
 
   const displayStaffList = () => {
-    return displayedStaff.map((user) => {
-      return (
-        <StaffCard
-          key={user.username}
-          name={`${user.givenName} ${user.familyName}`}
-          username={user.username}
-          onClick={() => selectUserToEdit(user.username)}
-        />
-      );
-    });
+    if (isLoadingStaffMembers) {
+      return <Loading containerClassName="mt-4" />;
+    } else {
+      return displayedStaff.map((user) => {
+        return (
+          <StaffCard
+            key={user.username}
+            name={`${user.givenName} ${user.familyName}`}
+            username={user.username}
+            onClick={() => selectUserToEdit(user.username)}
+          />
+        );
+      });
+    }
   };
 
   const formSave = async () => {
@@ -268,6 +277,20 @@ export default function ManageStaff() {
     );
   };
 
+  const rightSide = () => {
+    return (
+      <div className="bg-white h-full flex flex-col items-center">
+        <h2 className="side-nav-title">Staff</h2>
+        <SideNavSearch search={userSearch} />
+        <button className="btn w-4/5 mt-2" onClick={setupNewUser}>
+          <FontAwesomeIcon icon={faPlus} className="mr-4" />
+          <span>New Staff Member</span>
+        </button>
+        <div className="w-4/5">{displayStaffList()}</div>
+      </div>
+    );
+  };
+
   return (
     <div className="grid grid-cols-5 h-full">
       <div className="col-span-4 mx-16">
@@ -291,15 +314,7 @@ export default function ManageStaff() {
         )}
         {userDetailsForm()}
       </div>
-      <div className="bg-white h-full flex flex-col items-center">
-        <h2 className="side-nav-title">Staff</h2>
-        <SideNavSearch search={userSearch} />
-        <button className="btn w-4/5 mt-2" onClick={setupNewUser}>
-          <FontAwesomeIcon icon={faPlus} className="mr-4" />
-          <span>New Staff Member</span>
-        </button>
-        <div className="w-4/5">{displayStaffList()}</div>
-      </div>
+      {rightSide()}
     </div>
   );
 }

@@ -57,7 +57,7 @@ export async function updateExistingUser(
 ): Promise<EditableUserDetails> {
   const token = await getIdToken();
 
-  const result = await axios.put(
+  await axios.put(
     `${baseUrl}/users/${userToEdit.username}`,
     {
       password: userToEdit.password,
@@ -77,10 +77,14 @@ export async function updateExistingUser(
 
 export async function deleteUser(username: string): Promise<string> {
   const token = await getIdToken();
-  const result = await axios.delete(`${baseUrl}/users/${username}`, {
+  await axios.delete(`${baseUrl}/users/${username}`, {
     headers: {
       Authorization: token,
     },
   });
   return username;
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

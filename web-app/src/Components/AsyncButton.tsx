@@ -1,7 +1,6 @@
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import '../Animations.css';
+import Loading from './Loading';
 
 interface AsyncButtonPropTypes {
   text: string;
@@ -36,9 +35,7 @@ export default function AsyncButton(props: AsyncButtonPropTypes) {
         if (props.onClick) props.onClick();
       }}
     >
-      {props.isLoading && (
-        <FontAwesomeIcon icon={faSpinner} className="spinning" />
-      )}
+      {props.isLoading && <Loading />}
       {!props.isLoading && props.text}
     </button>
   );
