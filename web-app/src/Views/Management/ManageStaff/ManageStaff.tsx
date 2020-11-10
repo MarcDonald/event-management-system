@@ -17,6 +17,7 @@ import {
   updateExistingUser,
 } from '../../../Services/UserService';
 import Loading from '../../../Components/Loading';
+import Dropdown from '../../../Components/Dropdown';
 
 interface ManageStaffFormFields {
   username: string;
@@ -24,7 +25,7 @@ interface ManageStaffFormFields {
   confirmPassword: string;
   givenName: string;
   familyName: string;
-  role: UserRole;
+  role: UserRole | null;
   isNew: boolean;
 }
 
@@ -34,7 +35,7 @@ const emptyFormFields = {
   confirmPassword: '',
   givenName: '',
   familyName: '',
-  role: UserRole.Steward,
+  role: null,
   isNew: true,
 };
 
@@ -124,7 +125,7 @@ export default function ManageStaff() {
       setIsSaving(true);
       const userDetails = {
         username: fields.username,
-        role: fields.role,
+        role: fields.role!,
         givenName: fields.givenName,
         familyName: fields.familyName,
         password: fields.password,
@@ -184,7 +185,26 @@ export default function ManageStaff() {
       setError(new Error('Family name is too short'));
       return false;
     }
+    if (!fields.role) {
+      setError(new Error('Must select a role'));
+      return false;
+    }
     return true;
+  };
+
+  const convertDropdownRoleToUserRole = (
+    key: string | number
+  ): UserRole | null => {
+    switch (key) {
+      case 'Steward':
+        return UserRole.Steward;
+      case 'ControlRoomOperator':
+        return UserRole.ControlRoomOperator;
+      case 'Administrator':
+        return UserRole.Administrator;
+      default:
+        return null;
+    }
   };
 
   const userDetailsForm = () => {
@@ -263,7 +283,34 @@ export default function ManageStaff() {
             setError(null);
           }}
         />
-        {/*TODO role picker dropdown*/}
+        <label htmlFor="role" className="mt-2">
+          Role
+        </label>
+        <Dropdown
+          id="role"
+          title="Select Role"
+          list={[
+            {
+              key: 'Steward',
+              name: 'Steward',
+            },
+            {
+              key: 'ControlRoomOperator',
+              name: 'Control Room Operator',
+            },
+            {
+              key: 'Administrator',
+              name: 'Administrator',
+            },
+          ]}
+          onSelected={(key) => {
+            setFieldsDirectly({
+              ...fields,
+              role: convertDropdownRoleToUserRole(key),
+            });
+          }}
+          currentlySelectedKey={fields.role ? fields.role : ''}
+        />
         {error && (
           <div className="text-center mt-2 mb-8">
             <FontAwesomeIcon

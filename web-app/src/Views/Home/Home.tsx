@@ -4,6 +4,7 @@ import BrandHeader from '../../Components/BrandHeader';
 import useLocalAuth from '../../Hooks/useLocalAuth';
 import User from '../../Models/User';
 import LoggedInUser from '../../Components/LoggedInUser';
+import Dropdown from '../../Components/Dropdown';
 
 export default function Home() {
   const localAuth = useLocalAuth();
