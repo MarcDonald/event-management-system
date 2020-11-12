@@ -15,6 +15,7 @@ import {
 import Loading from '../../../Components/Loading';
 import Dropdown from '../../../Components/Dropdown';
 import ListPanel from '../ListPanel';
+import ErrorMessage from '../../../Components/ErrorMessage';
 
 interface ManageStaffFormFields {
   username: string;
@@ -128,21 +129,25 @@ export default function ManageStaff() {
         password: fields.password,
       };
 
-      // TODO error handling
-      if (fields.isNew) {
-        const newUser = await createNewUser(userDetails);
-        allStaff.push(newUser);
-      } else {
-        const updatedUser = await updateExistingUser(userDetails);
-        const indexOfUser = allStaff.findIndex(
-          (user) => user.username === userDetails.username
-        );
-        allStaff[indexOfUser] = {
-          ...allStaff[indexOfUser],
-          ...updatedUser,
-        };
+      try {
+        if (fields.isNew) {
+          const newUser = await createNewUser(userDetails);
+          allStaff.push(newUser);
+        } else {
+          const updatedUser = await updateExistingUser(userDetails);
+          const indexOfUser = allStaff.findIndex(
+            (user) => user.username === userDetails.username
+          );
+          allStaff[indexOfUser] = {
+            ...allStaff[indexOfUser],
+            ...updatedUser,
+          };
+        }
+        setupNewUser();
+      } catch (e) {
+        console.error(JSON.stringify(e, null, 2));
+        setError(e);
       }
-      setupNewUser();
       setIsSaving(false);
     }
   };
@@ -213,7 +218,7 @@ export default function ManageStaff() {
           inputMode="text"
           type="text"
           value={fields.username}
-          className="outline-none border border-gray-400 focus:border-brand rounded-md p-2"
+          className="form-input"
           placeholder="Username"
           onChange={(event) => {
             setFields(event);
@@ -228,7 +233,7 @@ export default function ManageStaff() {
           inputMode="text"
           type="password"
           value={fields.password}
-          className="outline-none border border-gray-400 focus:border-brand rounded-md p-2"
+          className="form-input"
           placeholder="Password"
           onChange={(event) => {
             setFields(event);
@@ -243,7 +248,7 @@ export default function ManageStaff() {
           inputMode="text"
           type="password"
           value={fields.confirmPassword}
-          className="outline-none border border-gray-400 focus:border-brand rounded-md p-2"
+          className="form-input"
           placeholder="Confirm Password"
           onChange={(event) => {
             setFields(event);
@@ -258,7 +263,7 @@ export default function ManageStaff() {
           inputMode="text"
           type="text"
           value={fields.givenName}
-          className="outline-none border border-gray-400 focus:border-brand rounded-md p-2"
+          className="form-input"
           placeholder="Given Name"
           onChange={(event) => {
             setFields(event);
@@ -273,7 +278,7 @@ export default function ManageStaff() {
           inputMode="text"
           type="text"
           value={fields.familyName}
-          className="outline-none border border-gray-400 focus:border-brand rounded-md p-2"
+          className="form-input"
           placeholder="Family Name"
           onChange={(event) => {
             setFields(event);
@@ -308,15 +313,7 @@ export default function ManageStaff() {
           }}
           currentlySelectedKey={fields.role ? fields.role : ''}
         />
-        {error && (
-          <div className="text-center mt-2 mb-8">
-            <FontAwesomeIcon
-              icon={faExclamationTriangle}
-              className="text-error mr-2"
-            />
-            <span>{error.message}</span>
-          </div>
-        )}
+        {error && <ErrorMessage message={error.message} />}
       </form>
     );
   };

@@ -29,7 +29,7 @@ html {
 }
 
 .side-nav-title {
-    @apply text-center font-bold text-2xl mt-2
+    @apply text-center font-bold text-2xl mt-2;
 }
 
 .side-nav {
@@ -38,6 +38,14 @@ html {
 
 .side-nav-selected {
     @apply font-semibold bg-lighter-gray;
+}
+
+.form-input {
+    @apply outline-none border border-gray-400 rounded-md p-2;
+}
+
+.form-input:focus {
+    @apply border-brand;
 }
 
 /*noinspection CssInvalidAtRule*/
