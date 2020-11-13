@@ -13,16 +13,23 @@ import VenueCard from './VenueCard';
 import { useFormFields } from '../../../Hooks/useFormFields';
 import Position from '../../../Models/Position';
 import ErrorMessage from '../../../Components/ErrorMessage';
+import VenueStatus from '../../../Models/VenueStatus';
+import Dropdown from '../../../Components/Dropdown';
+import NewPositionEntry from './NewPositionEntry';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 interface ManageVenueFormFields {
   id: string | null;
   name: string;
+  status: VenueStatus;
   positions: Position[];
 }
 
 const emptyFormFields = {
   id: null,
   name: '',
+  status: VenueStatus.AllOk,
   positions: [],
 };
 
@@ -55,7 +62,6 @@ export default function ManageVenues() {
   useEffect(() => {
     const setup = async () => {
       const venueList = await getAllVenues();
-      console.log(venueList);
       setIsLoadingVenues(false);
       setAllVenues(venueList);
       setDisplayedVenues(venueList);
@@ -70,10 +76,10 @@ export default function ManageVenues() {
   const selectVenueToEdit = (id: string) => {
     const venue = allVenues.find((venue) => venue.id === id);
     if (venue) {
-      console.log(`Selected ${id}`);
       setFieldsDirectly({
         id: venue.id,
         name: venue.name,
+        status: venue.status,
         positions: venue.positions,
       });
     } else {
@@ -102,17 +108,19 @@ export default function ManageVenues() {
     if (validateForm()) {
       setIsSaving(true);
       try {
+        const newDetails = {
+          name: fields.name,
+          status: fields.status,
+          positions: fields.positions,
+        };
+
         if (!fields.id) {
-          const newVenue = await createNewVenue({
-            name: fields.name,
-            positions: fields.positions,
-          });
+          const newVenue = await createNewVenue(newDetails);
           allVenues.push(newVenue);
         } else {
           const updatedVenue = await updateExistingVenue({
             id: fields.id!!,
-            name: fields.name,
-            positions: fields.positions,
+            ...newDetails,
           });
           const indexOfVenue = allVenues.findIndex(
             (venue) => venue.id === fields.id
@@ -157,28 +165,125 @@ export default function ManageVenues() {
     return true;
   };
 
+  const convertDropdownStatusToVenueStatus = (
+    key: string | number
+  ): VenueStatus | null => {
+    switch (key) {
+      case 'AllOk':
+        return VenueStatus.AllOk;
+      case 'YellowAlert':
+        return VenueStatus.YellowAlert;
+      case 'RedAlert':
+        return VenueStatus.RedAlert;
+      default:
+        return null;
+    }
+  };
+
+  const deletePosition = (id: string) => {
+    const newPositions = fields.positions.filter(
+      (position) => id !== position.id
+    );
+    setFieldsDirectly({
+      ...fields,
+      positions: newPositions,
+    });
+  };
+
+  const displayPositions = () => {
+    return fields.positions.map((position) => {
+      return (
+        <div
+          key={position.id}
+          className="w-full bg-white p-2 mb-2 flex justify-between items-center rounded-md"
+        >
+          <p className="text-2xl">{position.name}</p>
+          <button
+            type="button"
+            onClick={() => deletePosition(position.id)}
+            className="text-center focus:outline-none bg-negative hover:bg-negative-light focus:bg-negative-light rounded-md p-1 text-white w-10 h-10"
+          >
+            <FontAwesomeIcon
+              icon={faTrash}
+              className={`text-2xl align-middle`}
+            />
+          </button>
+        </div>
+      );
+    });
+  };
+
+  const addNewPosition = (name: string) => {
+    const newPositions = [...fields.positions];
+    newPositions.push({
+      id: name,
+      name,
+    });
+    setFieldsDirectly({
+      ...fields,
+      positions: newPositions,
+    });
+  };
+
   const venueDetailsForm = () => {
     return (
-      <form onSubmit={formSave} className="flex flex-col mt-4">
-        <label htmlFor="name">Name</label>
-        <input
-          id="name"
-          inputMode="text"
-          type="text"
-          value={fields.name}
-          className="form-input"
-          placeholder="Name"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
-        />
-        <label htmlFor="positions" className="mt-2">
-          Positions
-        </label>
-        <div>TODO</div>
-        {error && <ErrorMessage message={error.message} />}
-      </form>
+      <div className="grid grid-cols-4">
+        <form
+          onSubmit={formSave}
+          className="flex flex-col col-start-2 col-span-2 mt-4"
+        >
+          <label htmlFor="name">Name</label>
+          <input
+            id="name"
+            inputMode="text"
+            type="text"
+            value={fields.name}
+            className="form-input"
+            placeholder="Name"
+            onChange={(event) => {
+              setFields(event);
+              setError(null);
+            }}
+          />
+          <label htmlFor="status" className="mt-2">
+            Status
+          </label>
+          <Dropdown
+            title="Status"
+            list={[
+              {
+                key: 'AllOk',
+                name: VenueStatus.AllOk,
+              },
+              {
+                key: 'YellowAlert',
+                name: VenueStatus.YellowAlert,
+              },
+              {
+                key: 'RedAlert',
+                name: VenueStatus.RedAlert,
+              },
+            ]}
+            onSelected={(key) => {
+              setFieldsDirectly({
+                ...fields,
+                // TODO unsafe null assertion
+                status: convertDropdownStatusToVenueStatus(key)!!,
+              });
+            }}
+            currentlySelectedKey={fields.status ? fields.status : ''}
+          />
+          <label
+            htmlFor="positions"
+            className="my-2 text-center font-bold text-2xl"
+          >
+            Positions
+          </label>
+          {displayPositions()}
+          <NewPositionEntry onSave={addNewPosition} />
+          {error && <ErrorMessage message={error.message} />}
+        </form>
+      </div>
     );
   };
 

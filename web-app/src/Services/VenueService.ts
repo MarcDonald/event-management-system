@@ -2,6 +2,7 @@ import config from '../config.json';
 import Venue from '../Models/Venue';
 import { sleep } from './ApiService';
 import Position from '../Models/Position';
+import VenueStatus from '../Models/VenueStatus';
 
 const baseUrl = `${config.API.BASE_URL}/venues`;
 
@@ -13,6 +14,7 @@ export async function getAllVenues(): Promise<Array<Venue>> {
     {
       id: 'abc1',
       name: 'Air Arena',
+      status: VenueStatus.AllOk,
       positions: [
         {
           id: 'D1',
@@ -27,6 +29,7 @@ export async function getAllVenues(): Promise<Array<Venue>> {
     {
       id: 'abc2',
       name: 'Sea Stadium',
+      status: VenueStatus.YellowAlert,
       positions: [
         {
           id: 'T1',
@@ -44,6 +47,7 @@ export async function getAllVenues(): Promise<Array<Venue>> {
 interface NewVenueDetails {
   name: string;
   positions: Position[];
+  status: VenueStatus;
 }
 
 export async function createNewVenue(

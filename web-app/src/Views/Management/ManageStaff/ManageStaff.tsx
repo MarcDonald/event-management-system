@@ -211,110 +211,115 @@ export default function ManageStaff() {
 
   const userDetailsForm = () => {
     return (
-      <form onSubmit={formSave} className="flex flex-col mt-4">
-        <label htmlFor="username">Username</label>
-        <input
-          id="username"
-          inputMode="text"
-          type="text"
-          value={fields.username}
-          className="form-input"
-          placeholder="Username"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
-        />
-        <label htmlFor="password" className="mt-2">
-          Password
-        </label>
-        <input
-          id="password"
-          inputMode="text"
-          type="password"
-          value={fields.password}
-          className="form-input"
-          placeholder="Password"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
-        />
-        <label htmlFor="confirmPassword" className="mt-2">
-          Confirm Password
-        </label>
-        <input
-          id="confirmPassword"
-          inputMode="text"
-          type="password"
-          value={fields.confirmPassword}
-          className="form-input"
-          placeholder="Confirm Password"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
-        />
-        <label htmlFor="givenName" className="mt-2">
-          Given Name
-        </label>
-        <input
-          id="givenName"
-          inputMode="text"
-          type="text"
-          value={fields.givenName}
-          className="form-input"
-          placeholder="Given Name"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
-        />
-        <label htmlFor="familyName" className="mt-2">
-          Family Name
-        </label>
-        <input
-          id="familyName"
-          inputMode="text"
-          type="text"
-          value={fields.familyName}
-          className="form-input"
-          placeholder="Family Name"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
-        />
-        <label htmlFor="role" className="mt-2">
-          Role
-        </label>
-        <Dropdown
-          id="role"
-          title="Select Role"
-          list={[
-            {
-              key: 'Steward',
-              name: 'Steward',
-            },
-            {
-              key: 'ControlRoomOperator',
-              name: 'Control Room Operator',
-            },
-            {
-              key: 'Administrator',
-              name: 'Administrator',
-            },
-          ]}
-          onSelected={(key) => {
-            setFieldsDirectly({
-              ...fields,
-              role: convertDropdownRoleToUserRole(key),
-            });
-          }}
-          currentlySelectedKey={fields.role ? fields.role : ''}
-        />
-        {error && <ErrorMessage message={error.message} />}
-      </form>
+      <div className="grid grid-cols-4">
+        <form
+          onSubmit={formSave}
+          className="flex flex-col col-start-2 col-span-2 mt-4"
+        >
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            inputMode="text"
+            type="text"
+            value={fields.username}
+            className="form-input"
+            placeholder="Username"
+            onChange={(event) => {
+              setFields(event);
+              setError(null);
+            }}
+          />
+          <label htmlFor="password" className="mt-2">
+            Password
+          </label>
+          <input
+            id="password"
+            inputMode="text"
+            type="password"
+            value={fields.password}
+            className="form-input"
+            placeholder="Password"
+            onChange={(event) => {
+              setFields(event);
+              setError(null);
+            }}
+          />
+          <label htmlFor="confirmPassword" className="mt-2">
+            Confirm Password
+          </label>
+          <input
+            id="confirmPassword"
+            inputMode="text"
+            type="password"
+            value={fields.confirmPassword}
+            className="form-input"
+            placeholder="Confirm Password"
+            onChange={(event) => {
+              setFields(event);
+              setError(null);
+            }}
+          />
+          <label htmlFor="givenName" className="mt-2">
+            Given Name
+          </label>
+          <input
+            id="givenName"
+            inputMode="text"
+            type="text"
+            value={fields.givenName}
+            className="form-input"
+            placeholder="Given Name"
+            onChange={(event) => {
+              setFields(event);
+              setError(null);
+            }}
+          />
+          <label htmlFor="familyName" className="mt-2">
+            Family Name
+          </label>
+          <input
+            id="familyName"
+            inputMode="text"
+            type="text"
+            value={fields.familyName}
+            className="form-input"
+            placeholder="Family Name"
+            onChange={(event) => {
+              setFields(event);
+              setError(null);
+            }}
+          />
+          <label htmlFor="role" className="mt-2">
+            Role
+          </label>
+          <Dropdown
+            id="role"
+            title="Select Role"
+            list={[
+              {
+                key: 'Steward',
+                name: 'Steward',
+              },
+              {
+                key: 'ControlRoomOperator',
+                name: 'Control Room Operator',
+              },
+              {
+                key: 'Administrator',
+                name: 'Administrator',
+              },
+            ]}
+            onSelected={(key) => {
+              setFieldsDirectly({
+                ...fields,
+                role: convertDropdownRoleToUserRole(key),
+              });
+            }}
+            currentlySelectedKey={fields.role ? fields.role : ''}
+          />
+          {error && <ErrorMessage message={error.message} />}
+        </form>
+      </div>
     );
   };
 

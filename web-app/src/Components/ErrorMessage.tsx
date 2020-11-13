@@ -11,7 +11,7 @@ export default function ErrorMessage(props: ErrorMessagePropTypes) {
     <div className="text-center mt-2 mb-8">
       <FontAwesomeIcon
         icon={faExclamationTriangle}
-        className="text-error mr-2"
+        className="text-negative mr-2"
       />
       <span>{props.message}</span>
     </div>
