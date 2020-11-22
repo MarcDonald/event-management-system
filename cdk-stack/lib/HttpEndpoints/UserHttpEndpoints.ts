@@ -1,16 +1,14 @@
 import * as cdk from '@aws-cdk/core';
-import {
-  CfnRoute,
-  HttpMethod,
-  HttpRoute,
-  LambdaProxyIntegration,
-} from '@aws-cdk/aws-apigatewayv2';
+import { HttpMethod, HttpRoute } from '@aws-cdk/aws-apigatewayv2';
+import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import { Code, Function, Runtime } from '@aws-cdk/aws-lambda';
 import CognitoResources from '../CognitoResources';
 import { PolicyStatement } from '@aws-cdk/aws-iam';
 import HttpApiResources from '../HttpApiResources';
 
 export default class UserHttpEndpoints {
+  private lambdaRootDir = './lambdas/users/';
+
   constructor(
     scope: cdk.Construct,
     private cognitoResources: CognitoResources,
@@ -31,7 +29,6 @@ export default class UserHttpEndpoints {
       methods: [HttpMethod.POST],
       integration: addUserHandler,
     });
-    this.addAdminJwtAuthorizer(addUserRoutes);
 
     const getAllUsersHandler = this.createGetAllUsersHandler(
       scope,
@@ -43,7 +40,6 @@ export default class UserHttpEndpoints {
       methods: [HttpMethod.GET],
       integration: getAllUsersHandler,
     });
-    this.addAdminJwtAuthorizer(getAllUsersRoutes);
 
     const deleteUserHandler = this.createDeleteUserHandler(
       scope,
@@ -55,7 +51,6 @@ export default class UserHttpEndpoints {
       methods: [HttpMethod.DELETE],
       integration: deleteUserHandler,
     });
-    this.addAdminJwtAuthorizer(deleteUserRoutes);
 
     const updateUserHandler = this.createUpdateUserHandler(
       scope,
@@ -67,7 +62,6 @@ export default class UserHttpEndpoints {
       methods: [HttpMethod.PUT],
       integration: updateUserHandler,
     });
-    this.addAdminJwtAuthorizer(updateUserRoutes);
 
     const getUserHandler = this.createGetUserHandler(
       scope,
@@ -79,23 +73,18 @@ export default class UserHttpEndpoints {
       methods: [HttpMethod.GET],
       integration: getUserHandler,
     });
-    this.addAdminJwtAuthorizer(getOneRoutes);
-  }
 
-  private addJwtAuthorizer(routes: HttpRoute[]) {
-    routes.forEach((route: HttpRoute) => {
-      const routeCfn = route.node.defaultChild as CfnRoute;
-      routeCfn.authorizerId = this.httpApiResources.jwtAuthorizer.ref;
-      routeCfn.authorizationType = 'JWT';
-    });
-  }
-
-  private addAdminJwtAuthorizer(routes: HttpRoute[]) {
-    routes.forEach((route: HttpRoute) => {
-      const routeCfn = route.node.defaultChild as CfnRoute;
-      routeCfn.authorizerId = this.httpApiResources.adminJwtAuthorizer.ref;
-      routeCfn.authorizationType = 'CUSTOM';
-    });
+    // Flattens all the individual arrays of routes into one single array
+    const allAdminRoutes = Array<HttpRoute>().concat(
+      ...[
+        addUserRoutes,
+        getAllUsersRoutes,
+        deleteUserRoutes,
+        updateUserRoutes,
+        getOneRoutes,
+      ]
+    );
+    httpApiResources.addAdminJwtAuthorizerToRoutes(allAdminRoutes);
   }
 
   private createAddUserHandler = (
@@ -108,7 +97,7 @@ export default class UserHttpEndpoints {
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
       functionName: 'EmsAddUser',
-      code: Code.fromAsset('./lambdas/addUser'),
+      code: Code.fromAsset(this.lambdaRootDir + 'addUser'),
       environment: {
         USER_POOL_ID: userPoolId,
         API_CLIENT_ID: clientId,
@@ -139,7 +128,7 @@ export default class UserHttpEndpoints {
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
       functionName: 'EmsGetAllUsers',
-      code: Code.fromAsset('./lambdas/getAllUsers'),
+      code: Code.fromAsset(this.lambdaRootDir + 'getAllUsers'),
       environment: {
         USER_POOL_ID: userPoolId,
       },
@@ -165,7 +154,7 @@ export default class UserHttpEndpoints {
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
       functionName: 'EmsDeleteUser',
-      code: Code.fromAsset('./lambdas/deleteUser'),
+      code: Code.fromAsset(this.lambdaRootDir + 'deleteUser'),
       environment: {
         USER_POOL_ID: userPoolId,
       },
@@ -191,7 +180,7 @@ export default class UserHttpEndpoints {
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
       functionName: 'EmsUpdateUser',
-      code: Code.fromAsset('./lambdas/updateUser'),
+      code: Code.fromAsset(this.lambdaRootDir + 'updateUser'),
       environment: {
         USER_POOL_ID: userPoolId,
       },
@@ -220,7 +209,7 @@ export default class UserHttpEndpoints {
       runtime: Runtime.NODEJS_12_X,
       handler: 'index.handler',
       functionName: 'EmsGetUser',
-      code: Code.fromAsset('./lambdas/getUser'),
+      code: Code.fromAsset(this.lambdaRootDir + 'getUser'),
       environment: {
         USER_POOL_ID: userPoolId,
       },

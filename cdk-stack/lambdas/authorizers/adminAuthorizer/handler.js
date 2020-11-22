@@ -1,5 +1,6 @@
 // Based on official AWS documentation available at
 // https://github.com/awslabs/aws-support-tools/blob/master/Cognito/decode-verify-jwt/decode-verify-jwt.ts
+// (Mayer and Tiwari, 2018)
 
 module.exports = (dependencies) => async (event) => {
   const { verify, getPublicKeys } = dependencies;

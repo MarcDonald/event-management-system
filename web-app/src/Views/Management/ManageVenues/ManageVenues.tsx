@@ -74,10 +74,10 @@ export default function ManageVenues() {
   };
 
   const selectVenueToEdit = (id: string) => {
-    const venue = allVenues.find((venue) => venue.id === id);
+    const venue = allVenues.find((venue) => venue.venueId === id);
     if (venue) {
       setFieldsDirectly({
-        id: venue.id,
+        id: venue.venueId,
         name: venue.name,
         status: venue.status,
         positions: venue.positions,
@@ -95,9 +95,9 @@ export default function ManageVenues() {
       return displayedVenues.map((venue) => {
         return (
           <VenueCard
-            key={venue.id}
+            key={venue.venueId}
             name={venue.name}
-            onClick={() => selectVenueToEdit(venue.id)}
+            onClick={() => selectVenueToEdit(venue.venueId)}
           />
         );
       });
@@ -119,11 +119,11 @@ export default function ManageVenues() {
           allVenues.push(newVenue);
         } else {
           const updatedVenue = await updateExistingVenue({
-            id: fields.id!!,
+            venueId: fields.id!!,
             ...newDetails,
           });
           const indexOfVenue = allVenues.findIndex(
-            (venue) => venue.id === fields.id
+            (venue) => venue.venueId === fields.id
           );
           allVenues[indexOfVenue] = {
             ...allVenues[indexOfVenue],
@@ -144,7 +144,7 @@ export default function ManageVenues() {
     if (fields.id) {
       await deleteVenue(fields.id);
       const listWithoutDeletedVenue = allVenues.filter(
-        (venue) => venue.id !== fields.id
+        (venue) => venue.venueId !== fields.id
       );
       setAllVenues(listWithoutDeletedVenue);
       setDisplayedVenues(listWithoutDeletedVenue);
@@ -182,7 +182,7 @@ export default function ManageVenues() {
 
   const deletePosition = (id: string) => {
     const newPositions = fields.positions.filter(
-      (position) => id !== position.id
+      (position) => id !== position.positionId
     );
     setFieldsDirectly({
       ...fields,
@@ -194,13 +194,13 @@ export default function ManageVenues() {
     return fields.positions.map((position) => {
       return (
         <div
-          key={position.id}
+          key={position.positionId}
           className="w-full bg-white p-2 mb-2 flex justify-between items-center rounded-md"
         >
           <p className="text-2xl">{position.name}</p>
           <button
             type="button"
-            onClick={() => deletePosition(position.id)}
+            onClick={() => deletePosition(position.positionId)}
             className="text-center focus:outline-none bg-negative hover:bg-negative-light focus:bg-negative-light rounded-md p-1 text-white w-10 h-10"
           >
             <FontAwesomeIcon
@@ -216,7 +216,7 @@ export default function ManageVenues() {
   const addNewPosition = (name: string) => {
     const newPositions = [...fields.positions];
     newPositions.push({
-      id: name,
+      positionId: name,
       name,
     });
     setFieldsDirectly({

@@ -12,31 +12,31 @@ export async function getAllVenues(): Promise<Array<Venue>> {
   await sleep(1000);
   return [
     {
-      id: 'abc1',
+      venueId: 'abc1',
       name: 'Air Arena',
       status: VenueStatus.AllOk,
       positions: [
         {
-          id: 'D1',
+          positionId: 'D1',
           name: 'Door 1',
         },
         {
-          id: 'D2',
+          positionId: 'D2',
           name: 'Door 2',
         },
       ],
     },
     {
-      id: 'abc2',
+      venueId: 'abc2',
       name: 'Sea Stadium',
       status: VenueStatus.YellowAlert,
       positions: [
         {
-          id: 'T1',
+          positionId: 'T1',
           name: 'Tickets 1',
         },
         {
-          id: 'C1',
+          positionId: 'C1',
           name: 'Concourse 1',
         },
       ],
@@ -58,7 +58,7 @@ export async function createNewVenue(
   await sleep(1000);
   return {
     ...venueToCreate,
-    id: 'ghj123',
+    venueId: 'ghj123',
   };
 }
 

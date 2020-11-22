@@ -12,3 +12,4 @@ cdk.out
 .idea/
 .vscode
 coverage/
+/yarn-error.log

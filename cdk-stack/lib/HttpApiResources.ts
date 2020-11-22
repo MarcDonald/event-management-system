@@ -1,5 +1,11 @@
 import * as cdk from '@aws-cdk/core';
-import { CfnAuthorizer, HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2';
+import {
+  CfnAuthorizer,
+  CfnRoute,
+  HttpApi,
+  HttpMethod,
+  HttpRoute,
+} from '@aws-cdk/aws-apigatewayv2';
 import CognitoResources from './CognitoResources';
 import { Code, Function, Runtime } from '@aws-cdk/aws-lambda';
 import {
@@ -127,4 +133,20 @@ export default class HttpApiResources {
       authorizerUri: `arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${authorizerFunc.functionArn}/invocations`,
     });
   };
+
+  public addJwtAuthorizerToRoutes(routes: HttpRoute[]) {
+    routes.forEach((route: HttpRoute) => {
+      const routeCfn = route.node.defaultChild as CfnRoute;
+      routeCfn.authorizerId = this.jwtAuthorizer.ref;
+      routeCfn.authorizationType = 'JWT';
+    });
+  }
+
+  public addAdminJwtAuthorizerToRoutes(routes: HttpRoute[]) {
+    routes.forEach((route: HttpRoute) => {
+      const routeCfn = route.node.defaultChild as CfnRoute;
+      routeCfn.authorizerId = this.adminJwtAuthorizer.ref;
+      routeCfn.authorizationType = 'CUSTOM';
+    });
+  }
 }

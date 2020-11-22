@@ -4,6 +4,10 @@ CDK definition of the AWS stack
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
+## Note
+Before deploying make sure you run `npm install` in any lambda directory with a `package.json` such as `adminAuthorizer`
+and `addVenue`
+
 ## Useful commands
 
 - `yarn run build` compile typescript to JavaScript

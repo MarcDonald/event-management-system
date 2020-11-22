@@ -1,7 +1,7 @@
 {
-  "name": "authorizers",
+  "name": "admin-authorizer",
   "version": "1.0.0",
-  "description": "Authorizers for API routes",
+  "description": "Admin Authorizer for API routes",
   "author": "Marc Donald",
   "dependencies": {
     "axios": "^0.21.0",

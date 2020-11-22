@@ -8,5 +8,10 @@ const getPublicKeys = require('./getPublicKeys');
 
 exports.handler = require('./handler')({
   verify,
-  getPublicKeys: getPublicKeys({ REGION, USER_POOL_ID, axios, jwkToPem }),
+  getPublicKeys: getPublicKeys({
+    region: REGION,
+    userPoolId: USER_POOL_ID,
+    axios,
+    jwkToPem,
+  }),
 });

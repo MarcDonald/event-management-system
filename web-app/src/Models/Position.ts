@@ -1,4 +1,4 @@
 export default interface Position {
-  id: string;
+  positionId: string;
   name: string;
 }

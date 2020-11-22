@@ -23,12 +23,14 @@
     "typescript": "~3.7.2"
   },
   "dependencies": {
-    "@aws-cdk/aws-apigatewayv2": "1.66.0",
-    "@aws-cdk/aws-cognito": "1.66.0",
-    "@aws-cdk/aws-iam": "1.66.0",
-    "@aws-cdk/aws-lambda": "1.66.0",
-    "@aws-cdk/aws-lambda-event-sources": "1.66.0",
-    "@aws-cdk/core": "1.66.0",
+    "@aws-cdk/aws-apigatewayv2": "1.74.0",
+    "@aws-cdk/aws-apigatewayv2-integrations": "1.74.0",
+    "@aws-cdk/aws-cognito": "1.74.0",
+    "@aws-cdk/aws-dynamodb": "1.74.0",
+    "@aws-cdk/aws-iam": "1.74.0",
+    "@aws-cdk/aws-lambda": "1.74.0",
+    "@aws-cdk/aws-lambda-event-sources": "1.74.0",
+    "@aws-cdk/core": "1.74.0",
     "source-map-support": "^0.5.16"
   }
 }

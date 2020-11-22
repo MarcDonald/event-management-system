@@ -1,5 +1,5 @@
-const { testValues } = require('../../testUtils/userUtils');
-const MockAWSError = require('../../testUtils/MockAWSError');
+const { testValues } = require('../../../testUtils/userUtils');
+const MockAWSError = require('../../../testUtils/MockAWSError');
 const {
   validUsername,
   invalidUsername,
@@ -15,6 +15,8 @@ let adminCreateUserMock = jest.fn();
 let adminInitiateAuthMock = jest.fn();
 let adminRespondToAuthChallengeMock = jest.fn();
 
+let handler;
+
 beforeEach(() => {
   const Cognito = {
     adminCreateUser: adminCreateUserMock,
@@ -28,14 +30,10 @@ beforeEach(() => {
     Cognito,
   };
 
-  handler = require('../../../lambdas/addUser/handler')(dependencies);
+  handler = require('../../../../lambdas/users/addUser/handler')(dependencies);
 });
 
-afterEach(() => {
-  jest.resetAllMocks();
-});
-
-let handler;
+afterEach(jest.resetAllMocks);
 
 test('Should create user and return formatted user object when provided with a valid event', async () => {
   const eventBody = JSON.stringify({

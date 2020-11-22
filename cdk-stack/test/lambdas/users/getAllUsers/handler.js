@@ -1,5 +1,8 @@
-const MockAWSError = require('../../testUtils/MockAWSError');
-const { cognitoUserBuilder, testValues } = require('../../testUtils/userUtils');
+const MockAWSError = require('../../../testUtils/MockAWSError');
+const {
+  cognitoUserBuilder,
+  testValues,
+} = require('../../../testUtils/userUtils');
 
 let handler;
 
@@ -15,7 +18,9 @@ beforeEach(() => {
     Cognito,
   };
 
-  handler = require('../../../lambdas/getAllUsers/handler')(dependencies);
+  handler = require('../../../../lambdas/users/getAllUsers/handler')(
+    dependencies
+  );
 });
 
 afterEach(jest.resetAllMocks);
