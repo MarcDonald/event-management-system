@@ -1,8 +1,8 @@
-const MockAWSError = require('../../../testUtils/MockAWSError');
+const { testValues } = require('../../../testUtils/userUtils');
 const {
   cognitoUserBuilder,
-  testValues,
-} = require('../../../testUtils/userUtils');
+  MockAWSError,
+} = require('../../../testUtils/awsUtils');
 
 let handler;
 

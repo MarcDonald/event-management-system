@@ -1,6 +1,8 @@
 const { testValues } = require('../../../testUtils/venueUtils');
-const MockAWSError = require('../../../testUtils/MockAWSError');
-const { dynamoResponseBuilder } = require('../../../testUtils/awsUtils');
+const {
+  dynamoResponseBuilder,
+  MockAWSError,
+} = require('../../../testUtils/awsUtils');
 const {
   validVenueId,
   invalidVenueId,

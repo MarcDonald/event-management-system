@@ -11,7 +11,52 @@ const dynamoResponseBuilder = (items) => {
   };
 };
 
+const cognitoUserBuilder = (
+  username,
+  sub,
+  role,
+  givenName,
+  familyName,
+  attributeKeyName = 'UserAttributes'
+) => {
+  const user = {
+    Username: username,
+  };
+
+  user[attributeKeyName] = [
+    {
+      Name: 'sub',
+      Value: sub,
+    },
+    {
+      Name: 'custom:jobRole',
+      Value: role,
+    },
+    {
+      Name: 'givenName',
+      Value: givenName,
+    },
+    {
+      Name: 'familyName',
+      Value: familyName,
+    },
+  ];
+
+  return user;
+};
+
+class MockAWSError extends Error {
+  code;
+
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+  }
+}
+
 module.exports = {
   testValues,
   dynamoResponseBuilder,
+  cognitoUserBuilder,
+  MockAWSError,
 };

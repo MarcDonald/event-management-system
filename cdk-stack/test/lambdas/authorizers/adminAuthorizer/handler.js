@@ -1,7 +1,3 @@
-const MockAWSError = require('../../../testUtils/MockAWSError');
-const { region } = require('../../../testUtils/awsUtils').testValues;
-const { validUserPoolId } = require('../../../testUtils/userUtils').testValues;
-
 let handler;
 
 const verifyMock = jest.fn();

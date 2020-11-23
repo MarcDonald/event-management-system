@@ -1,8 +1,8 @@
+const { testValues } = require('../../../testUtils/userUtils');
 const {
   cognitoUserBuilder,
-  testValues,
-} = require('../../../testUtils/userUtils');
-const MockAWSError = require('../../../testUtils/MockAWSError');
+  MockAWSError,
+} = require('../../../testUtils/awsUtils');
 const {
   validUsername,
   invalidUsername,

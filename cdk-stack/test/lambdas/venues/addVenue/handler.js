@@ -1,12 +1,7 @@
-const MockAWSError = require('../../../testUtils/MockAWSError');
+const { MockAWSError } = require('../../../testUtils/awsUtils');
 const { testValues, validStatuses } = require('../../../testUtils/venueUtils');
-const {
-  validTableName,
-  validVenueName,
-  invalidVenueName,
-  validPositionName,
-} = testValues;
-const { ALL_OK, YELLOW_ALERT, RED_ALERT } = validStatuses;
+const { validTableName, validVenueName, validPositionName } = testValues;
+const { ALL_OK } = validStatuses;
 
 let generateUUIDMock = jest.fn();
 let putMock = jest.fn();

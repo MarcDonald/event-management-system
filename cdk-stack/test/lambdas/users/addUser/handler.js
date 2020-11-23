@@ -1,5 +1,5 @@
 const { testValues } = require('../../../testUtils/userUtils');
-const MockAWSError = require('../../../testUtils/MockAWSError');
+const { MockAWSError } = require('../../../testUtils/awsUtils');
 const {
   validUsername,
   invalidUsername,
