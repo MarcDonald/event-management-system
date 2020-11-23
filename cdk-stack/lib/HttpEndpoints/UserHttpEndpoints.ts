@@ -11,67 +11,50 @@ export default class UserHttpEndpoints {
 
   constructor(
     scope: cdk.Construct,
-    private cognitoResources: CognitoResources,
-    private httpApiResources: HttpApiResources
+    cognitoResources: CognitoResources,
+    httpApiResources: HttpApiResources
   ) {
     const { userPoolId, userPoolArn } = cognitoResources.userPool;
     const { userPoolClientId } = cognitoResources.apiUserPoolClient;
     const { api } = httpApiResources;
 
-    const addUserHandler = this.createAddUserHandler(
-      scope,
-      userPoolId,
-      userPoolClientId,
-      userPoolArn
-    );
     const addUserRoutes = api.addRoutes({
       path: '/users',
       methods: [HttpMethod.POST],
-      integration: addUserHandler,
+      integration: this.createAddUserHandler(
+        scope,
+        userPoolId,
+        userPoolClientId,
+        userPoolArn
+      ),
     });
 
-    const getAllUsersHandler = this.createGetAllUsersHandler(
-      scope,
-      userPoolId,
-      userPoolArn
-    );
     const getAllUsersRoutes = api.addRoutes({
       path: '/users',
       methods: [HttpMethod.GET],
-      integration: getAllUsersHandler,
+      integration: this.createGetAllUsersHandler(
+        scope,
+        userPoolId,
+        userPoolArn
+      ),
     });
 
-    const deleteUserHandler = this.createDeleteUserHandler(
-      scope,
-      userPoolId,
-      userPoolArn
-    );
     const deleteUserRoutes = api.addRoutes({
       path: '/users/{username}',
       methods: [HttpMethod.DELETE],
-      integration: deleteUserHandler,
+      integration: this.createDeleteUserHandler(scope, userPoolId, userPoolArn),
     });
 
-    const updateUserHandler = this.createUpdateUserHandler(
-      scope,
-      userPoolId,
-      userPoolArn
-    );
     const updateUserRoutes = api.addRoutes({
       path: '/users/{username}',
       methods: [HttpMethod.PUT],
-      integration: updateUserHandler,
+      integration: this.createUpdateUserHandler(scope, userPoolId, userPoolArn),
     });
 
-    const getUserHandler = this.createGetUserHandler(
-      scope,
-      userPoolId,
-      userPoolArn
-    );
     const getOneRoutes = api.addRoutes({
       path: '/users/{username}',
       methods: [HttpMethod.GET],
-      integration: getUserHandler,
+      integration: this.createGetUserHandler(scope, userPoolId, userPoolArn),
     });
 
     // Flattens all the individual arrays of routes into one single array

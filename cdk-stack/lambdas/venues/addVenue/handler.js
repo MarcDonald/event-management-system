@@ -74,7 +74,9 @@ module.exports = (dependencies) => async (event) => {
     return {
       ...response,
       statusCode: 500,
-      body: JSON.stringify({ message: 'Error creating venue - Error message' }),
+      body: JSON.stringify({
+        message: `Error creating venue - ${err.message}`,
+      }),
     };
   }
 };

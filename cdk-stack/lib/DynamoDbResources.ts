@@ -1,6 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import { RemovalPolicy } from '@aws-cdk/core';
-import { Table, AttributeType, BillingMode } from '@aws-cdk/aws-dynamodb';
+import { AttributeType, BillingMode, Table } from '@aws-cdk/aws-dynamodb';
 
 export default class DynamoDbResources {
   public readonly venueTable: Table;
@@ -22,7 +22,8 @@ export default class DynamoDbResources {
   private createEventsTable = (scope: cdk.Construct): Table =>
     new Table(scope, 'EventsTable', {
       tableName: 'EmsEvents',
-      partitionKey: { name: 'positionId', type: AttributeType.STRING },
+      partitionKey: { name: 'eventId', type: AttributeType.STRING },
+      sortKey: { name: 'metadata', type: AttributeType.STRING },
       removalPolicy: RemovalPolicy.DESTROY,
       billingMode: BillingMode.PAY_PER_REQUEST,
     });
