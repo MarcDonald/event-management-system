@@ -1,6 +1,6 @@
 const { testValues } = require('../../../testUtils/venueUtils');
 const {
-  dynamoResponseBuilder,
+  dynamoQueryResponseBuilder,
   MockAWSError,
 } = require('../../../testUtils/awsUtils');
 const {
@@ -35,7 +35,7 @@ afterEach(jest.resetAllMocks);
 test('Should return formatted venue object when provided with a valid venue ID', async () => {
   queryMock.mockReturnValue({
     promise: () => {
-      return dynamoResponseBuilder([
+      return dynamoQueryResponseBuilder([
         {
           venueId: validVenueId,
           name: validVenueName,
@@ -89,7 +89,7 @@ test('Should return formatted venue object when provided with a valid venue ID',
 test('Should return 404 if the venue cannot be found', async () => {
   queryMock.mockReturnValue({
     promise: () => {
-      return dynamoResponseBuilder([]);
+      return dynamoQueryResponseBuilder([]);
     },
   });
 

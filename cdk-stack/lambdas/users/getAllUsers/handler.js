@@ -33,7 +33,7 @@ module.exports = (dependencies) => async (event) => {
       ...response,
       statusCode: 500,
       body: JSON.stringify({
-        message: `Unable to retrieve all users - ${e.message}`,
+        message: `Error getting all users - ${e.message}`,
       }),
     };
   }

@@ -2,7 +2,7 @@ const testValues = {
   region: 'eu-test-1',
 };
 
-const dynamoResponseBuilder = (items) => {
+const dynamoQueryResponseBuilder = (items) => {
   return {
     ConsumedCapacity: {},
     Count: items.length,
@@ -56,7 +56,7 @@ class MockAWSError extends Error {
 
 module.exports = {
   testValues,
-  dynamoResponseBuilder,
+  dynamoQueryResponseBuilder,
   cognitoUserBuilder,
   MockAWSError,
 };

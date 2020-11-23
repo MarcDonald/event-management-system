@@ -11,7 +11,7 @@ module.exports = (dependencies) => async (event) => {
     return {
       ...response,
       statusCode: 400,
-      body: JSON.stringify('Username must be provided'),
+      body: JSON.stringify({ message: 'Username must be provided' }),
     };
   }
 

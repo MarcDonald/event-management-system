@@ -23,15 +23,27 @@ export default class VenueHttpEndpoints {
       integration: this.createAddVenueHandler(scope, tableName, tableArn),
     });
 
+    const getAllRoutes = api.addRoutes({
+      path: '/venues',
+      methods: [HttpMethod.GET],
+      integration: this.createGetAllVenuesHandler(scope, tableName, tableArn),
+    });
+
     const getOneRoutes = api.addRoutes({
       path: '/venues/{venueId}',
       methods: [HttpMethod.GET],
       integration: this.createGetVenueHandler(scope, tableName, tableArn),
     });
 
+    const deleteOneRoutes = api.addRoutes({
+      path: '/venues/{venueId}',
+      methods: [HttpMethod.DELETE],
+      integration: this.createDeleteVenueHandler(scope, tableName, tableArn),
+    });
+
     // Flattens all the individual arrays of routes into one single array
     const allAdminRoutes = Array<HttpRoute>().concat(
-      ...[addVenueRoutes, getOneRoutes]
+      ...[addVenueRoutes, getAllRoutes, getOneRoutes, deleteOneRoutes]
     );
     httpApiResources.addAdminJwtAuthorizerToRoutes(allAdminRoutes);
   }
@@ -83,6 +95,56 @@ export default class VenueHttpEndpoints {
 
     return new LambdaProxyIntegration({
       handler: getVenueFunc,
+    });
+  }
+
+  private createDeleteVenueHandler(
+    scope: cdk.Construct,
+    tableName: string,
+    tableArn: string
+  ): LambdaProxyIntegration {
+    const deleteVenueFunc = new Function(scope, 'DeleteVenueFunction', {
+      runtime: Runtime.NODEJS_12_X,
+      handler: 'index.handler',
+      functionName: 'EmsDeleteVenue',
+      code: Code.fromAsset(this.lambdaRootDir + 'deleteVenue'),
+      environment: {
+        TABLE_NAME: tableName,
+      },
+    });
+
+    const policyStatement = new PolicyStatement();
+    policyStatement.addResources(tableArn);
+    policyStatement.addActions('dynamodb:DeleteItem');
+    deleteVenueFunc.addToRolePolicy(policyStatement);
+
+    return new LambdaProxyIntegration({
+      handler: deleteVenueFunc,
+    });
+  }
+
+  private createGetAllVenuesHandler(
+    scope: cdk.Construct,
+    tableName: string,
+    tableArn: string
+  ): LambdaProxyIntegration {
+    const getAllVenuesFunc = new Function(scope, 'GetAllVenuesFunction', {
+      runtime: Runtime.NODEJS_12_X,
+      handler: 'index.handler',
+      functionName: 'EmsGetAllVenues',
+      code: Code.fromAsset(this.lambdaRootDir + 'getAllVenues'),
+      environment: {
+        TABLE_NAME: tableName,
+      },
+    });
+
+    const policyStatement = new PolicyStatement();
+    policyStatement.addResources(tableArn);
+    policyStatement.addActions('dynamodb:Scan');
+    getAllVenuesFunc.addToRolePolicy(policyStatement);
+
+    return new LambdaProxyIntegration({
+      handler: getAllVenuesFunc,
     });
   }
 }

@@ -104,7 +104,7 @@ test('Should return 500 if an error is thrown', async () => {
   expect(statusCode).toBe(500);
   expect(body).toBe(
     JSON.stringify({
-      message: `Unable to retrieve all users - An unknown error.`,
+      message: `Error getting all users - An unknown error.`,
     })
   );
 });

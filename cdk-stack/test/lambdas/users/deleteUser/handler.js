@@ -46,7 +46,7 @@ test('Should return 400 when no username is supplied', async () => {
   const { statusCode, body } = await handler(event);
 
   expect(statusCode).toBe(400);
-  expect(body).toBe(JSON.stringify('Username must be provided'));
+  expect(body).toBe(JSON.stringify({ message: 'Username must be provided' }));
   expect(adminDeleteUserMock).toBeCalledTimes(0);
 });
 
