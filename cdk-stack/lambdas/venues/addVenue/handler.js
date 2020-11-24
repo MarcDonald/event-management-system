@@ -5,10 +5,10 @@ const response = {
 
 const addIdToPositions = (positions, generateUUID) => {
   const processedPositions = [];
-  positions.forEach((eventPosition) => {
+  positions.forEach((venuePosition) => {
     processedPositions.push({
       positionId: generateUUID().toString(),
-      name: eventPosition.name,
+      name: venuePosition.name,
     });
   });
   return processedPositions;
@@ -22,19 +22,20 @@ module.exports = (dependencies) => async (event) => {
       ...response,
       statusCode: 400,
       body: JSON.stringify({
-        message: `Request must contain a body containing a name, status, and positions`,
+        message: `Request must contain a body containing a name and positions`,
       }),
     };
   }
 
-  const { name, status, positions } = JSON.parse(event.body);
+  const { name, positions } = JSON.parse(event.body);
 
-  if (!name || !status || !positions) {
+  // TODO trim name and position names
+  if (!name || !positions) {
     return {
       ...response,
       statusCode: 400,
       body: JSON.stringify({
-        message: `Request must contain a body containing a name, status, and positions`,
+        message: `Request must contain a body containing a name and positions`,
       }),
     };
   }
@@ -57,7 +58,6 @@ module.exports = (dependencies) => async (event) => {
     const itemToAdd = {
       venueId,
       name,
-      status,
       positions: processedPositions,
     };
 

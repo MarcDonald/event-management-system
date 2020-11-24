@@ -63,7 +63,6 @@ test('Should create venue and return formatted venue object when provided with a
     Item: {
       venueId: 'uuid1',
       name: validVenueName,
-      status: ALL_OK,
       positions: [
         {
           positionId: 'uuid2',
@@ -83,7 +82,6 @@ test('Should create venue and return formatted venue object when provided with a
     JSON.stringify({
       venueId: 'uuid1',
       name: validVenueName,
-      status: ALL_OK,
       positions: [
         {
           positionId: 'uuid2',
@@ -106,8 +104,7 @@ test('Should return 400 when called with an event with no body', async () => {
   expect(statusCode).toBe(400);
   expect(body).toBe(
     JSON.stringify({
-      message:
-        'Request must contain a body containing a name, status, and positions',
+      message: 'Request must contain a body containing a name and positions',
     })
   );
 });
@@ -120,15 +117,13 @@ test('Should return 400 when called with an event with an empty body', async () 
   expect(statusCode).toBe(400);
   expect(body).toBe(
     JSON.stringify({
-      message:
-        'Request must contain a body containing a name, status, and positions',
+      message: 'Request must contain a body containing a name and positions',
     })
   );
 });
 
 test('Should return 400 when called with an event with no name', async () => {
   const eventBody = JSON.stringify({
-    status: ALL_OK,
     positions: [{ name: validPositionName }],
   });
   const event = { body: eventBody };
@@ -138,26 +133,7 @@ test('Should return 400 when called with an event with no name', async () => {
   expect(statusCode).toBe(400);
   expect(body).toBe(
     JSON.stringify({
-      message:
-        'Request must contain a body containing a name, status, and positions',
-    })
-  );
-});
-
-test('Should return 400 when called with an event with no status', async () => {
-  const eventBody = JSON.stringify({
-    name: validVenueName,
-    positions: [{ name: validPositionName }],
-  });
-  const event = { body: eventBody };
-
-  const { statusCode, body } = await handler(event);
-
-  expect(statusCode).toBe(400);
-  expect(body).toBe(
-    JSON.stringify({
-      message:
-        'Request must contain a body containing a name, status, and positions',
+      message: 'Request must contain a body containing a name and positions',
     })
   );
 });
@@ -165,7 +141,6 @@ test('Should return 400 when called with an event with no status', async () => {
 test('Should return 400 when called with an event with no position array', async () => {
   const eventBody = JSON.stringify({
     name: validVenueName,
-    status: ALL_OK,
   });
   const event = { body: eventBody };
 
@@ -174,8 +149,7 @@ test('Should return 400 when called with an event with no position array', async
   expect(statusCode).toBe(400);
   expect(body).toBe(
     JSON.stringify({
-      message:
-        'Request must contain a body containing a name, status, and positions',
+      message: 'Request must contain a body containing a name and positions',
     })
   );
 });
@@ -183,7 +157,6 @@ test('Should return 400 when called with an event with no position array', async
 test('Should return 400 when called with an event with empty position array', async () => {
   const eventBody = JSON.stringify({
     name: validVenueName,
-    status: ALL_OK,
     positions: [],
   });
   const event = { body: eventBody };
@@ -201,7 +174,6 @@ test('Should return 400 when called with an event with empty position array', as
 test('Should return 500 when another error is thrown', async () => {
   const eventBody = JSON.stringify({
     name: validVenueName,
-    status: ALL_OK,
     positions: [{ name: validPositionName }],
   });
   const event = { body: eventBody };
@@ -220,7 +192,6 @@ test('Should return 500 when another error is thrown', async () => {
     Item: {
       venueId: 'uuid',
       name: validVenueName,
-      status: ALL_OK,
       positions: [
         {
           positionId: 'uuid',
