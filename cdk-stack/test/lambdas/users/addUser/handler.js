@@ -1,5 +1,6 @@
-const { testValues } = require('../../../testUtils/userUtils');
-const { MockAWSError } = require('../../../testUtils/awsUtils');
+const { awsUtils, userUtils } = require('../../../testUtils');
+const { MockAWSError, cognitoUserBuilder } = awsUtils;
+const { testValues } = userUtils;
 const {
   validUsername,
   invalidUsername,
@@ -11,9 +12,9 @@ const {
   validApiClientId,
 } = testValues;
 
-let adminCreateUserMock = jest.fn();
-let adminInitiateAuthMock = jest.fn();
-let adminRespondToAuthChallengeMock = jest.fn();
+const adminCreateUserMock = jest.fn();
+const adminInitiateAuthMock = jest.fn();
+const adminRespondToAuthChallengeMock = jest.fn();
 
 let handler;
 

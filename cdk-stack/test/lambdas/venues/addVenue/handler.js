@@ -1,10 +1,10 @@
-const { MockAWSError } = require('../../../testUtils/awsUtils');
-const { testValues, validStatuses } = require('../../../testUtils/venueUtils');
+const { awsUtils, venueUtils } = require('../../../testUtils');
+const { MockAWSError } = awsUtils;
+const { testValues } = venueUtils;
 const { validTableName, validVenueName, validPositionName } = testValues;
-const { ALL_OK } = validStatuses;
 
-let generateUUIDMock = jest.fn();
-let putMock = jest.fn();
+const generateUUIDMock = jest.fn();
+const putMock = jest.fn();
 
 let handler;
 
@@ -29,7 +29,6 @@ afterEach(jest.resetAllMocks);
 test('Should create venue and return formatted venue object when provided with a valid event', async () => {
   const eventBody = JSON.stringify({
     name: validVenueName,
-    status: ALL_OK,
     positions: [
       {
         name: validPositionName + '1',

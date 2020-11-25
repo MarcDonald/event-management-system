@@ -1,0 +1,9 @@
+{
+  "name": "add-venue-positions",
+  "version": "1.0.0",
+  "description": "Add Venue Positions Lambda",
+  "author": "Marc Donald",
+  "dependencies": {
+    "uuid": "8.3.1"
+  }
+}

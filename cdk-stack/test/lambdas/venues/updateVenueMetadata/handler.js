@@ -1,9 +1,9 @@
-const { MockAWSError } = require('../../../testUtils/awsUtils');
-const { testValues } = require('../../../testUtils/venueUtils');
+const { awsUtils, venueUtils } = require('../../../testUtils');
+const { MockAWSError } = awsUtils;
+const { testValues } = venueUtils;
 const { validTableName, validVenueId, validVenueName } = testValues;
 
-let updateMock = jest.fn();
-
+const updateMock = jest.fn();
 let handler;
 
 beforeEach(() => {

@@ -1,6 +1,7 @@
-const { MockAWSError } = require('../../../testUtils/awsUtils');
-const { testValues } = require('../../../testUtils/venueUtils');
-const { validVenueId, invalidVenueId, validTableName } = testValues;
+const { awsUtils, venueUtils } = require('../../../testUtils');
+const { MockAWSError } = awsUtils;
+const { testValues } = venueUtils;
+const { validVenueId, validTableName } = testValues;
 
 let handler;
 

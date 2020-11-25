@@ -1,8 +1,6 @@
-const { testValues } = require('../../../testUtils/userUtils');
-const {
-  cognitoUserBuilder,
-  MockAWSError,
-} = require('../../../testUtils/awsUtils');
+const { awsUtils, userUtils } = require('../../../testUtils');
+const { MockAWSError, cognitoUserBuilder } = awsUtils;
+const { testValues } = userUtils;
 const {
   validUsername,
   invalidUsername,
@@ -14,7 +12,7 @@ const {
 } = testValues;
 
 let handler;
-let adminGetUserMock = jest.fn();
+const adminGetUserMock = jest.fn();
 
 beforeEach(() => {
   const Cognito = {

@@ -1,8 +1,6 @@
-const { testValues } = require('../../../testUtils/venueUtils');
-const {
-  dynamoQueryResponseBuilder,
-  MockAWSError,
-} = require('../../../testUtils/awsUtils');
+const { awsUtils, venueUtils } = require('../../../testUtils');
+const { MockAWSError, dynamoQueryResponseBuilder } = awsUtils;
+const { testValues } = venueUtils;
 const {
   validTableName,
   validVenueId,

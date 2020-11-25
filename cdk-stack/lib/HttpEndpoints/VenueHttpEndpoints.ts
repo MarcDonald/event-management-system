@@ -47,6 +47,12 @@ export default class VenueHttpEndpoints {
       integration: this.createUpdateMetadataHandler(scope, tableName, tableArn),
     });
 
+    const addPositionsRoutes = api.addRoutes({
+      path: '/venues/{venueId}/positions',
+      methods: [HttpMethod.POST],
+      integration: this.createAddPositionsHandler(scope, tableName, tableArn),
+    });
+
     // Flattens all the individual arrays of routes into one single array
     const allAdminRoutes = Array<HttpRoute>().concat(
       ...[
@@ -55,6 +61,7 @@ export default class VenueHttpEndpoints {
         getOneRoutes,
         deleteOneRoutes,
         updateMetadataRoutes,
+        addPositionsRoutes,
       ]
     );
     httpApiResources.addAdminJwtAuthorizerToRoutes(allAdminRoutes);
@@ -186,6 +193,31 @@ export default class VenueHttpEndpoints {
 
     return new LambdaProxyIntegration({
       handler: updateMetadataFunc,
+    });
+  }
+
+  private createAddPositionsHandler(
+    scope: cdk.Construct,
+    tableName: string,
+    tableArn: string
+  ): LambdaProxyIntegration {
+    const addPositionsFunc = new Function(scope, 'AddVenuePositionsFunction', {
+      runtime: Runtime.NODEJS_12_X,
+      handler: 'index.handler',
+      functionName: 'EmsAddVenuePositions',
+      code: Code.fromAsset(this.lambdaRootDir + 'addVenuePositions'),
+      environment: {
+        TABLE_NAME: tableName,
+      },
+    });
+
+    const policyStatement = new PolicyStatement();
+    policyStatement.addResources(tableArn);
+    policyStatement.addActions('dynamodb:UpdateItem');
+    addPositionsFunc.addToRolePolicy(policyStatement);
+
+    return new LambdaProxyIntegration({
+      handler: addPositionsFunc,
     });
   }
 }

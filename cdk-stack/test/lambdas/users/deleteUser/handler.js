@@ -1,5 +1,6 @@
-const { MockAWSError } = require('../../../testUtils/awsUtils');
-const { testValues } = require('../../../testUtils/userUtils');
+const { awsUtils, userUtils } = require('../../../testUtils');
+const { MockAWSError, cognitoUserBuilder } = awsUtils;
+const { testValues } = userUtils;
 const { validUsername, invalidUsername } = testValues;
 
 let handler;
