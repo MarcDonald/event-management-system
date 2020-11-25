@@ -25,6 +25,7 @@ module.exports = (dependencies) => async (event) => {
       ExpressionAttributeValues: {
         ':id': venueId,
       },
+      Limit: 1,
     }).promise();
 
     if (result.Items.length === 0) {

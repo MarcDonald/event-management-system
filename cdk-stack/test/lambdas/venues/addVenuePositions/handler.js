@@ -86,7 +86,7 @@ test('Should add new positions to venue when provided with a valid event', async
   expect(statusCode).toBe(201);
   expect(body).toBe(
     JSON.stringify({
-      message: `Added positions to ${validVenueId} successfully`,
+      message: `Added 2 positions to ${validVenueId} successfully`,
     })
   );
 });
@@ -165,7 +165,7 @@ test('Should return 400 when called with an event does not have an array as a bo
   );
 });
 
-test('Should return 404 when another venue could not be found', async () => {
+test('Should return 404 when venue could not be found', async () => {
   const eventBody = JSON.stringify([
     {
       name: validPositionName,

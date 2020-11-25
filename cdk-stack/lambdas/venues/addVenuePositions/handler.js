@@ -63,11 +63,13 @@ module.exports = (dependencies) => async (event) => {
 
     await Dynamo.update(updateParams).promise();
 
+    const addedCount = processedPositions.length;
+
     return {
       ...response,
       statusCode: 201,
       body: JSON.stringify({
-        message: `Added positions to ${venueId} successfully`,
+        message: `Added ${addedCount} positions to ${venueId} successfully`,
       }),
     };
   } catch (err) {

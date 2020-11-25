@@ -69,6 +69,7 @@ test('Should return formatted venue object when provided with a valid venue ID',
     ExpressionAttributeValues: {
       ':id': validVenueId,
     },
+    Limit: 1,
   });
   expect(queryMock).toBeCalledTimes(1);
   expect(statusCode).toBe(200);

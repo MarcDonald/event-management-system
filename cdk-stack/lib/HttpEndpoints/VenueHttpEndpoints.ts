@@ -53,6 +53,16 @@ export default class VenueHttpEndpoints {
       integration: this.createAddPositionsHandler(scope, tableName, tableArn),
     });
 
+    const deletePositionsRoutes = api.addRoutes({
+      path: '/venues/{venueId}/positions',
+      methods: [HttpMethod.DELETE],
+      integration: this.createDeletePositionsHandler(
+        scope,
+        tableName,
+        tableArn
+      ),
+    });
+
     // Flattens all the individual arrays of routes into one single array
     const allAdminRoutes = Array<HttpRoute>().concat(
       ...[
@@ -62,6 +72,7 @@ export default class VenueHttpEndpoints {
         deleteOneRoutes,
         updateMetadataRoutes,
         addPositionsRoutes,
+        deletePositionsRoutes,
       ]
     );
     httpApiResources.addAdminJwtAuthorizerToRoutes(allAdminRoutes);
@@ -218,6 +229,35 @@ export default class VenueHttpEndpoints {
 
     return new LambdaProxyIntegration({
       handler: addPositionsFunc,
+    });
+  }
+
+  private createDeletePositionsHandler(
+    scope: cdk.Construct,
+    tableName: string,
+    tableArn: string
+  ): LambdaProxyIntegration {
+    const deletePositionsFunc = new Function(
+      scope,
+      'DeleteVenuePositionsFunction',
+      {
+        runtime: Runtime.NODEJS_12_X,
+        handler: 'index.handler',
+        functionName: 'EmsDeleteVenuePositions',
+        code: Code.fromAsset(this.lambdaRootDir + 'deleteVenuePositions'),
+        environment: {
+          TABLE_NAME: tableName,
+        },
+      }
+    );
+
+    const policyStatement = new PolicyStatement();
+    policyStatement.addResources(tableArn);
+    policyStatement.addActions('dynamodb:UpdateItem', 'dynamodb:Query');
+    deletePositionsFunc.addToRolePolicy(policyStatement);
+
+    return new LambdaProxyIntegration({
+      handler: deletePositionsFunc,
     });
   }
 }
