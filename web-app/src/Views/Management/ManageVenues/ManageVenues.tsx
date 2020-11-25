@@ -83,20 +83,16 @@ export default function ManageVenues() {
     }
   };
 
-  const displayVenueList = () => {
-    if (isLoadingVenues) {
-      return <Loading containerClassName="mt-4" />;
-    } else {
-      return displayedVenues.map((venue) => {
-        return (
-          <VenueCard
-            key={venue.venueId}
-            name={venue.name}
-            onClick={() => selectVenueToEdit(venue.venueId)}
-          />
-        );
-      });
+  const validateForm = (): boolean => {
+    if (fields.name.length < 1) {
+      setError(new Error('Name is too short'));
+      return false;
     }
+    if (fields.positions.length < 1) {
+      setError(new Error('Cannot create a venue with no positions'));
+      return false;
+    }
+    return true;
   };
 
   const formSave = async (event: React.FormEvent<HTMLFormElement> | null) => {
@@ -148,16 +144,17 @@ export default function ManageVenues() {
     setIsDeleting(false);
   };
 
-  const validateForm = (): boolean => {
-    if (fields.name.length < 1) {
-      setError(new Error('Name is too short'));
-      return false;
-    }
-    if (fields.positions.length < 1) {
-      setError(new Error('Cannot create a venue with no positions'));
-      return false;
-    }
-    return true;
+  const addNewPosition = (name: string) => {
+    const newPositions = [...fields.positions];
+    newPositions.push({
+      positionId: name,
+      name,
+    });
+    setFieldsDirectly({
+      ...fields,
+      positions: newPositions,
+    });
+    setError(null);
   };
 
   const deletePosition = (id: string) => {
@@ -170,40 +167,45 @@ export default function ManageVenues() {
     });
   };
 
-  const displayPositions = () => {
-    return fields.positions.map((position) => {
-      return (
-        <div
-          key={position.positionId}
-          className="w-full bg-white p-2 mb-2 flex justify-between items-center rounded-md"
-        >
-          <p className="text-2xl">{position.name}</p>
-          <button
-            type="button"
-            onClick={() => deletePosition(position.positionId)}
-            className="text-center focus:outline-none bg-negative hover:bg-negative-light focus:bg-negative-light rounded-md p-1 text-white w-10 h-10"
-          >
-            <FontAwesomeIcon
-              icon={faTrash}
-              className={`text-2xl align-middle`}
-            />
-          </button>
-        </div>
-      );
-    });
+  const header = () => {
+    return (
+      <>
+        {fields.name && (
+          <ManagementEditHeader
+            delete={formDelete}
+            title={fields.name}
+            save={() => formSave(null)}
+            isDeleting={isDeleting}
+            isSaving={isSaving}
+          />
+        )}
+        {!fields.name && (
+          <ManagementEditHeader
+            delete={formDelete}
+            title="New Venue"
+            save={() => formSave(null)}
+            isDeleting={isDeleting}
+            isSaving={isSaving}
+          />
+        )}
+      </>
+    );
   };
 
-  const addNewPosition = (name: string) => {
-    const newPositions = [...fields.positions];
-    newPositions.push({
-      positionId: name,
-      name,
-    });
-    setFieldsDirectly({
-      ...fields,
-      positions: newPositions,
-    });
-    setError(null);
+  const venueList = () => {
+    if (isLoadingVenues) {
+      return <Loading containerClassName="mt-4" />;
+    } else {
+      return displayedVenues.map((venue) => {
+        return (
+          <VenueCard
+            key={venue.venueId}
+            name={venue.name}
+            onClick={() => selectVenueToEdit(venue.venueId)}
+          />
+        );
+      });
+    }
   };
 
   const venueDetailsForm = () => {
@@ -226,46 +228,52 @@ export default function ManageVenues() {
     );
   };
 
-  const positions = () => {
+  const positionsSection = () => {
     return (
-      <div className="mt-4">
+      <section className="my-2">
         <label
           htmlFor="positions"
           className="my-2 text-center font-bold text-2xl"
         >
           Positions
         </label>
-        {displayPositions()}
+        {positionsList()}
         <NewPositionEntry onSave={addNewPosition} />
-      </div>
+      </section>
     );
+  };
+
+  const positionsList = () => {
+    return fields.positions.map((position) => {
+      return (
+        <div
+          key={position.positionId}
+          className="w-full bg-white p-2 mb-2 flex justify-between items-center rounded-md"
+        >
+          <p className="text-2xl">{position.name}</p>
+          <button
+            type="button"
+            onClick={() => deletePosition(position.positionId)}
+            className="text-center focus:outline-none bg-negative hover:bg-negative-light focus:bg-negative-light rounded-md p-1 text-white w-10 h-10"
+          >
+            <FontAwesomeIcon
+              icon={faTrash}
+              className={`text-2xl align-middle`}
+            />
+          </button>
+        </div>
+      );
+    });
   };
 
   return (
     <div className="grid grid-cols-5 h-full">
       <div className="col-span-4 mx-16">
-        {fields.name && (
-          <ManagementEditHeader
-            delete={formDelete}
-            title={fields.name}
-            save={() => formSave(null)}
-            isDeleting={isDeleting}
-            isSaving={isSaving}
-          />
-        )}
-        {!fields.name && (
-          <ManagementEditHeader
-            delete={formDelete}
-            title="New Venue"
-            save={() => formSave(null)}
-            isDeleting={isDeleting}
-            isSaving={isSaving}
-          />
-        )}
+        {header()}
         <div className="grid grid-cols-4">
           <div className="col-start-2 col-span-2 mt-4 text-center">
             {venueDetailsForm()}
-            {positions()}
+            {positionsSection()}
             {error && <ErrorMessage message={error.message} />}
           </div>
         </div>
@@ -275,7 +283,7 @@ export default function ManageVenues() {
         newButtonClick={setupNewVenue}
         newButtonText="New Venue"
         onSearch={venueSearch}
-        displayedList={displayVenueList()}
+        displayedList={venueList()}
       />
     </div>
   );

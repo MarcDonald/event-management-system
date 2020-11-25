@@ -1,4 +1,5 @@
 import React, { MouseEventHandler } from 'react';
+import Card from '../../../Components/Card';
 
 interface VenueCardPropTypes {
   name: string;
@@ -7,11 +8,8 @@ interface VenueCardPropTypes {
 
 export default function VenueCard(props: VenueCardPropTypes) {
   return (
-    <div
-      className="bg-lighter-gray my-2 hover:bg-darker-gray cursor-pointer p-2 rounded-md"
-      onClick={props.onClick}
-    >
+    <Card onClick={props.onClick}>
       <h1 className="font-bold text-lg">{props.name}</h1>
-    </div>
+    </Card>
   );
 }
