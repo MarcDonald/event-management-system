@@ -1,44 +1,13 @@
 import config from '../config.json';
 import Venue from '../Models/Venue';
-import { sleep } from './ApiService';
+import { delet, get, post, put } from './ApiService';
 import Position from '../Models/Position';
 
 const baseUrl = `${config.API.BASE_URL}/venues`;
 
 export async function getAllVenues(): Promise<Array<Venue>> {
-  // const result = await get(baseUrl);
-  // return result.data;
-  await sleep(1000);
-  return [
-    {
-      venueId: 'abc1',
-      name: 'Air Arena',
-      positions: [
-        {
-          positionId: 'D1',
-          name: 'Door 1',
-        },
-        {
-          positionId: 'D2',
-          name: 'Door 2',
-        },
-      ],
-    },
-    {
-      venueId: 'abc2',
-      name: 'Sea Stadium',
-      positions: [
-        {
-          positionId: 'T1',
-          name: 'Tickets 1',
-        },
-        {
-          positionId: 'C1',
-          name: 'Concourse 1',
-        },
-      ],
-    },
-  ];
+  const result = await get(baseUrl);
+  return result.data;
 }
 
 interface NewVenueDetails {
@@ -49,25 +18,47 @@ interface NewVenueDetails {
 export async function createNewVenue(
   venueToCreate: NewVenueDetails
 ): Promise<Venue> {
-  // const result = await post(baseUrl, {});
-  // return result.data;
-  await sleep(1000);
-  return {
-    ...venueToCreate,
-    venueId: 'ghj123',
-  };
+  const result = await post(baseUrl, venueToCreate);
+  return result.data;
 }
 
-export async function updateExistingVenue(venueToEdit: Venue): Promise<Venue> {
-  // await put(`${baseUrl}/${venueToEdit.id}`, {});
-  // return venueToEdit;
-  await sleep(1000);
-  return venueToEdit;
+interface EditableVenueMetadata {
+  name: string;
+}
+
+export async function updateVenueMetadata(
+  venueId: string,
+  metadata: EditableVenueMetadata
+): Promise<Venue> {
+  return await put(`${baseUrl}/${venueId}/metadata`, metadata);
+}
+
+export interface NewPosition {
+  name: string;
+}
+
+export async function addVenuePositions(
+  venueId: string,
+  positions: Array<NewPosition>
+): Promise<Venue> {
+  return await post(`${baseUrl}/${venueId}/positions`, positions);
+}
+
+export async function updateVenuePositions(
+  venueId: string,
+  positions: Array<Position>
+): Promise<Venue> {
+  return await put(`${baseUrl}/${venueId}/positions`, positions);
+}
+
+export async function deleteVenuePositions(
+  venueId: string,
+  positionIds: Array<string>
+): Promise<Venue> {
+  return await delet(`${baseUrl}/${venueId}/positions`, positionIds);
 }
 
 export async function deleteVenue(id: string): Promise<string> {
-  // await delet(`${baseUrl}/${id}`);
-  // return id;
-  await sleep(1000);
+  await delet(`${baseUrl}/${id}`);
   return id;
 }

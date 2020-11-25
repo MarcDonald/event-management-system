@@ -1,7 +1,7 @@
 enum VenueStatus {
-  AllOk = 'All Ok',
-  YellowAlert = 'Yellow Alert',
-  RedAlert = 'Red Alert',
+  Low,
+  High,
+  Evacuate,
 }
 
 export default VenueStatus;

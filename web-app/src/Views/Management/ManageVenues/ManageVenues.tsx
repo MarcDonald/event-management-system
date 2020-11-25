@@ -3,10 +3,13 @@ import ManagementEditHeader from '../ManagementEditHeader';
 import ListPanel from '../ListPanel';
 import Venue from '../../../Models/Venue';
 import {
+  addVenuePositions,
   createNewVenue,
   deleteVenue,
+  deleteVenuePositions,
   getAllVenues,
-  updateExistingVenue,
+  NewPosition,
+  updateVenueMetadata,
 } from '../../../Services/VenueService';
 import Loading from '../../../Components/Loading';
 import VenueCard from './VenueCard';
@@ -39,6 +42,8 @@ export default function ManageVenues() {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [isLoadingVenues, setIsLoadingVenues] = useState<boolean>(true);
+  const [positionsToDelete, setPositionsToDelete] = useState<Array<string>>([]);
+  const [positionsToAdd, setPositionsToAdd] = useState<Array<NewPosition>>([]);
 
   const venueSearch = (searchContent: string) => {
     if (searchContent) {
@@ -67,6 +72,8 @@ export default function ManageVenues() {
 
   const setupNewVenue = () => {
     setFieldsDirectly(emptyFormFields);
+    setPositionsToAdd([]);
+    setPositionsToDelete([]);
   };
 
   const selectVenueToEdit = (id: string) => {
@@ -77,6 +84,8 @@ export default function ManageVenues() {
         name: venue.name,
         positions: venue.positions,
       });
+      setPositionsToAdd([]);
+      setPositionsToDelete([]);
     } else {
       console.log(`Setup new venue`);
       setupNewVenue();
@@ -95,6 +104,21 @@ export default function ManageVenues() {
     return true;
   };
 
+  const updateVenue = async (): Promise<Venue> => {
+    if (fields.id) {
+      await updateVenueMetadata(fields.id, {
+        name: fields.name,
+      });
+      await addVenuePositions(fields.id, positionsToAdd);
+      await deleteVenuePositions(fields.id, positionsToDelete);
+    }
+    return {
+      venueId: fields.id!!,
+      name: fields.name,
+      positions: fields.positions,
+    };
+  };
+
   const formSave = async (event: React.FormEvent<HTMLFormElement> | null) => {
     if (event) event.preventDefault();
     if (validateForm()) {
@@ -109,10 +133,7 @@ export default function ManageVenues() {
           const newVenue = await createNewVenue(newDetails);
           allVenues.push(newVenue);
         } else {
-          const updatedVenue = await updateExistingVenue({
-            venueId: fields.id!!,
-            ...newDetails,
-          });
+          const updatedVenue = await updateVenue();
           const indexOfVenue = allVenues.findIndex(
             (venue) => venue.venueId === fields.id
           );
@@ -154,6 +175,7 @@ export default function ManageVenues() {
       ...fields,
       positions: newPositions,
     });
+    setPositionsToAdd([...positionsToAdd, { name }]);
     setError(null);
   };
 
@@ -165,6 +187,7 @@ export default function ManageVenues() {
       ...fields,
       positions: newPositions,
     });
+    setPositionsToDelete([...positionsToDelete, id]);
   };
 
   const header = () => {
