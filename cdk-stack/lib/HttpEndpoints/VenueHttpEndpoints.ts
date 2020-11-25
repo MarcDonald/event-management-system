@@ -12,7 +12,6 @@ export default class VenueHttpEndpoints {
     private dynamoResources: DynamoDbResources
   ) {
     const { api } = httpApiResources;
-    const { tableName, tableArn } = dynamoResources.venueTable;
 
     const addVenueRoutes = api.addRoutes({
       path: '/venues',
@@ -50,6 +49,12 @@ export default class VenueHttpEndpoints {
       integration: this.createAddPositionsHandler(),
     });
 
+    const updatePositionsRoutes = api.addRoutes({
+      path: '/venues/{venueId}/positions',
+      methods: [HttpMethod.PUT],
+      integration: this.createUpdatePositionsHandler(),
+    });
+
     const deletePositionsRoutes = api.addRoutes({
       path: '/venues/{venueId}/positions',
       methods: [HttpMethod.DELETE],
@@ -66,6 +71,7 @@ export default class VenueHttpEndpoints {
         updateMetadataRoutes,
         addPositionsRoutes,
         deletePositionsRoutes,
+        updatePositionsRoutes,
       ]
     );
     httpApiResources.addAdminJwtAuthorizerToRoutes(allAdminRoutes);
@@ -116,6 +122,15 @@ export default class VenueHttpEndpoints {
       'EmsAddVenuePositions',
       'addVenuePositions',
       ['dynamodb:UpdateItem']
+    );
+  }
+
+  private createUpdatePositionsHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'UpdateVenuePositionsFunction',
+      'EmsUpdateVenuePositions',
+      'updateVenuePositions',
+      ['dynamodb:UpdateItem', 'dynamodb:Query']
     );
   }
 
