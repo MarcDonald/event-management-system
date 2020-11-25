@@ -1,18 +1,15 @@
 import * as cdk from '@aws-cdk/core';
 import { HttpMethod, HttpRoute } from '@aws-cdk/aws-apigatewayv2';
 import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
-import { Code, Function, Runtime } from '@aws-cdk/aws-lambda';
-import { PolicyStatement } from '@aws-cdk/aws-iam';
 import HttpApiResources from '../HttpApiResources';
 import DynamoDbResources from '../DynamoDbResources';
+import { createBaseHandler } from '../Utils/LambdaUtils';
 
 export default class VenueHttpEndpoints {
-  private lambdaRootDir = './lambdas/venues/';
-
   constructor(
-    scope: cdk.Construct,
+    private scope: cdk.Construct,
     httpApiResources: HttpApiResources,
-    dynamoResources: DynamoDbResources
+    private dynamoResources: DynamoDbResources
   ) {
     const { api } = httpApiResources;
     const { tableName, tableArn } = dynamoResources.venueTable;
@@ -20,47 +17,43 @@ export default class VenueHttpEndpoints {
     const addVenueRoutes = api.addRoutes({
       path: '/venues',
       methods: [HttpMethod.POST],
-      integration: this.createAddVenueHandler(scope, tableName, tableArn),
+      integration: this.createAddVenueHandler(),
     });
 
     const getAllRoutes = api.addRoutes({
       path: '/venues',
       methods: [HttpMethod.GET],
-      integration: this.createGetAllVenuesHandler(scope, tableName, tableArn),
+      integration: this.createGetAllVenuesHandler(),
     });
 
     const getOneRoutes = api.addRoutes({
       path: '/venues/{venueId}',
       methods: [HttpMethod.GET],
-      integration: this.createGetVenueHandler(scope, tableName, tableArn),
+      integration: this.createGetVenueHandler(),
     });
 
     const deleteOneRoutes = api.addRoutes({
       path: '/venues/{venueId}',
       methods: [HttpMethod.DELETE],
-      integration: this.createDeleteVenueHandler(scope, tableName, tableArn),
+      integration: this.createDeleteVenueHandler(),
     });
 
     const updateMetadataRoutes = api.addRoutes({
       path: '/venues/{venueId}/metadata',
       methods: [HttpMethod.PUT],
-      integration: this.createUpdateMetadataHandler(scope, tableName, tableArn),
+      integration: this.createUpdateMetadataHandler(),
     });
 
     const addPositionsRoutes = api.addRoutes({
       path: '/venues/{venueId}/positions',
       methods: [HttpMethod.POST],
-      integration: this.createAddPositionsHandler(scope, tableName, tableArn),
+      integration: this.createAddPositionsHandler(),
     });
 
     const deletePositionsRoutes = api.addRoutes({
       path: '/venues/{venueId}/positions',
       methods: [HttpMethod.DELETE],
-      integration: this.createDeletePositionsHandler(
-        scope,
-        tableName,
-        tableArn
-      ),
+      integration: this.createDeletePositionsHandler(),
     });
 
     // Flattens all the individual arrays of routes into one single array
@@ -78,186 +71,78 @@ export default class VenueHttpEndpoints {
     httpApiResources.addAdminJwtAuthorizerToRoutes(allAdminRoutes);
   }
 
-  private createAddVenueHandler(
-    scope: cdk.Construct,
-    tableName: string,
-    tableArn: string
-  ): LambdaProxyIntegration {
-    const addVenueFunc = new Function(scope, 'AddVenueFunction', {
-      runtime: Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      functionName: 'EmsAddVenue',
-      code: Code.fromAsset(this.lambdaRootDir + 'addVenue'),
-      environment: {
-        TABLE_NAME: tableName,
-      },
-    });
-
-    const policyStatement = new PolicyStatement();
-    policyStatement.addResources(tableArn);
-    policyStatement.addActions('dynamodb:PutItem');
-    addVenueFunc.addToRolePolicy(policyStatement);
-
-    return new LambdaProxyIntegration({
-      handler: addVenueFunc,
-    });
+  private createAddVenueHandler(): LambdaProxyIntegration {
+    return this.createHandler('AddVenueFunction', 'EmsAddVenue', 'addVenue', [
+      'dynamodb:PutItem',
+    ]);
   }
 
-  private createGetVenueHandler(
-    scope: cdk.Construct,
-    tableName: string,
-    tableArn: string
-  ): LambdaProxyIntegration {
-    const getVenueFunc = new Function(scope, 'GetVenueFunction', {
-      runtime: Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      functionName: 'EmsGetVenue',
-      code: Code.fromAsset(this.lambdaRootDir + 'getVenue'),
-      environment: {
-        TABLE_NAME: tableName,
-      },
-    });
-
-    const policyStatement = new PolicyStatement();
-    policyStatement.addResources(tableArn);
-    policyStatement.addActions('dynamodb:Query');
-    getVenueFunc.addToRolePolicy(policyStatement);
-
-    return new LambdaProxyIntegration({
-      handler: getVenueFunc,
-    });
+  private createGetVenueHandler(): LambdaProxyIntegration {
+    return this.createHandler('GetVenueFunction', 'EmsGetVenue', 'getVenue', [
+      'dynamodb:Query',
+    ]);
   }
 
-  private createDeleteVenueHandler(
-    scope: cdk.Construct,
-    tableName: string,
-    tableArn: string
-  ): LambdaProxyIntegration {
-    const deleteVenueFunc = new Function(scope, 'DeleteVenueFunction', {
-      runtime: Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      functionName: 'EmsDeleteVenue',
-      code: Code.fromAsset(this.lambdaRootDir + 'deleteVenue'),
-      environment: {
-        TABLE_NAME: tableName,
-      },
-    });
-
-    const policyStatement = new PolicyStatement();
-    policyStatement.addResources(tableArn);
-    policyStatement.addActions('dynamodb:DeleteItem');
-    deleteVenueFunc.addToRolePolicy(policyStatement);
-
-    return new LambdaProxyIntegration({
-      handler: deleteVenueFunc,
-    });
+  private createDeleteVenueHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'DeleteVenueFunction',
+      'EmsDeleteVenue',
+      'deleteVenue',
+      ['dynamodb:DeleteItem']
+    );
   }
 
-  private createGetAllVenuesHandler(
-    scope: cdk.Construct,
-    tableName: string,
-    tableArn: string
-  ): LambdaProxyIntegration {
-    const getAllVenuesFunc = new Function(scope, 'GetAllVenuesFunction', {
-      runtime: Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      functionName: 'EmsGetAllVenues',
-      code: Code.fromAsset(this.lambdaRootDir + 'getAllVenues'),
-      environment: {
-        TABLE_NAME: tableName,
-      },
-    });
-
-    const policyStatement = new PolicyStatement();
-    policyStatement.addResources(tableArn);
-    policyStatement.addActions('dynamodb:Scan');
-    getAllVenuesFunc.addToRolePolicy(policyStatement);
-
-    return new LambdaProxyIntegration({
-      handler: getAllVenuesFunc,
-    });
+  private createGetAllVenuesHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'GetAllVenuesFunction',
+      'EmsGetAllVenues',
+      'getAllVenues',
+      ['dynamodb:Scan']
+    );
   }
 
-  private createUpdateMetadataHandler(
-    scope: cdk.Construct,
-    tableName: string,
-    tableArn: string
-  ): LambdaProxyIntegration {
-    const updateMetadataFunc = new Function(
-      scope,
+  private createUpdateMetadataHandler(): LambdaProxyIntegration {
+    return this.createHandler(
       'UpdateVenueMetadataFunction',
-      {
-        runtime: Runtime.NODEJS_12_X,
-        handler: 'index.handler',
-        functionName: 'EmsUpdateVenueMetadata',
-        code: Code.fromAsset(this.lambdaRootDir + 'updateVenueMetadata'),
-        environment: {
-          TABLE_NAME: tableName,
-        },
-      }
+      'EmsUpdateVenueMetadata',
+      'updateVenueMetadata',
+      ['dynamodb:UpdateItem']
     );
-
-    const policyStatement = new PolicyStatement();
-    policyStatement.addResources(tableArn);
-    policyStatement.addActions('dynamodb:UpdateItem');
-    updateMetadataFunc.addToRolePolicy(policyStatement);
-
-    return new LambdaProxyIntegration({
-      handler: updateMetadataFunc,
-    });
   }
 
-  private createAddPositionsHandler(
-    scope: cdk.Construct,
-    tableName: string,
-    tableArn: string
-  ): LambdaProxyIntegration {
-    const addPositionsFunc = new Function(scope, 'AddVenuePositionsFunction', {
-      runtime: Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      functionName: 'EmsAddVenuePositions',
-      code: Code.fromAsset(this.lambdaRootDir + 'addVenuePositions'),
-      environment: {
-        TABLE_NAME: tableName,
-      },
-    });
-
-    const policyStatement = new PolicyStatement();
-    policyStatement.addResources(tableArn);
-    policyStatement.addActions('dynamodb:UpdateItem');
-    addPositionsFunc.addToRolePolicy(policyStatement);
-
-    return new LambdaProxyIntegration({
-      handler: addPositionsFunc,
-    });
+  private createAddPositionsHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'AddVenuePositionsFunction',
+      'EmsAddVenuePositions',
+      'addVenuePositions',
+      ['dynamodb:UpdateItem']
+    );
   }
 
-  private createDeletePositionsHandler(
-    scope: cdk.Construct,
-    tableName: string,
-    tableArn: string
-  ): LambdaProxyIntegration {
-    const deletePositionsFunc = new Function(
-      scope,
+  private createDeletePositionsHandler(): LambdaProxyIntegration {
+    return this.createHandler(
       'DeleteVenuePositionsFunction',
-      {
-        runtime: Runtime.NODEJS_12_X,
-        handler: 'index.handler',
-        functionName: 'EmsDeleteVenuePositions',
-        code: Code.fromAsset(this.lambdaRootDir + 'deleteVenuePositions'),
-        environment: {
-          TABLE_NAME: tableName,
-        },
-      }
+      'EmsDeleteVenuePositions',
+      'deleteVenuePositions',
+      ['dynamodb:UpdateItem', 'dynamodb:Query']
     );
+  }
 
-    const policyStatement = new PolicyStatement();
-    policyStatement.addResources(tableArn);
-    policyStatement.addActions('dynamodb:UpdateItem', 'dynamodb:Query');
-    deletePositionsFunc.addToRolePolicy(policyStatement);
-
-    return new LambdaProxyIntegration({
-      handler: deletePositionsFunc,
-    });
+  private createHandler(
+    functionId: string,
+    functionName: string,
+    codeDir: string,
+    actions: string[]
+  ): LambdaProxyIntegration {
+    const { tableName, tableArn } = this.dynamoResources.venueTable;
+    return createBaseHandler(
+      this.scope,
+      functionId,
+      functionName,
+      `./lambdas/venues/${codeDir}`,
+      [tableArn],
+      actions,
+      { TABLE_NAME: tableName }
+    );
   }
 }

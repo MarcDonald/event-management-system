@@ -1,60 +1,46 @@
 import * as cdk from '@aws-cdk/core';
 import { HttpMethod, HttpRoute } from '@aws-cdk/aws-apigatewayv2';
 import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
-import { Code, Function, Runtime } from '@aws-cdk/aws-lambda';
 import CognitoResources from '../CognitoResources';
-import { PolicyStatement } from '@aws-cdk/aws-iam';
 import HttpApiResources from '../HttpApiResources';
+import { createBaseHandler } from '../Utils/LambdaUtils';
 
 export default class UserHttpEndpoints {
-  private lambdaRootDir = './lambdas/users/';
-
   constructor(
-    scope: cdk.Construct,
-    cognitoResources: CognitoResources,
+    private scope: cdk.Construct,
+    private cognitoResources: CognitoResources,
     httpApiResources: HttpApiResources
   ) {
-    const { userPoolId, userPoolArn } = cognitoResources.userPool;
-    const { userPoolClientId } = cognitoResources.apiUserPoolClient;
     const { api } = httpApiResources;
 
     const addUserRoutes = api.addRoutes({
       path: '/users',
       methods: [HttpMethod.POST],
-      integration: this.createAddUserHandler(
-        scope,
-        userPoolId,
-        userPoolClientId,
-        userPoolArn
-      ),
+      integration: this.createAddUserHandler(),
     });
 
     const getAllUsersRoutes = api.addRoutes({
       path: '/users',
       methods: [HttpMethod.GET],
-      integration: this.createGetAllUsersHandler(
-        scope,
-        userPoolId,
-        userPoolArn
-      ),
+      integration: this.createGetAllUsersHandler(),
     });
 
     const deleteUserRoutes = api.addRoutes({
       path: '/users/{username}',
       methods: [HttpMethod.DELETE],
-      integration: this.createDeleteUserHandler(scope, userPoolId, userPoolArn),
+      integration: this.createDeleteUserHandler(),
     });
 
     const updateUserRoutes = api.addRoutes({
       path: '/users/{username}',
       methods: [HttpMethod.PUT],
-      integration: this.createUpdateUserHandler(scope, userPoolId, userPoolArn),
+      integration: this.createUpdateUserHandler(),
     });
 
     const getOneRoutes = api.addRoutes({
       path: '/users/{username}',
       methods: [HttpMethod.GET],
-      integration: this.createGetUserHandler(scope, userPoolId, userPoolArn),
+      integration: this.createGetUserHandler(),
     });
 
     // Flattens all the individual arrays of routes into one single array
@@ -70,142 +56,76 @@ export default class UserHttpEndpoints {
     httpApiResources.addAdminJwtAuthorizerToRoutes(allAdminRoutes);
   }
 
-  private createAddUserHandler = (
-    scope: cdk.Construct,
-    userPoolId: string,
-    clientId: string,
-    userPoolArn: string
-  ): LambdaProxyIntegration => {
-    const addUserFunc = new Function(scope, 'AddUserFunction', {
-      runtime: Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      functionName: 'EmsAddUser',
-      code: Code.fromAsset(this.lambdaRootDir + 'addUser'),
-      environment: {
-        USER_POOL_ID: userPoolId,
-        API_CLIENT_ID: clientId,
-      },
-    });
+  private createAddUserHandler = (): LambdaProxyIntegration => {
+    const { userPoolClientId } = this.cognitoResources.apiUserPoolClient;
 
-    const policyStatement = new PolicyStatement();
-    policyStatement.addResources(userPoolArn);
-    policyStatement.addActions(
-      'cognito-idp:AdminCreateUser',
-      'cognito-idp:AdminInitiateAuth',
-      'cognito-idp:AdminRespondToAuthChallenge'
+    return this.createHandler(
+      'AddUserFunction',
+      'EmsAddUser',
+      'addUser',
+      [
+        'cognito-idp:AdminCreateUser',
+        'cognito-idp:AdminInitiateAuth',
+        'cognito-idp:AdminRespondToAuthChallenge',
+      ],
+      {
+        API_CLIENT_ID: userPoolClientId,
+      }
     );
-
-    addUserFunc.addToRolePolicy(policyStatement);
-
-    return new LambdaProxyIntegration({
-      handler: addUserFunc,
-    });
   };
 
-  private createGetAllUsersHandler = (
-    scope: cdk.Construct,
-    userPoolId: string,
-    userPoolArn: string
-  ): LambdaProxyIntegration => {
-    const getAllUsersFunc = new Function(scope, 'GetAllUsersFunction', {
-      runtime: Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      functionName: 'EmsGetAllUsers',
-      code: Code.fromAsset(this.lambdaRootDir + 'getAllUsers'),
-      environment: {
-        USER_POOL_ID: userPoolId,
-      },
-    });
-
-    const policyStatement = new PolicyStatement();
-    policyStatement.addResources(userPoolArn);
-    policyStatement.addActions('cognito-idp:ListUsers');
-
-    getAllUsersFunc.addToRolePolicy(policyStatement);
-
-    return new LambdaProxyIntegration({
-      handler: getAllUsersFunc,
-    });
-  };
-
-  private createDeleteUserHandler = (
-    scope: cdk.Construct,
-    userPoolId: string,
-    userPoolArn: string
-  ): LambdaProxyIntegration => {
-    const deleteUserFunc = new Function(scope, 'DeleteUserFunction', {
-      runtime: Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      functionName: 'EmsDeleteUser',
-      code: Code.fromAsset(this.lambdaRootDir + 'deleteUser'),
-      environment: {
-        USER_POOL_ID: userPoolId,
-      },
-    });
-
-    const policyStatement = new PolicyStatement();
-    policyStatement.addResources(userPoolArn);
-    policyStatement.addActions('cognito-idp:AdminDeleteUser');
-
-    deleteUserFunc.addToRolePolicy(policyStatement);
-
-    return new LambdaProxyIntegration({
-      handler: deleteUserFunc,
-    });
-  };
-
-  private createUpdateUserHandler = (
-    scope: cdk.Construct,
-    userPoolId: string,
-    userPoolArn: string
-  ): LambdaProxyIntegration => {
-    const updateUserFunc = new Function(scope, 'UpdateUserFunction', {
-      runtime: Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      functionName: 'EmsUpdateUser',
-      code: Code.fromAsset(this.lambdaRootDir + 'updateUser'),
-      environment: {
-        USER_POOL_ID: userPoolId,
-      },
-    });
-
-    const policyStatement = new PolicyStatement();
-    policyStatement.addResources(userPoolArn);
-    policyStatement.addActions(
-      'cognito-idp:AdminUpdateUserAttributes',
-      'cognito-idp:AdminSetUserPassword'
+  private createGetAllUsersHandler = (): LambdaProxyIntegration => {
+    return this.createHandler(
+      'GetAllUsersFunction',
+      'EmsGetAllUsers',
+      'getAllUsers',
+      ['cognito-idp:ListUsers']
     );
-
-    updateUserFunc.addToRolePolicy(policyStatement);
-
-    return new LambdaProxyIntegration({
-      handler: updateUserFunc,
-    });
   };
 
-  private createGetUserHandler = (
-    scope: cdk.Construct,
-    userPoolId: string,
-    userPoolArn: string
-  ): LambdaProxyIntegration => {
-    const getUserFunc = new Function(scope, 'GetUserFunction', {
-      runtime: Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      functionName: 'EmsGetUser',
-      code: Code.fromAsset(this.lambdaRootDir + 'getUser'),
-      environment: {
-        USER_POOL_ID: userPoolId,
-      },
-    });
-
-    const policyStatement = new PolicyStatement();
-    policyStatement.addResources(userPoolArn);
-    policyStatement.addActions('cognito-idp:AdminGetUser');
-
-    getUserFunc.addToRolePolicy(policyStatement);
-
-    return new LambdaProxyIntegration({
-      handler: getUserFunc,
-    });
+  private createDeleteUserHandler = (): LambdaProxyIntegration => {
+    return this.createHandler(
+      'DeleteUserFunction',
+      'EmsDeleteUser',
+      'deleteUser',
+      ['cognito-idp:AdminDeleteUser']
+    );
   };
+
+  private createUpdateUserHandler = (): LambdaProxyIntegration => {
+    return this.createHandler(
+      'UpdateUserFunction',
+      'EmsUpdateUser',
+      'updateUser',
+      [
+        'cognito-idp:AdminUpdateUserAttributes',
+        'cognito-idp:AdminSetUserPassword',
+      ]
+    );
+  };
+
+  private createGetUserHandler = (): LambdaProxyIntegration => {
+    return this.createHandler('GetUserFunction', 'EmsGetUser', 'getUser', [
+      'cognito-idp:AdminGetUser',
+    ]);
+  };
+
+  private createHandler(
+    functionId: string,
+    functionName: string,
+    codeDir: string,
+    actions: string[],
+    additionalEnvironmentVariables?: object
+  ): LambdaProxyIntegration {
+    const { userPoolId, userPoolArn } = this.cognitoResources.userPool;
+    return createBaseHandler(
+      this.scope,
+      functionId,
+      functionName,
+      `./lambdas/users/${codeDir}`,
+      [userPoolArn],
+      actions,
+      { ...additionalEnvironmentVariables, USER_POOL_ID: userPoolId }
+    );
+  }
 }
