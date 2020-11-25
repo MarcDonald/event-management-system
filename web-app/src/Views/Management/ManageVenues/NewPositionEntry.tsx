@@ -10,7 +10,8 @@ export default function NewPositionEntry(props: NewPositionEntryPropTypes) {
   let nameInput: HTMLInputElement;
   const [name, setName] = useState<string>('');
 
-  const buttonClick = () => {
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (name) {
       props.onSave(name);
       setName('');
@@ -21,7 +22,10 @@ export default function NewPositionEntry(props: NewPositionEntryPropTypes) {
   };
 
   return (
-    <div className="w-full bg-white p-2 flex justify-between items-center rounded-md">
+    <form
+      className="w-full bg-white p-2 flex justify-between items-center rounded-md"
+      onSubmit={submit}
+    >
       <input
         ref={(input: HTMLInputElement) => {
           if (input) nameInput = input;
@@ -33,12 +37,11 @@ export default function NewPositionEntry(props: NewPositionEntryPropTypes) {
         value={name}
       />
       <button
-        type="button"
-        onClick={buttonClick}
+        type="submit"
         className="text-center focus:outline-none bg-positive hover:bg-positive-light focus:bg-positive-light rounded-md p-1 text-white w-10 h-10"
       >
         <FontAwesomeIcon icon={faCheck} className={`text-2xl align-middle`} />
       </button>
-    </div>
+    </form>
   );
 }

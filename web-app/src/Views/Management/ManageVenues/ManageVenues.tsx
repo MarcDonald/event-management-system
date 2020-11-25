@@ -13,8 +13,6 @@ import VenueCard from './VenueCard';
 import { useFormFields } from '../../../Hooks/useFormFields';
 import Position from '../../../Models/Position';
 import ErrorMessage from '../../../Components/ErrorMessage';
-import VenueStatus from '../../../Models/VenueStatus';
-import Dropdown from '../../../Components/Dropdown';
 import NewPositionEntry from './NewPositionEntry';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -22,14 +20,12 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 interface ManageVenueFormFields {
   id: string | null;
   name: string;
-  status: VenueStatus;
   positions: Position[];
 }
 
 const emptyFormFields = {
   id: null,
   name: '',
-  status: VenueStatus.AllOk,
   positions: [],
 };
 
@@ -79,7 +75,6 @@ export default function ManageVenues() {
       setFieldsDirectly({
         id: venue.venueId,
         name: venue.name,
-        status: venue.status,
         positions: venue.positions,
       });
     } else {
@@ -104,13 +99,13 @@ export default function ManageVenues() {
     }
   };
 
-  const formSave = async () => {
+  const formSave = async (event: React.FormEvent<HTMLFormElement> | null) => {
+    if (event) event.preventDefault();
     if (validateForm()) {
       setIsSaving(true);
       try {
         const newDetails = {
           name: fields.name,
-          status: fields.status,
           positions: fields.positions,
         };
 
@@ -165,21 +160,6 @@ export default function ManageVenues() {
     return true;
   };
 
-  const convertDropdownStatusToVenueStatus = (
-    key: string | number
-  ): VenueStatus | null => {
-    switch (key) {
-      case 'AllOk':
-        return VenueStatus.AllOk;
-      case 'YellowAlert':
-        return VenueStatus.YellowAlert;
-      case 'RedAlert':
-        return VenueStatus.RedAlert;
-      default:
-        return null;
-    }
-  };
-
   const deletePosition = (id: string) => {
     const newPositions = fields.positions.filter(
       (position) => id !== position.positionId
@@ -223,66 +203,40 @@ export default function ManageVenues() {
       ...fields,
       positions: newPositions,
     });
+    setError(null);
   };
 
   const venueDetailsForm = () => {
     return (
-      <div className="grid grid-cols-4">
-        <form
-          onSubmit={formSave}
-          className="flex flex-col col-start-2 col-span-2 mt-4"
+      <form onSubmit={formSave} className="flex flex-col">
+        <label htmlFor="name">Name</label>
+        <input
+          id="name"
+          inputMode="text"
+          type="text"
+          value={fields.name}
+          className="form-input"
+          placeholder="Name"
+          onChange={(event) => {
+            setFields(event);
+            setError(null);
+          }}
+        />
+      </form>
+    );
+  };
+
+  const positions = () => {
+    return (
+      <div className="mt-4">
+        <label
+          htmlFor="positions"
+          className="my-2 text-center font-bold text-2xl"
         >
-          <label htmlFor="name">Name</label>
-          <input
-            id="name"
-            inputMode="text"
-            type="text"
-            value={fields.name}
-            className="form-input"
-            placeholder="Name"
-            onChange={(event) => {
-              setFields(event);
-              setError(null);
-            }}
-          />
-          <label htmlFor="status" className="mt-2">
-            Status
-          </label>
-          <Dropdown
-            title="Status"
-            list={[
-              {
-                key: 'AllOk',
-                name: VenueStatus.AllOk,
-              },
-              {
-                key: 'YellowAlert',
-                name: VenueStatus.YellowAlert,
-              },
-              {
-                key: 'RedAlert',
-                name: VenueStatus.RedAlert,
-              },
-            ]}
-            onSelected={(key) => {
-              setFieldsDirectly({
-                ...fields,
-                // TODO unsafe null assertion
-                status: convertDropdownStatusToVenueStatus(key)!!,
-              });
-            }}
-            currentlySelectedKey={fields.status ? fields.status : ''}
-          />
-          <label
-            htmlFor="positions"
-            className="my-2 text-center font-bold text-2xl"
-          >
-            Positions
-          </label>
-          {displayPositions()}
-          <NewPositionEntry onSave={addNewPosition} />
-          {error && <ErrorMessage message={error.message} />}
-        </form>
+          Positions
+        </label>
+        {displayPositions()}
+        <NewPositionEntry onSave={addNewPosition} />
       </div>
     );
   };
@@ -294,7 +248,7 @@ export default function ManageVenues() {
           <ManagementEditHeader
             delete={formDelete}
             title={fields.name}
-            save={formSave}
+            save={() => formSave(null)}
             isDeleting={isDeleting}
             isSaving={isSaving}
           />
@@ -303,12 +257,18 @@ export default function ManageVenues() {
           <ManagementEditHeader
             delete={formDelete}
             title="New Venue"
-            save={formSave}
+            save={() => formSave(null)}
             isDeleting={isDeleting}
             isSaving={isSaving}
           />
         )}
-        {venueDetailsForm()}
+        <div className="grid grid-cols-4">
+          <div className="col-start-2 col-span-2 mt-4 text-center">
+            {venueDetailsForm()}
+            {positions()}
+            {error && <ErrorMessage message={error.message} />}
+          </div>
+        </div>
       </div>
       <ListPanel
         title="Venues"
