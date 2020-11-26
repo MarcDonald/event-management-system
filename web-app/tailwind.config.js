@@ -10,6 +10,7 @@ module.exports = {
         'background-gray': '#F7F6F6',
         'lighter-gray': '#e7e7e7',
         'darker-gray': '#c0c0c0',
+        'darkest-gray': '#909090',
         negative: '#F44336',
         'negative-light': '#ff7961',
         'negative-dark': '#ba000d',

@@ -1,14 +1,14 @@
 import { Auth } from 'aws-amplify';
-import User from '../Models/User';
-import UserRole from '../Models/UserRole';
+import StaffMember from '../Models/StaffMember';
+import StaffRole from '../Models/StaffRole';
 
 interface LoggedInUser {
-  getLoggedInUser: () => Promise<User> | any;
-  isAdmin: (user: User) => boolean;
+  getLoggedInUser: () => Promise<StaffMember> | any;
+  isAdmin: (user: StaffMember) => boolean;
 }
 
 export default function useLocalAuth(): LoggedInUser {
-  const getLoggedInUser = async (): Promise<User | null> => {
+  const getLoggedInUser = async (): Promise<StaffMember | null> => {
     try {
       await Auth.currentSession();
       const authUser = await Auth.currentAuthenticatedUser();
@@ -25,8 +25,8 @@ export default function useLocalAuth(): LoggedInUser {
     }
   };
 
-  const isAdmin = (user: User): boolean => {
-    return user.role === UserRole.Administrator;
+  const isAdmin = (user: StaffMember): boolean => {
+    return user.role === StaffRole.Administrator;
   };
 
   return {

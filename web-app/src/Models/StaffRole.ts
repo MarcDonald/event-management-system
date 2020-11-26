@@ -1,7 +1,7 @@
-enum UserRole {
+enum StaffRole {
   Administrator = 'Administrator',
   Steward = 'Steward',
   ControlRoomOperator = 'ControlRoomOperator',
 }
 
-export default UserRole;
+export default StaffRole;

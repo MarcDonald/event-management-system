@@ -1,27 +1,25 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import Dropdown from '../../../Components/Dropdown';
+import Dropdown, { DropdownItem } from '../../../Components/Dropdown';
 
 interface NewStaffAssignmentEntryPropTypes {
-  onSave: (name: string) => any;
+  onSave: (staffSelectedId: string, positionSelectedId: string) => any;
+  staffToShow: DropdownItem[];
+  positionsToShow: DropdownItem[];
 }
 
 export default function NewStaffAssignmentEntry(
   props: NewStaffAssignmentEntryPropTypes
 ) {
-  let nameInput: HTMLInputElement;
-  const [name, setName] = useState<string>('');
+  const [staffSelected, setStaffSelected] = useState<string>('');
+  const [positionSelected, setPositionSelected] = useState<string>('');
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (name) {
-      props.onSave(name);
-      setName('');
-      nameInput.focus();
-    } else {
-      console.error('No name');
-    }
+    props.onSave(staffSelected, positionSelected);
+    setStaffSelected('');
+    setPositionSelected('');
   };
 
   return (
@@ -32,17 +30,19 @@ export default function NewStaffAssignmentEntry(
       <div>
         <Dropdown
           title="Select Staff Member"
-          list={[]}
-          onSelected={() => {
-            // TODO
+          list={props.staffToShow}
+          currentlySelectedKey={staffSelected}
+          onSelected={(key) => {
+            if (typeof key === 'string') setStaffSelected(key);
           }}
         />
         <Dropdown
           className="mt-2"
           title="Select Position"
-          list={[]}
-          onSelected={() => {
-            // TODO
+          list={props.positionsToShow}
+          currentlySelectedKey={positionSelected}
+          onSelected={(key) => {
+            if (typeof key === 'string') setPositionSelected(key);
           }}
         />
       </div>

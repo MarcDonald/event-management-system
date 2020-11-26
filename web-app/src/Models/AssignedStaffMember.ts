@@ -1,7 +1,7 @@
-import User from './User';
+import StaffMember from './StaffMember';
 import Position from './Position';
 
 export default interface AssignedStaffMember {
-  user: User;
+  staffMember: StaffMember;
   position: Position;
 }

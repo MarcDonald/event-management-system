@@ -1,7 +1,7 @@
 import config from '../config.json';
 import { sleep } from './ApiService';
 import Event from '../Models/Event';
-import UserRole from '../Models/UserRole';
+import StaffRole from '../Models/StaffRole';
 import VenueMetadata from '../Models/VenueMetadata';
 import AssignedStaffMember from '../Models/AssignedStaffMember';
 import AssignedSupervisor from '../Models/AssignedSupervisor';
@@ -24,10 +24,10 @@ export async function getAllEvents(): Promise<Array<Event>> {
       end: 1606340800,
       supervisors: [
         {
-          user: {
+          staffMember: {
             username: 'marc',
             sub: 'feggf',
-            role: UserRole.Steward,
+            role: StaffRole.Steward,
             givenName: 'Marc',
             familyName: 'Donald',
           },
@@ -36,10 +36,10 @@ export async function getAllEvents(): Promise<Array<Event>> {
       ],
       staff: [
         {
-          user: {
+          staffMember: {
             username: 'steve',
             sub: 'fegfgfggf',
-            role: UserRole.Steward,
+            role: StaffRole.Steward,
             givenName: 'Steve',
             familyName: 'Steph',
           },

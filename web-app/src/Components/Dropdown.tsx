@@ -35,7 +35,8 @@ export default function Dropdown(props: DropdownPropTypes) {
   const selectItem = (keySelected: string | number) => {
     setIsOpen(false);
     setCurrentlySelected(keySelected);
-    props.onSelected(keySelected);
+    const selectedItem = props.list.find((item) => item.key === keySelected);
+    props.onSelected(keySelected, selectedItem?.name);
   };
 
   const displayList = () => {

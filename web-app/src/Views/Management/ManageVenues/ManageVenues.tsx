@@ -19,6 +19,7 @@ import ErrorMessage from '../../../Components/ErrorMessage';
 import NewPositionEntry from './NewPositionEntry';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import RemovableListItem from '../../../Components/RemovableListItem';
 
 interface ManageVenueFormFields {
   id: string | null;
@@ -224,6 +225,7 @@ export default function ManageVenues() {
           <VenueCard
             key={venue.venueId}
             name={venue.name}
+            isSelected={venue.venueId === fields.id}
             onClick={() => selectVenueToEdit(venue.venueId)}
           />
         );
@@ -264,22 +266,11 @@ export default function ManageVenues() {
   const positionsList = () => {
     return fields.positions.map((position) => {
       return (
-        <div
-          key={position.positionId}
-          className="w-full bg-white p-2 mb-2 flex justify-between items-center rounded-md"
-        >
-          <p className="text-2xl">{position.name}</p>
-          <button
-            type="button"
-            onClick={() => deletePosition(position.positionId)}
-            className="text-center focus:outline-none bg-negative hover:bg-negative-light focus:bg-negative-light rounded-md p-1 text-white w-10 h-10"
-          >
-            <FontAwesomeIcon
-              icon={faTrash}
-              className={`text-2xl align-middle`}
-            />
-          </button>
-        </div>
+        <RemovableListItem
+          listKey={position.positionId}
+          content={position.name}
+          deleteAction={(key) => deletePosition(key)}
+        />
       );
     });
   };

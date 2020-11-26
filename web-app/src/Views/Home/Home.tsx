@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import BrandHeader from '../../Components/BrandHeader';
 import useLocalAuth from '../../Hooks/useLocalAuth';
-import User from '../../Models/User';
+import StaffMember from '../../Models/StaffMember';
 import LoggedInUser from '../../Components/LoggedInUser';
-import Dropdown from '../../Components/Dropdown';
 
 export default function Home() {
   const localAuth = useLocalAuth();
   const history = useHistory();
-  const [user, setUser] = useState<null | User>(null);
+  const [user, setUser] = useState<null | StaffMember>(null);
 
   useEffect(() => {
     const redirectToLogin = async () => {

@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import ManagementEditHeader from '../ManagementEditHeader';
-import User from '../../../Models/User';
+import StaffMember from '../../../Models/StaffMember';
 import StaffCard from './StaffCard';
 import { useFormFields } from '../../../Hooks/useFormFields';
-import UserRole from '../../../Models/UserRole';
+import StaffRole from '../../../Models/StaffRole';
 import {
-  createNewUser,
-  deleteUser,
-  getAllUsers,
-  updateExistingUser,
-} from '../../../Services/UserService';
+  createNewStaffMember,
+  deleteStaffMember,
+  getAllStaffMembers,
+  updateExistingStaffMember,
+} from '../../../Services/StaffService';
 import Loading from '../../../Components/Loading';
 import Dropdown from '../../../Components/Dropdown';
 import ListPanel from '../ListPanel';
@@ -21,7 +21,7 @@ interface ManageStaffFormFields {
   confirmPassword: string;
   givenName: string;
   familyName: string;
-  role: UserRole | null;
+  role: StaffRole | null;
   isNew: boolean;
 }
 
@@ -36,8 +36,8 @@ const emptyFormFields = {
 };
 
 export default function ManageStaff() {
-  const [allStaff, setAllStaff] = useState<User[]>([]);
-  const [displayedStaff, setDisplayedStaff] = useState<User[]>([]);
+  const [allStaff, setAllStaff] = useState<StaffMember[]>([]);
+  const [displayedStaff, setDisplayedStaff] = useState<StaffMember[]>([]);
   const [fields, setFields, setFieldsDirectly] = useFormFields<
     ManageStaffFormFields
   >(emptyFormFields);
@@ -52,13 +52,13 @@ export default function ManageStaff() {
     if (searchContent) {
       searchContent = searchContent.toLowerCase();
       setDisplayedStaff(
-        displayedStaff.filter((user) => {
+        displayedStaff.filter((staffMember) => {
           if (
-            user.username.toLowerCase().includes(searchContent) ||
-            user.familyName.toLowerCase().includes(searchContent) ||
-            user.givenName.toLowerCase().includes(searchContent)
+            staffMember.username.toLowerCase().includes(searchContent) ||
+            staffMember.familyName.toLowerCase().includes(searchContent) ||
+            staffMember.givenName.toLowerCase().includes(searchContent)
           ) {
-            return user;
+            return staffMember;
           }
         })
       );
@@ -74,7 +74,7 @@ export default function ManageStaff() {
   useEffect(() => {
     const setup = async () => {
       setupNewUser();
-      const staffList = await getAllUsers();
+      const staffList = await getAllStaffMembers();
       setIsLoadingStaffMembers(false);
       setAllStaff(staffList);
       setDisplayedStaff(staffList);
@@ -82,7 +82,7 @@ export default function ManageStaff() {
     setup().then();
   }, []);
 
-  const selectUserToEdit = (username: string) => {
+  const selectStaffMemberToEdit = (username: string) => {
     const user = allStaff.find((user) => user.username === username);
     if (user) {
       setFieldsDirectly({
@@ -142,10 +142,10 @@ export default function ManageStaff() {
 
       try {
         if (fields.isNew) {
-          const newUser = await createNewUser(userDetails);
+          const newUser = await createNewStaffMember(userDetails);
           allStaff.push(newUser);
         } else {
-          const updatedUser = await updateExistingUser(userDetails);
+          const updatedUser = await updateExistingStaffMember(userDetails);
           const indexOfUser = allStaff.findIndex(
             (user) => user.username === userDetails.username
           );
@@ -165,7 +165,7 @@ export default function ManageStaff() {
 
   const formDelete = async () => {
     setIsDeleting(true);
-    await deleteUser(fields.username);
+    await deleteStaffMember(fields.username);
     const listWithoutDeletedUser = allStaff.filter(
       (user) => user.username !== fields.username
     );
@@ -177,14 +177,14 @@ export default function ManageStaff() {
 
   const convertDropdownRoleToUserRole = (
     key: string | number
-  ): UserRole | null => {
+  ): StaffRole | null => {
     switch (key) {
       case 'Steward':
-        return UserRole.Steward;
+        return StaffRole.Steward;
       case 'ControlRoomOperator':
-        return UserRole.ControlRoomOperator;
+        return StaffRole.ControlRoomOperator;
       case 'Administrator':
-        return UserRole.Administrator;
+        return StaffRole.Administrator;
       default:
         return null;
     }
@@ -225,7 +225,8 @@ export default function ManageStaff() {
             key={user.username}
             name={`${user.givenName} ${user.familyName}`}
             username={user.username}
-            onClick={() => selectUserToEdit(user.username)}
+            isSelected={user.username === fields.username}
+            onClick={() => selectStaffMemberToEdit(user.username)}
           />
         );
       });

@@ -1,26 +1,24 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import Dropdown from '../../../Components/Dropdown';
+import Dropdown, { DropdownItem } from '../../../Components/Dropdown';
 
 interface NewSupervisorAssignmentEntryPropTypes {
-  onSave: (name: string) => any;
+  onSave: (staffSelectedId: string, areaOfSupervision: string) => any;
+  staffToShow: DropdownItem[];
 }
 
 export default function NewSupervisorAssignmentEntry(
   props: NewSupervisorAssignmentEntryPropTypes
 ) {
-  let nameInput: HTMLInputElement;
+  const [supervisorSelected, setSupervisorSelected] = useState<string>('');
   const [areaOfSupervision, setAreaOfSupervision] = useState<string>('');
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (areaOfSupervision) {
-      props.onSave(areaOfSupervision);
-      setAreaOfSupervision('');
-    } else {
-      console.error('No area of supervision');
-    }
+    props.onSave(supervisorSelected, areaOfSupervision);
+    setSupervisorSelected('');
+    setAreaOfSupervision('');
   };
 
   return (
@@ -31,15 +29,13 @@ export default function NewSupervisorAssignmentEntry(
       <div>
         <Dropdown
           title="Select Staff Member"
-          list={[]}
-          onSelected={() => {
-            // TODO
+          list={props.staffToShow}
+          currentlySelectedKey={supervisorSelected}
+          onSelected={(key) => {
+            if (typeof key === 'string') setSupervisorSelected(key);
           }}
         />
         <input
-          ref={(input: HTMLInputElement) => {
-            if (input) nameInput = input;
-          }}
           id="area-of-supervision"
           className="form-input mt-2"
           placeholder="Area of Supervision"

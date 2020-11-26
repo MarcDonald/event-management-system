@@ -16,13 +16,15 @@ import {
 import Dropdown, { DropdownItem } from '../../../Components/Dropdown';
 import Venue from '../../../Models/Venue';
 import { getAllVenues } from '../../../Services/VenueService';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import NewStaffAssignmentEntry from './NewStaffAssignmentEntry';
-import NewSupervisorAssignmentEntry from './NewSupervisorAssignmentEntry';
 import AssignedSupervisor from '../../../Models/AssignedSupervisor';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import StaffMember from '../../../Models/StaffMember';
+import { getAllStaffMembers } from '../../../Services/StaffService';
+import RemovableListItem from '../../../Components/RemovableListItem';
+import StaffMemberAssignmentSection from './StaffMemberAssignmentSection';
+import Position from '../../../Models/Position';
+import SupervisorAssignmentSection from './SupervisorAssignmentSection';
 
 interface ManageEventsPropTypes {}
 
@@ -57,6 +59,11 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [isLoadingEvents, setIsLoadingEvents] = useState<boolean>(true);
   const [dropdownVenues, setDropdownVenues] = useState<DropdownItem[]>([]);
+  const [allStaff, setAllStaff] = useState<StaffMember[]>([]);
+  const [selectableStaff, setSelectableStaff] = useState<StaffMember[]>([]);
+  const [selectablePositions, setSelectablePositions] = useState<Position[]>(
+    []
+  );
 
   const eventSearch = (searchContent: string) => {
     if (searchContent) {
@@ -91,12 +98,46 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
       const venueList = await getAllVenues();
       const formattedVenues = formatDropdownVenues(venueList);
       setDropdownVenues(formattedVenues);
+      const staffList = await getAllStaffMembers();
+      setAllStaff(staffList);
+      setSelectableStaff(staffList);
+      // TODO should be set to empty array until venue is selected
+      setSelectablePositions([
+        {
+          positionId: '098',
+          name: 'Foyer 1',
+        },
+        {
+          positionId: '987',
+          name: 'Foyer 2',
+        },
+        {
+          positionId: '876',
+          name: 'Foyer 3',
+        },
+      ]);
     };
     setup().then();
   }, []);
 
   const setupNewEvent = () => {
     setFieldsDirectly(emptyFormFields);
+    setSelectableStaff(allStaff);
+    // TODO should reset to empty array
+    setSelectablePositions([
+      {
+        positionId: '098',
+        name: 'Foyer 1',
+      },
+      {
+        positionId: '987',
+        name: 'Foyer 2',
+      },
+      {
+        positionId: '876',
+        name: 'Foyer 3',
+      },
+    ]);
   };
 
   const selectEventToEdit = (id: string) => {
@@ -106,6 +147,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
         id: event.eventId,
         name: event.name,
         venue: event.venue,
+        // Have to multiply by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
         start: new Date(event.start * 1000),
         end: new Date(event.end * 1000),
         supervisors: event.supervisors,
@@ -124,15 +166,16 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
     }
     if (!fields.venue) {
       setError(new Error('Cannot create an event without a venue'));
+      return false;
     }
-    // if (fields.supervisors.length < 1) {
-    //   setError(new Error('Cannot create an event with no supervisors'));
-    //   return false;
-    // }
-    // if (fields.staff.length < 1) {
-    //   setError(new Error('Cannot create an event with no staff'));
-    //   return false;
-    // }
+    if (fields.supervisors.length < 1) {
+      setError(new Error('Cannot create an event with no supervisors'));
+      return false;
+    }
+    if (fields.staff.length < 1) {
+      setError(new Error('Cannot create an event with no staff'));
+      return false;
+    }
     return true;
   };
 
@@ -146,6 +189,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
       eventId: fields.id!!,
       name: fields.name,
       venue: fields.venue!!,
+      // Have to divide by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
       start: fields.start.getTime() / 1000,
       end: fields.end.getTime() / 1000,
       supervisors: fields.supervisors,
@@ -153,7 +197,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
     };
   };
 
-  const formSave = async (event: React.FormEvent<HTMLFormElement> | null) => {
+  const formSubmit = async (event: React.FormEvent<HTMLFormElement> | null) => {
     if (event) event.preventDefault();
     if (validateForm()) {
       setIsSaving(true);
@@ -162,6 +206,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
           const newEvent = await createNewEvent({
             name: fields.name,
             venue: fields.venue!!,
+            // Have to divide by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
             start: fields.start.getTime() / 1000,
             end: fields.end.getTime() / 1000,
             supervisors: fields.supervisors,
@@ -173,7 +218,6 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
           const indexOfEvent = allEvents.findIndex(
             (event) => event.eventId === fields.id
           );
-          console.log(updatedEvent.start);
           allEvents[indexOfEvent] = {
             ...allEvents[indexOfEvent],
             ...updatedEvent,
@@ -202,6 +246,73 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
     setIsDeleting(false);
   };
 
+  const assignSupervisor = (
+    supervisor: StaffMember,
+    areaOfSupervision: string
+  ) => {
+    setFieldsDirectly({
+      ...fields,
+      supervisors: [
+        ...fields.supervisors,
+        {
+          staffMember: supervisor,
+          areaOfSupervision,
+        },
+      ],
+    });
+    const indexToRemove = selectableStaff.findIndex(
+      (staffInArray) => staffInArray.username === supervisor.username
+    );
+    const newList = [...selectableStaff];
+    newList.splice(indexToRemove, 1);
+    setSelectableStaff(newList);
+  };
+
+  const unassignSupervisor = (supervisor: StaffMember) => {
+    const newAssignedList = [...fields.supervisors];
+    newAssignedList.splice(
+      fields.supervisors.findIndex(
+        (assignedStaffMember) =>
+          assignedStaffMember.staffMember.username === supervisor.username
+      ),
+      1
+    );
+    setFieldsDirectly({ ...fields, supervisors: newAssignedList });
+    setSelectableStaff([...selectableStaff, supervisor]);
+  };
+
+  const assignStaff = (staffMember: StaffMember, position: Position) => {
+    setFieldsDirectly({
+      ...fields,
+      staff: [
+        ...fields.staff,
+        {
+          staffMember,
+          position,
+        },
+      ],
+    });
+    const indexToRemove = selectableStaff.findIndex(
+      (staffInArray) => staffInArray.username === staffMember.username
+    );
+    const newList = [...selectableStaff];
+    newList.splice(indexToRemove, 1);
+    setSelectableStaff(newList);
+  };
+
+  const unassignStaff = (staffMember: StaffMember) => {
+    const newAssignedList = [...fields.staff];
+    newAssignedList.splice(
+      fields.staff.findIndex(
+        (assignedStaffMember) =>
+          assignedStaffMember.staffMember.username === staffMember.username
+      ),
+      1
+    );
+    setFieldsDirectly({ ...fields, staff: newAssignedList });
+    setSelectableStaff([...selectableStaff, staffMember]);
+  };
+
   const header = () => {
     return (
       <>
@@ -209,7 +320,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
           <ManagementEditHeader
             delete={formDelete}
             title={fields.name}
-            save={() => formSave(null)}
+            save={() => formSubmit(null)}
             isDeleting={isDeleting}
             isSaving={isSaving}
           />
@@ -218,7 +329,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
           <ManagementEditHeader
             delete={formDelete}
             title="New Event"
-            save={() => formSave(null)}
+            save={() => formSubmit(null)}
             isDeleting={isDeleting}
             isSaving={isSaving}
           />
@@ -237,6 +348,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
             key={event.eventId}
             name={event.name}
             venueName={event.venue.name}
+            isSelected={event.eventId === fields.id}
             onClick={() => selectEventToEdit(event.eventId)}
           />
         );
@@ -246,7 +358,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
 
   const eventDetailsForm = () => {
     return (
-      <form onSubmit={formSave} className="flex flex-col">
+      <form onSubmit={formSubmit} className="flex flex-col">
         <label htmlFor="name">Name</label>
         <input
           id="name"
@@ -304,81 +416,6 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
     );
   };
 
-  const supervisorList = () => {
-    return fields.supervisors.map((supervisor) => {
-      return (
-        <div
-          key={supervisor.user.username}
-          className="w-full bg-white p-2 mb-2 flex justify-between items-center rounded-md"
-        >
-          <p className="text-2xl">
-            {supervisor.user.givenName} {supervisor.user.familyName}
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              // TODO
-            }}
-            className="text-center focus:outline-none bg-negative hover:bg-negative-light focus:bg-negative-light rounded-md p-1 text-white w-10 h-10"
-          >
-            <FontAwesomeIcon
-              icon={faTrash}
-              className={`text-2xl align-middle`}
-            />
-          </button>
-        </div>
-      );
-    });
-  };
-
-  const staffList = () => {
-    // TODO extract to component
-    return fields.staff.map((staff) => {
-      return (
-        <div
-          key={staff.user.username}
-          className="w-full bg-white p-2 mb-2 flex justify-between items-center rounded-md"
-        >
-          <p className="text-2xl">
-            {staff.user.givenName} {staff.user.familyName}
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              // TODO
-            }}
-            className="text-center focus:outline-none bg-negative hover:bg-negative-light focus:bg-negative-light rounded-md p-1 text-white w-10 h-10"
-          >
-            <FontAwesomeIcon
-              icon={faTrash}
-              className={`text-2xl align-middle`}
-            />
-          </button>
-        </div>
-      );
-    });
-  };
-
-  const supervisorSelection = () => {
-    return (
-      <section className="my-2">
-        <h3 className="my-2 text-center font-bold text-2xl">Supervisors</h3>
-        {supervisorList()}
-        <NewSupervisorAssignmentEntry onSave={() => {}} />
-      </section>
-    );
-  };
-
-  const staffSelection = () => {
-    return (
-      <section className="my-2">
-        <h3 className="my-2 text-center font-bold text-2xl">Staff</h3>
-        {staffList()}
-        <NewStaffAssignmentEntry onSave={() => {}} />
-      </section>
-    );
-  };
-
   return (
     <div className="grid grid-cols-5 h-full">
       <div className="col-span-4 mx-16">
@@ -390,9 +427,22 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
           {fields.venue && (
             <section className="col-start-1 col-span-4 grid grid-cols-6">
               <div className="col-start-1 col-span-2">
-                {supervisorSelection()}
+                <SupervisorAssignmentSection
+                  selectableStaff={selectableStaff}
+                  assignedSupervisors={fields.supervisors}
+                  assignSupervisor={assignSupervisor}
+                  unassignSupervisor={unassignSupervisor}
+                />
               </div>
-              <div className="col-start-5 col-span-2">{staffSelection()}</div>
+              <div className="col-start-5 col-span-2">
+                <StaffMemberAssignmentSection
+                  selectableStaff={selectableStaff}
+                  selectablePositions={selectablePositions}
+                  assignedStaff={fields.staff}
+                  assignStaffMember={assignStaff}
+                  unassignStaffMember={unassignStaff}
+                />
+              </div>
             </section>
           )}
           <div className="col-start-2 col-span-2 mt-4 text-center">
