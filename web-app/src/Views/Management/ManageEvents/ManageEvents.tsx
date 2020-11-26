@@ -21,6 +21,8 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import NewStaffAssignmentEntry from './NewStaffAssignmentEntry';
 import NewSupervisorAssignmentEntry from './NewSupervisorAssignmentEntry';
 import AssignedSupervisor from '../../../Models/AssignedSupervisor';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 interface ManageEventsPropTypes {}
 
@@ -28,8 +30,8 @@ interface ManageEventsFormFields {
   id: string | null;
   name: string;
   venue: VenueMetadata | null;
-  start: number;
-  end: number;
+  start: Date;
+  end: Date;
   supervisors: AssignedSupervisor[];
   staff: AssignedStaffMember[];
 }
@@ -38,8 +40,8 @@ const emptyFormFields = {
   id: null,
   name: '',
   venue: null,
-  start: 0,
-  end: 0,
+  start: new Date(),
+  end: new Date(),
   supervisors: [],
   staff: [],
 };
@@ -104,8 +106,8 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
         id: event.eventId,
         name: event.name,
         venue: event.venue,
-        start: event.start,
-        end: event.end,
+        start: new Date(event.start * 1000),
+        end: new Date(event.end * 1000),
         supervisors: event.supervisors,
         staff: event.staff,
       });
@@ -122,12 +124,6 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
     }
     if (!fields.venue) {
       setError(new Error('Cannot create an event without a venue'));
-    }
-    if (fields.start === 0) {
-      setError(new Error('Cannot create an event without a start time'));
-    }
-    if (fields.end === 0) {
-      setError(new Error('Cannot create an event without an end time'));
     }
     // if (fields.supervisors.length < 1) {
     //   setError(new Error('Cannot create an event with no supervisors'));
@@ -150,8 +146,8 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
       eventId: fields.id!!,
       name: fields.name,
       venue: fields.venue!!,
-      start: fields.start,
-      end: fields.end,
+      start: fields.start.getTime() / 1000,
+      end: fields.end.getTime() / 1000,
       supervisors: fields.supervisors,
       staff: fields.staff,
     };
@@ -166,8 +162,8 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
           const newEvent = await createNewEvent({
             name: fields.name,
             venue: fields.venue!!,
-            start: fields.start,
-            end: fields.end,
+            start: fields.start.getTime() / 1000,
+            end: fields.end.getTime() / 1000,
             supervisors: fields.supervisors,
             staff: fields.staff,
           });
@@ -177,6 +173,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
           const indexOfEvent = allEvents.findIndex(
             (event) => event.eventId === fields.id
           );
+          console.log(updatedEvent.start);
           allEvents[indexOfEvent] = {
             ...allEvents[indexOfEvent],
             ...updatedEvent,
@@ -247,32 +244,6 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
     }
   };
 
-  const formatDate = (date: Date): string => {
-    let month = (date.getMonth() + 1).toString();
-    let day = date.getDate().toString();
-    let year = date.getFullYear().toString();
-
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return `${year}-${month}-${day}`;
-  };
-
-  // TODO fix dates - maybe use date picker library
-  const formatStartDate = (): string => {
-    if (fields.start !== 0) {
-      return formatDate(new Date(fields.start * 1000));
-    }
-    return '';
-  };
-
-  const formatEndDate = (): string => {
-    if (fields.end !== 0) {
-      return formatDate(new Date(fields.end * 1000));
-    }
-    return '';
-  };
-
   const eventDetailsForm = () => {
     return (
       <form onSubmit={formSave} className="flex flex-col">
@@ -306,27 +277,27 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
           }}
         />
         <label htmlFor="start">Start Date</label>
-        <input
+        <DatePicker
           id="start"
-          type="date"
-          value={formatStartDate()}
-          className="form-input"
-          onChange={(event) => {
-            const selectedDate = Date.parse(event.target.value) / 1000;
-            setFieldsDirectly({ ...fields, start: selectedDate });
-            setError(null);
+          selected={new Date(fields.start)}
+          className="form-input w-full"
+          placeholderText="Start Date"
+          onChange={(date: Date) => {
+            if (date) {
+              setFieldsDirectly({ ...fields, start: date });
+            }
           }}
         />
-        <label htmlFor="end">End Date</label>
-        <input
+        <label htmlFor="start">End Date</label>
+        <DatePicker
           id="end"
-          type="date"
-          value={formatEndDate()}
-          className="form-input"
-          onChange={(event) => {
-            const selectedDate = Date.parse(event.target.value) / 1000;
-            setFieldsDirectly({ ...fields, end: selectedDate });
-            setError(null);
+          selected={new Date(fields.end)}
+          className="form-input w-full"
+          placeholderText="End Date"
+          onChange={(date: Date) => {
+            if (date) {
+              setFieldsDirectly({ ...fields, end: date });
+            }
           }}
         />
       </form>

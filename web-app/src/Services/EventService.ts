@@ -1,6 +1,5 @@
 import config from '../config.json';
-import { delet, sleep } from './ApiService';
-import Position from '../Models/Position';
+import { sleep } from './ApiService';
 import Event from '../Models/Event';
 import UserRole from '../Models/UserRole';
 import VenueMetadata from '../Models/VenueMetadata';
@@ -70,41 +69,8 @@ export async function createNewEvent(
   // return result.data;
   await sleep(1000);
   return {
-    eventId: '123',
-    name: 'Event 1',
-    venue: {
-      venueId: '345',
-      name: 'My venue',
-    },
-    start: 1606340678,
-    end: 1606340800,
-    supervisors: [
-      {
-        user: {
-          username: 'marc',
-          sub: 'feggf',
-          role: UserRole.Steward,
-          givenName: 'Marc',
-          familyName: 'Donald',
-        },
-        areaOfSupervision: 'Foyer',
-      },
-    ],
-    staff: [
-      {
-        user: {
-          username: 'steve',
-          sub: 'fegfgfggf',
-          role: UserRole.Steward,
-          givenName: 'Steve',
-          familyName: 'Steph',
-        },
-        position: {
-          positionId: '8485348',
-          name: 'Foyer 2',
-        },
-      },
-    ],
+    eventId: new Date().getTime().toString(),
+    ...eventToCreate,
   };
 }
 
