@@ -31,7 +31,7 @@ beforeEach(() => {
     Cognito,
   };
 
-  handler = require('../../../../lambdas/users/addUser/handler')(dependencies);
+  handler = require('../../../../lambdas/staff/addStaff/handler')(dependencies);
 });
 
 afterEach(jest.resetAllMocks);

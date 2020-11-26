@@ -26,7 +26,7 @@ beforeEach(() => {
     Cognito,
   };
 
-  handler = require('../../../../lambdas/users/updateUser/handler')(
+  handler = require('../../../../lambdas/staff/updateStaff/handler')(
     dependencies
   );
 });

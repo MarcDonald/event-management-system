@@ -5,7 +5,7 @@ import CognitoResources from '../CognitoResources';
 import HttpApiResources from '../HttpApiResources';
 import { createBaseHandler } from '../Utils/LambdaUtils';
 
-export default class UserHttpEndpoints {
+export default class StaffHttpEndpoints {
   constructor(
     private scope: cdk.Construct,
     private cognitoResources: CognitoResources,
@@ -13,56 +13,56 @@ export default class UserHttpEndpoints {
   ) {
     const { api } = httpApiResources;
 
-    const addUserRoutes = api.addRoutes({
-      path: '/users',
+    const addStaffRoutes = api.addRoutes({
+      path: '/staff',
       methods: [HttpMethod.POST],
-      integration: this.createAddUserHandler(),
+      integration: this.createAddStaffHandler(),
     });
 
-    const getAllUsersRoutes = api.addRoutes({
-      path: '/users',
+    const getAllStaffRoutes = api.addRoutes({
+      path: '/staff',
       methods: [HttpMethod.GET],
-      integration: this.createGetAllUsersHandler(),
+      integration: this.createGetAllStaffHandler(),
     });
 
-    const deleteUserRoutes = api.addRoutes({
-      path: '/users/{username}',
+    const deleteStaffRoutes = api.addRoutes({
+      path: '/staff/{username}',
       methods: [HttpMethod.DELETE],
-      integration: this.createDeleteUserHandler(),
+      integration: this.createDeleteStaffHandler(),
     });
 
-    const updateUserRoutes = api.addRoutes({
-      path: '/users/{username}',
+    const updateStaffRoutes = api.addRoutes({
+      path: '/staff/{username}',
       methods: [HttpMethod.PUT],
-      integration: this.createUpdateUserHandler(),
+      integration: this.createUpdateStaffHandler(),
     });
 
     const getOneRoutes = api.addRoutes({
-      path: '/users/{username}',
+      path: '/staff/{username}',
       methods: [HttpMethod.GET],
-      integration: this.createGetUserHandler(),
+      integration: this.createGetStaffHandler(),
     });
 
     // Flattens all the individual arrays of routes into one single array
     const allAdminRoutes = Array<HttpRoute>().concat(
       ...[
-        addUserRoutes,
-        getAllUsersRoutes,
-        deleteUserRoutes,
-        updateUserRoutes,
+        addStaffRoutes,
+        getAllStaffRoutes,
+        deleteStaffRoutes,
+        updateStaffRoutes,
         getOneRoutes,
       ]
     );
     httpApiResources.addAdminJwtAuthorizerToRoutes(allAdminRoutes);
   }
 
-  private createAddUserHandler = (): LambdaProxyIntegration => {
+  private createAddStaffHandler = (): LambdaProxyIntegration => {
     const { userPoolClientId } = this.cognitoResources.apiUserPoolClient;
 
     return this.createHandler(
-      'AddUserFunction',
-      'EmsAddUser',
-      'addUser',
+      'AddStaffFunction',
+      'EmsAddStaff',
+      'addStaff',
       [
         'cognito-idp:AdminCreateUser',
         'cognito-idp:AdminInitiateAuth',
@@ -74,29 +74,29 @@ export default class UserHttpEndpoints {
     );
   };
 
-  private createGetAllUsersHandler = (): LambdaProxyIntegration => {
+  private createGetAllStaffHandler = (): LambdaProxyIntegration => {
     return this.createHandler(
-      'GetAllUsersFunction',
-      'EmsGetAllUsers',
-      'getAllUsers',
+      'GetAllStaffFunction',
+      'EmsGetAllStaff',
+      'getAllStaff',
       ['cognito-idp:ListUsers']
     );
   };
 
-  private createDeleteUserHandler = (): LambdaProxyIntegration => {
+  private createDeleteStaffHandler = (): LambdaProxyIntegration => {
     return this.createHandler(
-      'DeleteUserFunction',
-      'EmsDeleteUser',
-      'deleteUser',
-      ['cognito-idp:AdminDeleteUser']
+      'DeleteStaffFunction',
+      'EmsDeleteStaff',
+      'deleteStaff',
+      ['cognito-idp:AdminDeleteStaff']
     );
   };
 
-  private createUpdateUserHandler = (): LambdaProxyIntegration => {
+  private createUpdateStaffHandler = (): LambdaProxyIntegration => {
     return this.createHandler(
-      'UpdateUserFunction',
-      'EmsUpdateUser',
-      'updateUser',
+      'UpdateStaffFunction',
+      'EmsUpdateStaff',
+      'updateStaff',
       [
         'cognito-idp:AdminUpdateUserAttributes',
         'cognito-idp:AdminSetUserPassword',
@@ -104,8 +104,8 @@ export default class UserHttpEndpoints {
     );
   };
 
-  private createGetUserHandler = (): LambdaProxyIntegration => {
-    return this.createHandler('GetUserFunction', 'EmsGetUser', 'getUser', [
+  private createGetStaffHandler = (): LambdaProxyIntegration => {
+    return this.createHandler('GetStaffFunction', 'EmsGetStaff', 'getStaff', [
       'cognito-idp:AdminGetUser',
     ]);
   };
@@ -122,7 +122,7 @@ export default class UserHttpEndpoints {
       this.scope,
       functionId,
       functionName,
-      `./lambdas/users/${codeDir}`,
+      `./lambdas/staff/${codeDir}`,
       [userPoolArn],
       actions,
       { ...additionalEnvironmentVariables, USER_POOL_ID: userPoolId }

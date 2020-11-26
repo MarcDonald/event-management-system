@@ -1,7 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import CognitoResources from './CognitoResources';
 import HttpApiResources from './HttpApiResources';
-import UserHttpEndpoints from './HttpEndpoints/UserHttpEndpoints';
+import StaffHttpEndpoints from './HttpEndpoints/StaffHttpEndpoints';
 import DynamoDbResources from './DynamoDbResources';
 import VenueHttpEndpoints from './HttpEndpoints/VenueHttpEndpoints';
 
@@ -16,7 +16,7 @@ export default class EmsStack extends cdk.Stack {
       cognitoResources,
       this.region
     );
-    const userHttpEndpoints = new UserHttpEndpoints(
+    const staffHttpEndpoints = new StaffHttpEndpoints(
       this,
       cognitoResources,
       httpApiResources

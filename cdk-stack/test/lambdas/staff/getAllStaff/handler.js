@@ -16,14 +16,14 @@ beforeEach(() => {
     Cognito,
   };
 
-  handler = require('../../../../lambdas/users/getAllUsers/handler')(
+  handler = require('../../../../lambdas/staff/getAllStaff/handler')(
     dependencies
   );
 });
 
 afterEach(jest.resetAllMocks);
 
-test('Should return a formatted list of users', async () => {
+test('Should return a formatted list of staff', async () => {
   listUsersMock.mockReturnValue({
     promise: () => {
       return {
@@ -76,7 +76,7 @@ test('Should return a formatted list of users', async () => {
   expect(listUsersMock).toBeCalledTimes(1);
 });
 
-test('Should return an empty list if no users', async () => {
+test('Should return an empty list if no staff', async () => {
   listUsersMock.mockReturnValue({
     promise: () => {
       return {

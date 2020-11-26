@@ -242,6 +242,7 @@ export default function ManageStaff() {
         <label htmlFor="username">Username</label>
         <input
           id="username"
+          disabled={!!fields.username}
           inputMode="text"
           type="text"
           value={fields.username}

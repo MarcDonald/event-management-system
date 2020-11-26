@@ -15,7 +15,7 @@ beforeEach(() => {
   const dependencies = {
     Cognito,
   };
-  handler = require('../../../../lambdas/users/deleteUser/handler')(
+  handler = require('../../../../lambdas/staff/deleteStaff/handler')(
     dependencies
   );
 });

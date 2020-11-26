@@ -3,7 +3,7 @@ import StaffRole from '../Models/StaffRole';
 import config from '../config.json';
 import { delet, get, post, put } from './ApiService';
 
-const baseUrl = `${config.API.BASE_URL}/users`;
+const baseUrl = `${config.API.BASE_URL}/staff`;
 
 export async function getAllStaffMembers(): Promise<Array<StaffMember>> {
   const result = await get(baseUrl);
