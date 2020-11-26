@@ -2,9 +2,9 @@ import config from '../config.json';
 import { sleep } from './ApiService';
 import Event from '../Models/Event';
 import StaffRole from '../Models/StaffRole';
-import VenueMetadata from '../Models/VenueMetadata';
 import AssignedStaffMember from '../Models/AssignedStaffMember';
 import AssignedSupervisor from '../Models/AssignedSupervisor';
+import Venue from '../Models/Venue';
 
 const baseUrl = `${config.API.BASE_URL}/events`;
 
@@ -17,8 +17,18 @@ export async function getAllEvents(): Promise<Array<Event>> {
       eventId: '123',
       name: 'Event 1',
       venue: {
-        venueId: '345',
-        name: 'My venue',
+        positions: [
+          {
+            positionId: '39d49a55-f5f7-4ba7-b070-1616f3f61db0',
+            name: 'Foyer 1',
+          },
+          {
+            positionId: '42004728-bccf-4614-bd52-cc0fde83df15',
+            name: 'Backstage 1',
+          },
+        ],
+        name: 'A cool venue',
+        venueId: '8fb98b42-ec05-4aef-ab9c-3ac5bfd6cd95',
       },
       start: 1606340678,
       end: 1606340800,
@@ -55,7 +65,7 @@ export async function getAllEvents(): Promise<Array<Event>> {
 
 interface NewEventDetails {
   name: string;
-  venue: VenueMetadata;
+  venue: Venue;
   start: number;
   end: number;
   supervisors: AssignedSupervisor[];

@@ -17,8 +17,6 @@ import { useFormFields } from '../../../Hooks/useFormFields';
 import Position from '../../../Models/Position';
 import ErrorMessage from '../../../Components/ErrorMessage';
 import NewPositionEntry from './NewPositionEntry';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import RemovableListItem from '../../../Components/RemovableListItem';
 
 interface ManageVenueFormFields {
@@ -267,6 +265,7 @@ export default function ManageVenues() {
     return fields.positions.map((position) => {
       return (
         <RemovableListItem
+          key={position.positionId}
           listKey={position.positionId}
           content={position.name}
           deleteAction={(key) => deletePosition(key)}

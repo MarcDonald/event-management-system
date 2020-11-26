@@ -1,11 +1,11 @@
-import VenueMetadata from './VenueMetadata';
 import AssignedStaffMember from './AssignedStaffMember';
 import AssignedSupervisor from './AssignedSupervisor';
+import Venue from './Venue';
 
 export default interface Event {
   eventId: string;
   name: string;
-  venue: VenueMetadata;
+  venue: Venue;
   start: number;
   end: number;
   supervisors: AssignedSupervisor[];

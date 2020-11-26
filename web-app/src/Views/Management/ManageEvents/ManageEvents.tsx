@@ -3,7 +3,6 @@ import ErrorMessage from '../../../Components/ErrorMessage';
 import ListPanel from '../ListPanel';
 import ManagementEditHeader from '../ManagementEditHeader';
 import AssignedStaffMember from '../../../Models/AssignedStaffMember';
-import VenueMetadata from '../../../Models/VenueMetadata';
 import Event from '../../../Models/Event';
 import { useFormFields } from '../../../Hooks/useFormFields';
 import Loading from '../../../Components/Loading';
@@ -21,7 +20,6 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import StaffMember from '../../../Models/StaffMember';
 import { getAllStaffMembers } from '../../../Services/StaffService';
-import RemovableListItem from '../../../Components/RemovableListItem';
 import StaffMemberAssignmentSection from './StaffMemberAssignmentSection';
 import Position from '../../../Models/Position';
 import SupervisorAssignmentSection from './SupervisorAssignmentSection';
@@ -31,7 +29,7 @@ interface ManageEventsPropTypes {}
 interface ManageEventsFormFields {
   id: string | null;
   name: string;
-  venue: VenueMetadata | null;
+  venue: Venue | null;
   start: Date;
   end: Date;
   supervisors: AssignedSupervisor[];
@@ -64,6 +62,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
   const [selectablePositions, setSelectablePositions] = useState<Position[]>(
     []
   );
+  const [allVenues, setAllVenues] = useState<Venue[]>([]);
 
   const eventSearch = (searchContent: string) => {
     if (searchContent) {
@@ -96,26 +95,12 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
       setAllEvents(eventList);
       setDisplayedEvents(eventList);
       const venueList = await getAllVenues();
+      setAllVenues(venueList);
       const formattedVenues = formatDropdownVenues(venueList);
       setDropdownVenues(formattedVenues);
       const staffList = await getAllStaffMembers();
       setAllStaff(staffList);
       setSelectableStaff(staffList);
-      // TODO should be set to empty array until venue is selected
-      setSelectablePositions([
-        {
-          positionId: '098',
-          name: 'Foyer 1',
-        },
-        {
-          positionId: '987',
-          name: 'Foyer 2',
-        },
-        {
-          positionId: '876',
-          name: 'Foyer 3',
-        },
-      ]);
     };
     setup().then();
   }, []);
@@ -123,21 +108,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
   const setupNewEvent = () => {
     setFieldsDirectly(emptyFormFields);
     setSelectableStaff(allStaff);
-    // TODO should reset to empty array
-    setSelectablePositions([
-      {
-        positionId: '098',
-        name: 'Foyer 1',
-      },
-      {
-        positionId: '987',
-        name: 'Foyer 2',
-      },
-      {
-        positionId: '876',
-        name: 'Foyer 3',
-      },
-    ]);
+    setSelectablePositions([]);
   };
 
   const selectEventToEdit = (id: string) => {
@@ -153,6 +124,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
         supervisors: event.supervisors,
         staff: event.staff,
       });
+      setSelectablePositions(event.venue.positions);
     } else {
       console.log(`Setup new event`);
       setupNewEvent();
@@ -166,6 +138,10 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
     }
     if (!fields.venue) {
       setError(new Error('Cannot create an event without a venue'));
+      return false;
+    }
+    if (fields.start > fields.end) {
+      setError(new Error('An event cannot end before it begins'));
       return false;
     }
     if (fields.supervisors.length < 1) {
@@ -223,6 +199,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
             ...updatedEvent,
           };
         }
+        setError(null);
         setupNewEvent();
       } catch (e) {
         console.error(JSON.stringify(e, null, 2));
@@ -313,6 +290,14 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
     setSelectableStaff([...selectableStaff, staffMember]);
   };
 
+  const selectVenue = (venueId: string) => {
+    const selectedVenue = allVenues.find((venue) => venue.venueId === venueId);
+    if (selectedVenue) {
+      setFieldsDirectly({ ...fields, venue: selectedVenue });
+      setSelectablePositions(selectedVenue.positions);
+    }
+  };
+
   const header = () => {
     return (
       <>
@@ -375,17 +360,10 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
         <label htmlFor="venue">Venue</label>
         <Dropdown
           title="Select a venue"
+          currentlySelectedKey={fields.venue?.venueId}
           list={dropdownVenues}
-          onSelected={(key, name) => {
-            key = key.toString();
-            name = name ? name : '';
-            setFieldsDirectly({
-              ...fields,
-              venue: {
-                venueId: key,
-                name,
-              },
-            });
+          onSelected={(key) => {
+            if (typeof key === 'string') selectVenue(key);
           }}
         />
         <label htmlFor="start">Start Date</label>
