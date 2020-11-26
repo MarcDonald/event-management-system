@@ -254,12 +254,7 @@ export default function ManageVenues() {
   const positionsSection = () => {
     return (
       <section className="my-2">
-        <label
-          htmlFor="positions"
-          className="my-2 text-center font-bold text-2xl"
-        >
-          Positions
-        </label>
+        <h3 className="my-2 text-center font-bold text-2xl">Positions</h3>
         {positionsList()}
         <NewPositionEntry onSave={addNewPosition} />
       </section>

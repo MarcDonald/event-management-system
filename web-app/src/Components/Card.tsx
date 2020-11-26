@@ -1,8 +1,8 @@
-import React, { MouseEventHandler, useState } from 'react';
+import React, { MouseEventHandler } from 'react';
 
 interface CardPropTypes {
-  onClick: MouseEventHandler<HTMLDivElement>;
-  children: React.ReactNode;
+  onClick?: MouseEventHandler<HTMLDivElement>;
+  children?: React.ReactNode;
 }
 
 export default function Card(props: CardPropTypes) {

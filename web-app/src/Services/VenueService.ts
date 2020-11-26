@@ -29,7 +29,7 @@ interface EditableVenueMetadata {
 export async function updateVenueMetadata(
   venueId: string,
   metadata: EditableVenueMetadata
-): Promise<Venue> {
+): Promise<any> {
   return await put(`${baseUrl}/${venueId}/metadata`, metadata);
 }
 
@@ -40,21 +40,21 @@ export interface NewPosition {
 export async function addVenuePositions(
   venueId: string,
   positions: Array<NewPosition>
-): Promise<Venue> {
+): Promise<any> {
   return await post(`${baseUrl}/${venueId}/positions`, positions);
 }
 
 export async function updateVenuePositions(
   venueId: string,
   positions: Array<Position>
-): Promise<Venue> {
+): Promise<any> {
   return await put(`${baseUrl}/${venueId}/positions`, positions);
 }
 
 export async function deleteVenuePositions(
   venueId: string,
   positionIds: Array<string>
-): Promise<Venue> {
+): Promise<any> {
   return await delet(`${baseUrl}/${venueId}/positions`, positionIds);
 }
 

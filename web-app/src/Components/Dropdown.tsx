@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faCaretDown,
-  faCaretUp,
-  faSpinner,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
 
-interface DropdownItem {
+export interface DropdownItem {
   key: string | number;
   name: string;
 }
@@ -15,8 +11,9 @@ interface DropdownPropTypes {
   title: string;
   list: DropdownItem[];
   currentlySelectedKey?: string | number;
-  onSelected: (key: string | number) => any;
+  onSelected: (key: string | number, name?: string) => any;
   id?: string;
+  className?: string | null;
 }
 
 export default function Dropdown(props: DropdownPropTypes) {
@@ -24,6 +21,8 @@ export default function Dropdown(props: DropdownPropTypes) {
   const [currentlySelected, setCurrentlySelected] = useState<
     string | number | null
   >(null);
+
+  let additionalClassName = props.className ? props.className : '';
 
   useEffect(() => {
     if (props.currentlySelectedKey) {
@@ -68,6 +67,7 @@ export default function Dropdown(props: DropdownPropTypes) {
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
       id={props.id}
+      className={`${additionalClassName}`}
     >
       <div
         className={`outline-none border border-gray-400 p-2 flex flex-row justify-between ${
