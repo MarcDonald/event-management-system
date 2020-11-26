@@ -11,6 +11,9 @@ import {
   createNewEvent,
   deleteEvent,
   getAllEvents,
+  updateEventMetadata,
+  updateEventStaffMembers,
+  updateEventSupervisors,
 } from '../../../Services/EventService';
 import Dropdown, { DropdownItem } from '../../../Components/Dropdown';
 import Venue from '../../../Models/Venue';
@@ -157,20 +160,29 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
 
   const updateEvent = async (): Promise<Event> => {
     if (fields.id) {
-      // TODO update metadata
-      // TODO update supervisors
-      // TODO update staff
+      const updatedMetadata = await updateEventMetadata(fields.id, {
+        name: fields.name,
+        // Have to divide by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
+        start: fields.start.getTime() / 1000,
+        end: fields.end.getTime() / 1000,
+      });
+      const updatedSupervisors = await updateEventSupervisors(
+        fields.id,
+        fields.supervisors
+      );
+      const updatedStaffMembers = await updateEventStaffMembers(
+        fields.id,
+        fields.staff
+      );
+      return {
+        eventId: fields.id!!,
+        venue: fields.venue!!,
+        supervisors: updatedSupervisors,
+        staff: updatedStaffMembers,
+        ...updatedMetadata,
+      };
     }
-    return {
-      eventId: fields.id!!,
-      name: fields.name,
-      venue: fields.venue!!,
-      // Have to divide by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
-      start: fields.start.getTime() / 1000,
-      end: fields.end.getTime() / 1000,
-      supervisors: fields.supervisors,
-      staff: fields.staff,
-    };
+    throw new Error('Trying to update without an event ID');
   };
 
   const formSubmit = async (event: React.FormEvent<HTMLFormElement> | null) => {
@@ -291,10 +303,19 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
   };
 
   const selectVenue = (venueId: string) => {
-    const selectedVenue = allVenues.find((venue) => venue.venueId === venueId);
-    if (selectedVenue) {
-      setFieldsDirectly({ ...fields, venue: selectedVenue });
-      setSelectablePositions(selectedVenue.positions);
+    if (venueId !== fields.venue?.venueId) {
+      const selectedVenue = allVenues.find(
+        (venue) => venue.venueId === venueId
+      );
+      if (selectedVenue) {
+        setFieldsDirectly({
+          ...fields,
+          venue: selectedVenue,
+          supervisors: [],
+          staff: [],
+        });
+        setSelectablePositions(selectedVenue.positions);
+      }
     }
   };
 

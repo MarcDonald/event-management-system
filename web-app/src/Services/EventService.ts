@@ -93,10 +93,28 @@ interface EditableEventMetadata {
 export async function updateEventMetadata(
   eventId: string,
   metadata: EditableEventMetadata
-): Promise<any> {
+): Promise<EditableEventMetadata> {
   // return await put(`${baseUrl}/${eventId}/metadata`, metadata);
   await sleep(1000);
-  return;
+  return metadata;
+}
+
+export async function updateEventSupervisors(
+  eventId: string,
+  supervisors: AssignedSupervisor[]
+): Promise<AssignedSupervisor[]> {
+  // return await put(`${baseUrl}/${eventId}/supervisors`, supervisors);
+  await sleep(1000);
+  return supervisors;
+}
+
+export async function updateEventStaffMembers(
+  eventId: string,
+  staff: AssignedStaffMember[]
+): Promise<AssignedStaffMember[]> {
+  // return await put(`${baseUrl}/${eventId}/staff`, staff);
+  await sleep(1000);
+  return staff;
 }
 
 export async function deleteEvent(id: string): Promise<string> {
