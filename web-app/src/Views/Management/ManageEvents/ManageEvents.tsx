@@ -181,14 +181,10 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
         end: fields.end.getTime() / 1000,
       };
       await updateEventInformation(fields.id, updatedInformation);
-      const updatedSupervisors = await updateEventSupervisors(
-        fields.id,
-        fields.supervisors
-      );
-      const updatedStaffMembers = await updateEventStaffMembers(
-        fields.id,
-        fields.staff
-      );
+      const updatedSupervisors = fields.supervisors;
+      await updateEventSupervisors(fields.id, updatedSupervisors);
+      const updatedStaffMembers = fields.staff;
+      await updateEventStaffMembers(fields.id, updatedStaffMembers);
       return {
         eventId: fields.id!!,
         venue: fields.venue!!,

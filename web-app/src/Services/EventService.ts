@@ -44,19 +44,15 @@ export async function updateEventInformation(
 export async function updateEventSupervisors(
   eventId: string,
   supervisors: AssignedSupervisor[]
-): Promise<AssignedSupervisor[]> {
-  // return await put(`${baseUrl}/${eventId}/supervisors`, supervisors);
-  await sleep(1000);
-  return supervisors;
+): Promise<any> {
+  return await put(`${baseUrl}/${eventId}/supervisors`, supervisors);
 }
 
 export async function updateEventStaffMembers(
   eventId: string,
   staff: AssignedStaffMember[]
-): Promise<AssignedStaffMember[]> {
-  // return await put(`${baseUrl}/${eventId}/staff`, staff);
-  await sleep(1000);
-  return staff;
+): Promise<any> {
+  return await put(`${baseUrl}/${eventId}/staff`, staff);
 }
 
 export async function deleteEvent(id: string): Promise<string> {
