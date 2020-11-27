@@ -132,18 +132,18 @@ test('Should return 404 when venue could not be found', async () => {
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      eventId: invalidEventId,
+      id: invalidEventId,
       metadata: 'event',
     },
     UpdateExpression: 'set #supervisors = :supervisors',
-    ConditionExpression: '#eventId = :eventId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeNames: {
       '#supervisors': 'supervisors',
-      '#eventId': 'eventId',
     },
     ExpressionAttributeValues: {
       ':supervisors': [validBody],
-      ':eventId': invalidEventId,
+      ':id': invalidEventId,
+      ':metadata': 'event',
     },
   });
 
@@ -178,18 +178,18 @@ test('Should return 500 when an update error is thrown', async () => {
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      eventId: invalidEventId,
+      id: invalidEventId,
       metadata: 'event',
     },
     UpdateExpression: 'set #supervisors = :supervisors',
-    ConditionExpression: '#eventId = :eventId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeNames: {
       '#supervisors': 'supervisors',
-      '#eventId': 'eventId',
     },
     ExpressionAttributeValues: {
       ':supervisors': [validBody],
-      ':eventId': invalidEventId,
+      ':id': invalidEventId,
+      ':metadata': 'event',
     },
   });
   expect(statusCode).toBe(500);

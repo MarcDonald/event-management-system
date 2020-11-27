@@ -115,16 +115,18 @@ test("Should update venue's name when provided with a name in the request body",
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      venueId: validVenueId,
+      id: validVenueId,
+      metadata: 'venue',
     },
     UpdateExpression: 'set #name = :name',
     ExpressionAttributeNames: {
       '#name': 'name',
     },
-    ConditionExpression: 'venueId = :venueId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':name': validVenueName,
-      ':venueId': validVenueId,
+      ':id': validVenueId,
+      ':metadata': 'venue',
     },
   });
 });
@@ -152,16 +154,18 @@ test('Should return 404 when venue does not exist', async () => {
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      venueId: validVenueId,
+      id: validVenueId,
+      metadata: 'venue',
     },
     UpdateExpression: 'set #name = :name',
     ExpressionAttributeNames: {
       '#name': 'name',
     },
-    ConditionExpression: 'venueId = :venueId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':name': validVenueName,
-      ':venueId': validVenueId,
+      ':id': validVenueId,
+      ':metadata': 'venue',
     },
   });
   expect(updateMock).toBeCalledTimes(1);
@@ -192,22 +196,24 @@ test('Should return 500 when another error is thrown', async () => {
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      venueId: validVenueId,
+      id: validVenueId,
+      metadata: 'venue',
     },
     UpdateExpression: 'set #name = :name',
     ExpressionAttributeNames: {
       '#name': 'name',
     },
-    ConditionExpression: 'venueId = :venueId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':name': validVenueName,
-      ':venueId': validVenueId,
+      ':id': validVenueId,
+      ':metadata': 'venue',
     },
   });
   expect(updateMock).toBeCalledTimes(1);
 
   expect(statusCode).toBe(500);
   expect(body).toBe(
-    JSON.stringify({ message: 'Error creating venue - Error message' })
+    JSON.stringify({ message: 'Error editing venue metadata - Error message' })
   );
 });

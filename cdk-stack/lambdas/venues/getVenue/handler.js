@@ -18,12 +18,10 @@ module.exports = (dependencies) => async (event) => {
   try {
     const result = await Dynamo.query({
       TableName: tableName,
-      KeyConditionExpression: '#venueId = :id',
-      ExpressionAttributeNames: {
-        '#venueId': 'venueId',
-      },
+      KeyConditionExpression: 'id = :id and metadata = :metadata',
       ExpressionAttributeValues: {
         ':id': venueId,
+        ':metadata': 'venue',
       },
       Limit: 1,
     }).promise();
@@ -36,7 +34,12 @@ module.exports = (dependencies) => async (event) => {
       };
     }
 
-    const formattedVenue = result.Items[0];
+    const dbItem = result.Items[0];
+    const formattedVenue = {
+      venueId: dbItem.id,
+      name: dbItem.name,
+      positions: dbItem.positions,
+    };
 
     return {
       ...response,

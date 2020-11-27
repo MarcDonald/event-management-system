@@ -7,5 +7,5 @@ const Dynamo = new aws.DynamoDB.DocumentClient({
 exports.handler = require('./handler')({
   Dynamo,
   tableName: process.env.TABLE_NAME,
-  eventMetadataIndexName: process.env.EVENT_METADATA_INDEX_NAME,
+  metadataIndexName: process.env.METADATA_INDEX_NAME,
 });

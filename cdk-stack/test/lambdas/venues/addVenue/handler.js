@@ -60,7 +60,8 @@ test('Should create venue and return formatted venue object when provided with a
   expect(putMock).toBeCalledWith({
     TableName: testValues.validTableName,
     Item: {
-      venueId: 'uuid1',
+      id: 'uuid1',
+      metadata: 'venue',
       name: validVenueName,
       positions: [
         {
@@ -189,7 +190,8 @@ test('Should return 500 when another error is thrown', async () => {
   expect(putMock).toBeCalledWith({
     TableName: testValues.validTableName,
     Item: {
-      venueId: 'uuid',
+      id: 'uuid',
+      metadata: 'venue',
       name: validVenueName,
       positions: [
         {

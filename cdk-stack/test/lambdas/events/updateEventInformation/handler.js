@@ -57,22 +57,22 @@ test('Should update event name, start, and end when all are given', async () => 
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      eventId: validEventId,
+      id: validEventId,
       metadata: 'event',
     },
     UpdateExpression: 'set #name = :name, #start = :start, #end = :end',
-    ConditionExpression: '#eventId = :eventId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeNames: {
       '#end': 'end',
-      '#eventId': 'eventId',
       '#name': 'name',
       '#start': 'start',
     },
     ExpressionAttributeValues: {
       ':end': validEnd,
-      ':eventId': validEventId,
+      ':id': validEventId,
       ':name': validEventName,
       ':start': validStart,
+      ':metadata': 'event',
     },
   });
   expect(updateMock).toBeCalledTimes(1);
@@ -105,18 +105,18 @@ test('Should only update event name when only it is given', async () => {
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      eventId: validEventId,
+      id: validEventId,
       metadata: 'event',
     },
     UpdateExpression: 'set #name = :name',
-    ConditionExpression: '#eventId = :eventId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeNames: {
-      '#eventId': 'eventId',
       '#name': 'name',
     },
     ExpressionAttributeValues: {
-      ':eventId': validEventId,
+      ':id': validEventId,
       ':name': validEventName,
+      ':metadata': 'event',
     },
   });
   expect(updateMock).toBeCalledTimes(1);
@@ -143,7 +143,7 @@ test('Should only update event start when only it is given', async () => {
     promise: () => {
       return dynamoQueryResponseBuilder([
         {
-          eventId: validEventId,
+          id: validEventId,
           end: validEnd,
         },
       ]);
@@ -163,17 +163,17 @@ test('Should only update event start when only it is given', async () => {
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      eventId: validEventId,
+      id: validEventId,
       metadata: 'event',
     },
     UpdateExpression: 'set #start = :start',
-    ConditionExpression: '#eventId = :eventId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeNames: {
-      '#eventId': 'eventId',
       '#start': 'start',
     },
     ExpressionAttributeValues: {
-      ':eventId': validEventId,
+      ':id': validEventId,
+      ':metadata': 'event',
       ':start': validStart,
     },
   });
@@ -199,7 +199,7 @@ test('Should only update event end when only it is given', async () => {
     promise: () => {
       return dynamoQueryResponseBuilder([
         {
-          eventId: validEventId,
+          id: validEventId,
           start: validStart,
         },
       ]);
@@ -219,17 +219,17 @@ test('Should only update event end when only it is given', async () => {
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      eventId: validEventId,
+      id: validEventId,
       metadata: 'event',
     },
     UpdateExpression: 'set #end = :end',
-    ConditionExpression: '#eventId = :eventId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeNames: {
       '#end': 'end',
-      '#eventId': 'eventId',
     },
     ExpressionAttributeValues: {
-      ':eventId': validEventId,
+      ':id': validEventId,
+      ':metadata': 'event',
       ':end': validEnd,
     },
   });
@@ -344,7 +344,7 @@ test('Should return 400 when called with a start where the end in the DB is afte
     promise: () => {
       return dynamoQueryResponseBuilder([
         {
-          eventId: validEventId,
+          id: validEventId,
           start: 300,
           end: invalidEnd,
         },
@@ -364,14 +364,10 @@ test('Should return 400 when called with a start where the end in the DB is afte
   expect(queryMock).toBeCalledTimes(1);
   expect(queryMock).toBeCalledWith({
     TableName: validTableName,
-    KeyConditionExpression: '#eventId = :eventId and #metadata = :metadata',
-    ExpressionAttributeNames: {
-      '#metadata': 'metadata',
-      '#eventId': 'eventId',
-    },
+    KeyConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':metadata': 'event',
-      ':eventId': validEventId,
+      ':id': validEventId,
     },
   });
 });
@@ -388,7 +384,7 @@ test('Should return 400 when called with an end where start in the DB is before 
     promise: () => {
       return dynamoQueryResponseBuilder([
         {
-          eventId: validEventId,
+          id: validEventId,
           start: validStart,
           end: validEnd,
         },
@@ -408,14 +404,10 @@ test('Should return 400 when called with an end where start in the DB is before 
   expect(queryMock).toBeCalledTimes(1);
   expect(queryMock).toBeCalledWith({
     TableName: validTableName,
-    KeyConditionExpression: '#eventId = :eventId and #metadata = :metadata',
-    ExpressionAttributeNames: {
-      '#metadata': 'metadata',
-      '#eventId': 'eventId',
-    },
+    KeyConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':metadata': 'event',
-      ':eventId': validEventId,
+      ':id': validEventId,
     },
   });
 });
@@ -446,14 +438,10 @@ test('Should return 404 when event does not exist on query', async () => {
   expect(queryMock).toBeCalledTimes(1);
   expect(queryMock).toBeCalledWith({
     TableName: validTableName,
-    KeyConditionExpression: '#eventId = :eventId and #metadata = :metadata',
-    ExpressionAttributeNames: {
-      '#metadata': 'metadata',
-      '#eventId': 'eventId',
-    },
+    KeyConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':metadata': 'event',
-      ':eventId': invalidEventId,
+      ':id': invalidEventId,
     },
   });
 });
@@ -483,20 +471,20 @@ test('Should return 404 when event does not exist on update', async () => {
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      eventId: invalidEventId,
+      id: invalidEventId,
       metadata: 'event',
     },
     UpdateExpression: 'set #name = :name, #start = :start, #end = :end',
-    ConditionExpression: '#eventId = :eventId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeNames: {
       '#end': 'end',
-      '#eventId': 'eventId',
       '#name': 'name',
       '#start': 'start',
     },
     ExpressionAttributeValues: {
       ':end': validEnd,
-      ':eventId': invalidEventId,
+      ':id': invalidEventId,
+      ':metadata': 'event',
       ':name': validEventName,
       ':start': validStart,
     },
@@ -531,20 +519,20 @@ test('Should return 500 when another error is thrown', async () => {
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      eventId: validEventId,
+      id: validEventId,
       metadata: 'event',
     },
     UpdateExpression: 'set #name = :name, #start = :start, #end = :end',
-    ConditionExpression: '#eventId = :eventId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeNames: {
       '#end': 'end',
-      '#eventId': 'eventId',
       '#name': 'name',
       '#start': 'start',
     },
     ExpressionAttributeValues: {
       ':end': validEnd,
-      ':eventId': validEventId,
+      ':id': validEventId,
+      ':metadata': 'event',
       ':name': validEventName,
       ':start': validStart,
     },

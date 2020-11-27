@@ -28,12 +28,10 @@ module.exports = (dependencies) => async (event) => {
   try {
     const dbQueryResult = await Dynamo.query({
       TableName: tableName,
-      KeyConditionExpression: '#venueId = :id',
-      ExpressionAttributeNames: {
-        '#venueId': 'venueId',
-      },
+      KeyConditionExpression: 'id = :id and metadata = :metadata',
       ExpressionAttributeValues: {
         ':id': venueId,
+        ':metadata': 'venue',
       },
       Limit: 1,
     }).promise();
@@ -69,17 +67,19 @@ module.exports = (dependencies) => async (event) => {
     await Dynamo.update({
       TableName: tableName,
       Key: {
-        venueId: venueId,
+        id: venueId,
+        metadata: 'venue',
       },
       UpdateExpression: 'set #positions = :newPositions',
       ExpressionAttributeNames: {
         '#positions': 'positions',
       },
       // Adding this condition prevents a new venue being made if the venue doesn't already exist
-      ConditionExpression: 'venueId = :venueId',
+      ConditionExpression: 'id = :id and metadata = :metadata',
       ExpressionAttributeValues: {
         ':newPositions': positions,
-        ':venueId': venueId,
+        ':id': venueId,
+        ':metadata': 'venue',
       },
     }).promise();
 

@@ -59,14 +59,15 @@ test('Should add new positions to venue when provided with a valid event', async
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      venueId: validVenueId,
+      id: validVenueId,
+      metadata: 'venue',
     },
     UpdateExpression: 'set #positions = list_append(#positions, :newPositions)',
     ExpressionAttributeNames: {
       '#positions': 'positions',
     },
     // Adding this condition prevents a new venue being made if the venue doesn't already exist
-    ConditionExpression: 'venueId = :venueId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':newPositions': [
         {
@@ -78,7 +79,8 @@ test('Should add new positions to venue when provided with a valid event', async
           name: validPositionName + '2',
         },
       ],
-      ':venueId': validVenueId,
+      ':id': validVenueId,
+      ':metadata': 'venue',
     },
   });
   expect(updateMock).toBeCalledTimes(1);
@@ -151,7 +153,7 @@ test('Should return 400 when called with an event does not have an array as a bo
   const event = {
     body: eventBody,
     pathParameters: {
-      venueId: validVenueId,
+      id: validVenueId,
     },
   };
 
@@ -193,14 +195,15 @@ test('Should return 404 when venue could not be found', async () => {
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      venueId: validVenueId,
+      id: validVenueId,
+      metadata: 'venue',
     },
     UpdateExpression: 'set #positions = list_append(#positions, :newPositions)',
     ExpressionAttributeNames: {
       '#positions': 'positions',
     },
     // Adding this condition prevents a new venue being made if the venue doesn't already exist
-    ConditionExpression: 'venueId = :venueId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':newPositions': [
         {
@@ -208,7 +211,8 @@ test('Should return 404 when venue could not be found', async () => {
           name: validPositionName,
         },
       ],
-      ':venueId': validVenueId,
+      ':id': validVenueId,
+      ':metadata': 'venue',
     },
   });
   expect(updateMock).toBeCalledTimes(1);
@@ -246,14 +250,15 @@ test('Should return 500 when another error is thrown', async () => {
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      venueId: validVenueId,
+      id: validVenueId,
+      metadata: 'venue',
     },
     UpdateExpression: 'set #positions = list_append(#positions, :newPositions)',
     ExpressionAttributeNames: {
       '#positions': 'positions',
     },
     // Adding this condition prevents a new venue being made if the venue doesn't already exist
-    ConditionExpression: 'venueId = :venueId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':newPositions': [
         {
@@ -261,7 +266,8 @@ test('Should return 500 when another error is thrown', async () => {
           name: validPositionName,
         },
       ],
-      ':venueId': validVenueId,
+      ':id': validVenueId,
+      ':metadata': 'venue',
     },
   });
   expect(updateMock).toBeCalledTimes(1);

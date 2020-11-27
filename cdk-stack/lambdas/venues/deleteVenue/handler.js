@@ -19,7 +19,8 @@ module.exports = (dependencies) => async (event) => {
     const result = await Dynamo.delete({
       TableName: tableName,
       Key: {
-        venueId: venueId,
+        id: venueId,
+        metadata: 'venue',
       },
     }).promise();
     console.log(JSON.stringify(result));

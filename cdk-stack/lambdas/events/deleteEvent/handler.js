@@ -19,7 +19,7 @@ module.exports = (dependencies) => async (event) => {
     const result = await Dynamo.delete({
       TableName: tableName,
       Key: {
-        eventId: eventId,
+        id: eventId,
         // TODO in the future we probably want to remove all references to the event no matter what the metadata type is
         metadata: 'event',
       },

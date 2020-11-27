@@ -28,14 +28,10 @@ const verifyStartAndEndAgainstDb = async (
 ) => {
   const result = await Dynamo.query({
     TableName: tableName,
-    KeyConditionExpression: '#eventId = :eventId and #metadata = :metadata',
-    ExpressionAttributeNames: {
-      '#metadata': 'metadata',
-      '#eventId': 'eventId',
-    },
+    KeyConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':metadata': 'event',
-      ':eventId': eventId,
+      ':id': eventId,
     },
   }).promise();
 
@@ -101,11 +97,10 @@ module.exports = (dependencies) => async (event) => {
 
     let setActions = [];
     let expressionAttributeValues = {
-      ':eventId': eventId,
+      ':id': eventId,
+      ':metadata': 'event',
     };
-    let expressionAttributeNames = {
-      '#eventId': 'eventId',
-    };
+    let expressionAttributeNames = {};
 
     if (name) {
       setActions.push('#name = :name');
@@ -128,12 +123,12 @@ module.exports = (dependencies) => async (event) => {
     const updateParams = {
       TableName: tableName,
       Key: {
-        eventId: eventId,
+        id: eventId,
         metadata: 'event',
       },
       UpdateExpression: updateExpression,
       // Adding this condition prevents a new event being made if the event doesn't already exist
-      ConditionExpression: '#eventId = :eventId',
+      ConditionExpression: 'id = :id and metadata = :metadata',
       ExpressionAttributeNames: expressionAttributeNames,
       ExpressionAttributeValues: expressionAttributeValues,
     };

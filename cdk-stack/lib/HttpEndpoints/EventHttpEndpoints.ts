@@ -85,10 +85,9 @@ export default class VenueHttpEndpoints {
       'getAllEvents',
       ['dynamodb:Query'],
       {
-        EVENT_METADATA_INDEX_NAME: this.dynamoResources.eventMetadataIndex
-          .indexName,
+        METADATA_INDEX_NAME: this.dynamoResources.metadataIndex.indexName,
       },
-      [this.dynamoResources.eventMetadataIndex.arn]
+      [this.dynamoResources.metadataIndex.arn]
     );
   }
 
@@ -127,7 +126,7 @@ export default class VenueHttpEndpoints {
     additionalEnvironmentVariables?: object,
     additionalResources?: string[]
   ): LambdaProxyIntegration {
-    const { tableName, tableArn } = this.dynamoResources.eventsTable;
+    const { tableName, tableArn } = this.dynamoResources.table;
 
     let resources = [tableArn];
     if (additionalResources) {

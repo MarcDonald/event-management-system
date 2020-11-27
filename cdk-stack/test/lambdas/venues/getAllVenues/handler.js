@@ -1,29 +1,27 @@
 const { awsUtils, venueUtils } = require('../../../testUtils');
 const { MockAWSError, dynamoQueryResponseBuilder } = awsUtils;
-const { testValues } = venueUtils;
 const {
   validTableName,
   validVenueId,
-  invalidVenueId,
   validVenueName,
   validPositionName,
   validPositionId,
-  invalidPositionId,
-  invalidVenueName,
-} = testValues;
+} = venueUtils.testValues;
+const { validMetadataIndexName } = awsUtils.testValues;
 
 let handler;
 
-const scanMock = jest.fn();
+const queryMock = jest.fn();
 
 beforeEach(() => {
   const Dynamo = {
-    scan: scanMock,
+    query: queryMock,
   };
 
   const dependencies = {
     tableName: validTableName,
     Dynamo,
+    metadataIndexName: validMetadataIndexName,
   };
 
   handler = require('../../../../lambdas/venues/getAllVenues/handler')(
@@ -34,11 +32,11 @@ beforeEach(() => {
 afterEach(jest.resetAllMocks);
 
 test('Should return a formatted list of venues', async () => {
-  scanMock.mockReturnValue({
+  queryMock.mockReturnValue({
     promise: () => {
       return dynamoQueryResponseBuilder([
         {
-          venueId: validVenueId + '1',
+          id: validVenueId + '1',
           name: validVenueName + '1',
           positions: [
             {
@@ -52,7 +50,7 @@ test('Should return a formatted list of venues', async () => {
           ],
         },
         {
-          venueId: validVenueId + '2',
+          id: validVenueId + '2',
           name: validVenueName + '2',
           positions: [
             {
@@ -104,14 +102,19 @@ test('Should return a formatted list of venues', async () => {
       },
     ])
   );
-  expect(scanMock).toBeCalledWith({
+  expect(queryMock).toBeCalledWith({
     TableName: validTableName,
+    IndexName: validMetadataIndexName,
+    KeyConditionExpression: 'metadata = :metadata',
+    ExpressionAttributeValues: {
+      ':metadata': 'venue',
+    },
   });
-  expect(scanMock).toBeCalledTimes(1);
+  expect(queryMock).toBeCalledTimes(1);
 });
 
 test('Should return an empty list if no venues', async () => {
-  scanMock.mockReturnValue({
+  queryMock.mockReturnValue({
     promise: () => {
       return dynamoQueryResponseBuilder([]);
     },
@@ -123,7 +126,7 @@ test('Should return an empty list if no venues', async () => {
 });
 
 test('Should return 500 if an error is thrown', async () => {
-  scanMock.mockReturnValue({
+  queryMock.mockReturnValue({
     promise: () => {
       throw new MockAWSError('An unknown error.', 'UnknownException');
     },

@@ -103,7 +103,11 @@ export default class VenueHttpEndpoints {
       'GetAllVenuesFunction',
       'EmsGetAllVenues',
       'getAllVenues',
-      ['dynamodb:Scan']
+      ['dynamodb:Query'],
+      {
+        METADATA_INDEX_NAME: this.dynamoResources.metadataIndex.indexName,
+      },
+      [this.dynamoResources.metadataIndex.arn]
     );
   }
 
@@ -147,17 +151,23 @@ export default class VenueHttpEndpoints {
     functionId: string,
     functionName: string,
     codeDir: string,
-    actions: string[]
+    actions: string[],
+    additionalEnvironmentVariables?: object,
+    additionalResources?: string[]
   ): LambdaProxyIntegration {
-    const { tableName, tableArn } = this.dynamoResources.venueTable;
+    const { tableName, tableArn } = this.dynamoResources.table;
+    let resources = [tableArn];
+    if (additionalResources) {
+      resources = [...resources, ...additionalResources];
+    }
     return createBaseHandler(
       this.scope,
       functionId,
       functionName,
       `./lambdas/venues/${codeDir}`,
-      [tableArn],
+      resources,
       actions,
-      { TABLE_NAME: tableName }
+      { TABLE_NAME: tableName, ...additionalEnvironmentVariables }
     );
   }
 }

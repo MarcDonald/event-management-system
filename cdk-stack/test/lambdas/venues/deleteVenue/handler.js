@@ -41,7 +41,8 @@ test('Should return 204 when a user is deleted successfully', async () => {
   expect(deleteMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      venueId: validVenueId,
+      id: validVenueId,
+      metadata: 'venue',
     },
   });
 });
@@ -82,8 +83,6 @@ test('Should return 500 when another error is thrown', async () => {
   expect(deleteMock).toBeCalledTimes(1);
   expect(deleteMock).toBeCalledWith({
     TableName: validTableName,
-    Key: {
-      venueId: validVenueId,
-    },
+    Key: { id: validVenueId, metadata: 'venue' },
   });
 });

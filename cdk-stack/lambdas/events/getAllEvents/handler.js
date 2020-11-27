@@ -4,27 +4,39 @@ const response = {
 };
 
 module.exports = (dependencies) => async (event) => {
-  const { Dynamo, tableName, eventMetadataIndexName } = dependencies;
+  const {
+    Dynamo,
+    tableName,
+    metadataIndexName,
+  } = dependencies;
 
   try {
     const result = await Dynamo.query({
       TableName: tableName,
-      IndexName: eventMetadataIndexName,
-      KeyConditionExpression: '#metadata = :metadata',
-      ExpressionAttributeNames: {
-        '#metadata': 'metadata',
-      },
+      IndexName: metadataIndexName,
+      KeyConditionExpression: 'metadata = :metadata',
       ExpressionAttributeValues: {
         ':metadata': 'event',
       },
     }).promise();
 
-    const eventList = result.Items;
+    const formattedEventList = result.Items.map((dbEvent) => {
+      const { name, venue, start, end, supervisors, staff } = dbEvent;
+      return {
+        eventId: dbEvent.id,
+        name,
+        venue,
+        start,
+        end,
+        supervisors,
+        staff,
+      };
+    });
 
     return {
       ...response,
       statusCode: 200,
-      body: JSON.stringify(eventList),
+      body: JSON.stringify(formattedEventList),
     };
   } catch (e) {
     console.error(`${e.code} - ${e.message}`);

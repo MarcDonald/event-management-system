@@ -48,18 +48,18 @@ module.exports = (dependencies) => async (event) => {
     const updateParams = {
       TableName: tableName,
       Key: {
-        eventId: eventId,
+        id: eventId,
         metadata: 'event',
       },
       UpdateExpression: 'set #staff = :staff',
-      ConditionExpression: '#eventId = :eventId',
+      ConditionExpression: 'id = :id and metadata = :metadata',
       ExpressionAttributeNames: {
         '#staff': 'staff',
-        '#eventId': 'eventId',
       },
       ExpressionAttributeValues: {
         ':staff': staff,
-        ':eventId': eventId,
+        ':id': eventId,
+        ':metadata': 'event',
       },
     };
 

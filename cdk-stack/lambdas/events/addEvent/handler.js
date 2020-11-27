@@ -59,7 +59,7 @@ module.exports = (dependencies) => async (event) => {
   try {
     const eventId = generateUUID().toString();
     const itemToAdd = {
-      eventId,
+      id: eventId,
       name,
       metadata: 'event',
       venue,
@@ -79,7 +79,15 @@ module.exports = (dependencies) => async (event) => {
     return {
       ...response,
       statusCode: 201,
-      body: JSON.stringify(itemToAdd),
+      body: JSON.stringify({
+        eventId,
+        name,
+        venue,
+        start,
+        end,
+        supervisors,
+        staff,
+      }),
     };
   } catch (err) {
     console.error(`${err.code} - ${err.message}`);

@@ -5,11 +5,7 @@ const {
   staffUtils,
 } = require('../../../testUtils');
 const { MockAWSError, dynamoQueryResponseBuilder } = awsUtils;
-const {
-  validTableName,
-  validEventMetadataIndexName,
-  validAreaOfSupervision,
-} = eventUtils.testValues;
+const { validTableName, validAreaOfSupervision } = eventUtils.testValues;
 const {
   validVenueName,
   validVenueId,
@@ -23,6 +19,7 @@ const {
   validGivenName,
   validFamilyName,
 } = staffUtils;
+const { validMetadataIndexName } = awsUtils.testValues;
 
 let handler;
 const queryMock = jest.fn();
@@ -82,7 +79,7 @@ beforeEach(() => {
   const dependencies = {
     Dynamo,
     tableName: validTableName,
-    eventMetadataIndexName: validEventMetadataIndexName,
+    eventMetadataIndexName: validMetadataIndexName,
   };
 
   handler = require('../../../../lambdas/events/getAllEvents/handler')(
@@ -97,7 +94,7 @@ test('Should return a formatted list of events', async () => {
     promise: () => {
       return dynamoQueryResponseBuilder([
         {
-          eventId: 'uuid',
+          id: 'uuid',
           metadata: 'event',
           venue: validVenue,
           start: validStart,
@@ -116,7 +113,6 @@ test('Should return a formatted list of events', async () => {
     JSON.stringify([
       {
         eventId: 'uuid',
-        metadata: 'event',
         venue: validVenue,
         start: validStart,
         end: validEnd,
@@ -127,11 +123,8 @@ test('Should return a formatted list of events', async () => {
   );
   expect(queryMock).toBeCalledWith({
     TableName: validTableName,
-    IndexName: validEventMetadataIndexName,
-    KeyConditionExpression: '#metadata = :metadata',
-    ExpressionAttributeNames: {
-      '#metadata': 'metadata',
-    },
+    IndexName: validMetadataIndexName,
+    KeyConditionExpression: 'metadata = :metadata',
     ExpressionAttributeValues: {
       ':metadata': 'event',
     },

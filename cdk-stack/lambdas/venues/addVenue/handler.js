@@ -53,7 +53,8 @@ module.exports = (dependencies) => async (event) => {
     const processedPositions = addIdToPositions(positions, generateUUID);
 
     const itemToAdd = {
-      venueId,
+      id: venueId,
+      metadata: 'venue',
       name,
       positions: processedPositions,
     };
@@ -65,7 +66,15 @@ module.exports = (dependencies) => async (event) => {
 
     await Dynamo.put(putParams).promise();
 
-    return { ...response, statusCode: 201, body: JSON.stringify(itemToAdd) };
+    return {
+      ...response,
+      statusCode: 201,
+      body: JSON.stringify({
+        venueId,
+        name,
+        positions: processedPositions,
+      }),
+    };
   } catch (err) {
     console.error(`${err.code} - ${err.message}`);
     return {

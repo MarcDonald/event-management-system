@@ -116,7 +116,7 @@ test('Should add event when provided with a valid event', async () => {
   expect(putMock).toBeCalledWith({
     TableName: validTableName,
     Item: {
-      eventId: 'uuid',
+      id: 'uuid',
       metadata: 'event',
       name: validEventName,
       venue: validVenue,
@@ -133,7 +133,6 @@ test('Should add event when provided with a valid event', async () => {
     JSON.stringify({
       eventId: 'uuid',
       name: validEventName,
-      metadata: 'event',
       venue: validVenue,
       start: validStart,
       end: validEnd,
@@ -383,7 +382,7 @@ test('Should return 500 when another error is thrown', async () => {
   expect(putMock).toBeCalledWith({
     TableName: validTableName,
     Item: {
-      eventId: 'uuid',
+      id: 'uuid',
       name: validEventName,
       metadata: 'event',
       venue: validVenue,

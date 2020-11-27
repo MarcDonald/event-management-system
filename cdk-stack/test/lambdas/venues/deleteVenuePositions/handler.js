@@ -40,7 +40,8 @@ test('Should delete specific positions from venue when provided with a valid eve
     promise: () => {
       return dynamoQueryResponseBuilder([
         {
-          venueId: validVenueId,
+          id: validVenueId,
+          metadata: 'venue',
           name: validVenueName,
           positions: [
             {
@@ -70,12 +71,10 @@ test('Should delete specific positions from venue when provided with a valid eve
   expect(queryMock).toBeCalledTimes(1);
   expect(queryMock).toBeCalledWith({
     TableName: validTableName,
-    KeyConditionExpression: '#venueId = :id',
-    ExpressionAttributeNames: {
-      '#venueId': 'venueId',
-    },
+    KeyConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':id': validVenueId,
+      ':metadata': 'venue',
     },
     Limit: 1,
   });
@@ -84,19 +83,21 @@ test('Should delete specific positions from venue when provided with a valid eve
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      venueId: validVenueId,
+      id: validVenueId,
+      metadata: 'venue',
     },
     UpdateExpression: 'set #positions = :newPositions',
     ExpressionAttributeNames: {
       '#positions': 'positions',
     },
     // Adding this condition prevents a new venue being made if the venue doesn't already exist
-    ConditionExpression: 'venueId = :venueId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':newPositions': [
         { positionId: validPositionId + '2', name: validPositionName + '2' },
       ],
-      ':venueId': validVenueId,
+      ':id': validVenueId,
+      ':metadata': 'venue',
     },
   });
 
@@ -181,12 +182,10 @@ test('Should return 404 when venue could not be found', async () => {
   expect(queryMock).toBeCalledTimes(1);
   expect(queryMock).toBeCalledWith({
     TableName: validTableName,
-    KeyConditionExpression: '#venueId = :id',
-    ExpressionAttributeNames: {
-      '#venueId': 'venueId',
-    },
+    KeyConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':id': validVenueId,
+      ':metadata': 'venue',
     },
     Limit: 1,
   });
@@ -241,7 +240,8 @@ test('Should return 500 when an update error is thrown', async () => {
     promise: () => {
       return dynamoQueryResponseBuilder([
         {
-          venueId: validVenueId,
+          id: validVenueId,
+          metadata: 'venue',
           name: validVenueName,
           positions: [
             {

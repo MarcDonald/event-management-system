@@ -45,17 +45,19 @@ module.exports = (dependencies) => async (event) => {
     const updateParams = {
       TableName: tableName,
       Key: {
-        venueId: venueId,
+        id: venueId,
+        metadata: 'venue',
       },
       UpdateExpression: 'set #name = :name',
       ExpressionAttributeNames: {
         '#name': 'name',
       },
       // Adding this condition prevents a new venue being made if the venue doesn't already exist
-      ConditionExpression: 'venueId = :venueId',
+      ConditionExpression: 'id = :id and metadata = :metadata',
       ExpressionAttributeValues: {
         ':name': name,
-        ':venueId': venueId,
+        ':id': venueId,
+        ':metadata': 'venue',
       },
     };
 
@@ -83,7 +85,7 @@ module.exports = (dependencies) => async (event) => {
       ...response,
       statusCode: 500,
       body: JSON.stringify({
-        message: `Error creating venue - ${err.message}`,
+        message: `Error editing venue metadata - ${err.message}`,
       }),
     };
   }

@@ -89,26 +89,25 @@ test('Should update positions when provided with a valid event', async () => {
   expect(queryMock).toBeCalledTimes(1);
   expect(queryMock).toBeCalledWith({
     TableName: validTableName,
-    KeyConditionExpression: '#venueId = :id',
-    ExpressionAttributeNames: {
-      '#venueId': 'venueId',
-    },
+    KeyConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':id': validVenueId,
+      ':metadata': 'venue',
     },
     Limit: 1,
   });
   expect(updateMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      venueId: validVenueId,
+      id: validVenueId,
+      metadata: 'venue',
     },
     UpdateExpression: 'set #positions = :newPositions',
     ExpressionAttributeNames: {
       '#positions': 'positions',
     },
     // Adding this condition prevents a new venue being made if the venue doesn't already exist
-    ConditionExpression: 'venueId = :venueId',
+    ConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':newPositions': [
         {
@@ -128,7 +127,8 @@ test('Should update positions when provided with a valid event', async () => {
           name: newName + '3',
         },
       ],
-      ':venueId': validVenueId,
+      ':id': validVenueId,
+      ':metadata': 'venue',
     },
   });
   expect(updateMock).toBeCalledTimes(1);
@@ -256,12 +256,10 @@ test('Should return 404 when venue could not be found', async () => {
   expect(queryMock).toBeCalledTimes(1);
   expect(queryMock).toBeCalledWith({
     TableName: validTableName,
-    KeyConditionExpression: '#venueId = :id',
-    ExpressionAttributeNames: {
-      '#venueId': 'venueId',
-    },
+    KeyConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':id': validVenueId,
+      ':metadata': 'venue',
     },
     Limit: 1,
   });

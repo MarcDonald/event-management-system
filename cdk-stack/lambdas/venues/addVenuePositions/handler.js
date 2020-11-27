@@ -46,7 +46,8 @@ module.exports = (dependencies) => async (event) => {
     const updateParams = {
       TableName: tableName,
       Key: {
-        venueId: venueId,
+        id: venueId,
+        metadata: 'venue',
       },
       UpdateExpression:
         'set #positions = list_append(#positions, :newPositions)',
@@ -54,10 +55,11 @@ module.exports = (dependencies) => async (event) => {
         '#positions': 'positions',
       },
       // Adding this condition prevents a new venue being made if the venue doesn't already exist
-      ConditionExpression: 'venueId = :venueId',
+      ConditionExpression: 'id = :id and metadata = :metadata',
       ExpressionAttributeValues: {
         ':newPositions': processedPositions,
-        ':venueId': venueId,
+        ':id': venueId,
+        ':metadata': 'venue',
       },
     };
 

@@ -41,7 +41,7 @@ test('Should return 204 when an event is deleted successfully', async () => {
   expect(deleteMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      eventId: validEventId,
+      id: validEventId,
       metadata: 'event',
     },
   });
@@ -84,7 +84,7 @@ test('Should return 500 when another error is thrown', async () => {
   expect(deleteMock).toBeCalledWith({
     TableName: validTableName,
     Key: {
-      eventId: validEventId,
+      id: validEventId,
       metadata: 'event',
     },
   });

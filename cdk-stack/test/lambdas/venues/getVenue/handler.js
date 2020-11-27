@@ -35,7 +35,7 @@ test('Should return formatted venue object when provided with a valid venue ID',
     promise: () => {
       return dynamoQueryResponseBuilder([
         {
-          venueId: validVenueId,
+          id: validVenueId,
           name: validVenueName,
           positions: [
             {
@@ -62,12 +62,10 @@ test('Should return formatted venue object when provided with a valid venue ID',
 
   expect(queryMock).toBeCalledWith({
     TableName: validTableName,
-    KeyConditionExpression: '#venueId = :id',
-    ExpressionAttributeNames: {
-      '#venueId': 'venueId',
-    },
+    KeyConditionExpression: 'id = :id and metadata = :metadata',
     ExpressionAttributeValues: {
       ':id': validVenueId,
+      ':metadata': 'venue',
     },
     Limit: 1,
   });
