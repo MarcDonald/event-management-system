@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import useLocalAuth from '../../Hooks/useLocalAuth';
 import BrandHeader from '../../Components/BrandHeader';
-import LoggedInUser from '../../Components/LoggedInUser';
+import LoggedInUser from '../../Components/LoginStateDisplay/LoggedInUser';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 import ManageStaff from './ManageStaff/ManageStaff';
 import ManageVenues from './ManageVenues/ManageVenues';
 import ManageEvents from './ManageEvents/ManageEvents';
+import LoginStateDisplay from '../../Components/LoginStateDisplay/LoginStateDisplay';
 
 export enum ManagementPage {
   Venues = 'venues',
@@ -94,17 +95,7 @@ export default function Management(props: ManagementPropTypes) {
             </nav>
           </section>
           <section className="self-end">
-            <div className="self-end m-2 flex flex-row justify-between">
-              <div
-                onClick={() => history.push('/')}
-                className="bg-lighter-gray text-center w-1/5 align-middle mr-2 text-2xl rounded-md hover:bg-darker-gray cursor-pointer"
-              >
-                <FontAwesomeIcon icon={faHome} className="h-full" />
-              </div>
-              <div className="w-4/5">
-                <LoggedInUser />
-              </div>
-            </div>
+            <LoginStateDisplay showHomeButton={true} />
           </section>
         </div>
         <div className="col-start-2 col-span-5">

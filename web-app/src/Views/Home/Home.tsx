@@ -3,7 +3,8 @@ import { useHistory } from 'react-router-dom';
 import BrandHeader from '../../Components/BrandHeader';
 import useLocalAuth from '../../Hooks/useLocalAuth';
 import StaffMember from '../../Models/StaffMember';
-import LoggedInUser from '../../Components/LoggedInUser';
+import LoggedInUser from '../../Components/LoginStateDisplay/LoggedInUser';
+import LoginStateDisplay from '../../Components/LoginStateDisplay/LoginStateDisplay';
 
 export default function Home() {
   const localAuth = useLocalAuth();
@@ -36,15 +37,13 @@ export default function Home() {
         <div className="row-start-1 h-auto">
           <BrandHeader />
         </div>
-        <div className="row-start-2 grid grid-cols-4">
+        <div className="row-start-2 grid grid-cols-6">
           <div className="col-start-1 grid">
-            <div className="self-end m-2">
-              <div style={{ width: '250px' }}>
-                <LoggedInUser />
-              </div>
+            <div className="self-end">
+              <LoginStateDisplay />
             </div>
           </div>
-          <div className="col-start-2 col-span-2">
+          <div className="col-start-2 col-span-4 mx-32">
             <section>
               <h1 className="text-3xl font-bold text-center mt-4">
                 Upcoming Events

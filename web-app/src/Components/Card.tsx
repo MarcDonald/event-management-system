@@ -4,6 +4,8 @@ interface CardPropTypes {
   onClick?: MouseEventHandler<HTMLDivElement>;
   children?: React.ReactNode;
   isSelected?: boolean;
+  className?: string;
+  onMouseEnter?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 export default function Card(props: CardPropTypes) {
@@ -16,7 +18,8 @@ export default function Card(props: CardPropTypes) {
 
   return (
     <div
-      className={`my-2 cursor-pointer p-2 rounded-md ${background}`}
+      onMouseEnter={props.onMouseEnter}
+      className={`${props.className} cursor-pointer p-2 rounded-md ${background}`}
       onClick={props.onClick}
     >
       {props.children}

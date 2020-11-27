@@ -10,7 +10,11 @@ interface StaffCardPropTypes {
 
 export default function StaffCard(props: StaffCardPropTypes) {
   return (
-    <Card onClick={props.onClick} isSelected={props.isSelected}>
+    <Card
+      onClick={props.onClick}
+      isSelected={props.isSelected}
+      className="my-2"
+    >
       <h1 className="font-bold text-lg text-center">{props.name}</h1>
       <h2 className="text-md text-center">{props.username}</h2>
     </Card>
