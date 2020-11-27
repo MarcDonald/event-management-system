@@ -5,6 +5,7 @@ import NotFound from './Views/NotFound';
 import Login from './Views/Login';
 import Management, { ManagementPage } from './Views/Management/Management';
 import Sandbox from './Views/Sandbox/Sandbox';
+import Dashboard from './Views/Dashboard/Dashboard';
 
 function Routes() {
   return (
@@ -23,6 +24,9 @@ function Routes() {
       </Route>
       <Route exact path="/management/staff">
         <Management initialSelectedPage={ManagementPage.Staff} />
+      </Route>
+      <Route exact path="/dashboard/:eventId">
+        <Dashboard />
       </Route>
       {/*TODO only for dev purposes - DELETE*/}
       <Route exact path="/dev/sandbox">

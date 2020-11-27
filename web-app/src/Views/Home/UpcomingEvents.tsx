@@ -4,10 +4,13 @@ import Loading from '../../Components/Loading';
 import Card from '../../Components/Card';
 import Event from '../../Models/Event';
 import { getUpcomingEvents } from '../../Services/EventService';
+import { useHistory } from 'react-router-dom';
 
 interface UpcomingEventsPropTypes {}
 
 export default function UpcomingEvents(props: UpcomingEventsPropTypes) {
+  const history = useHistory();
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
 
@@ -24,7 +27,11 @@ export default function UpcomingEvents(props: UpcomingEventsPropTypes) {
   const eventList = () => {
     return upcomingEvents.map((event) => {
       return (
-        <Card key={event.eventId} className="mt-2 text-center">
+        <Card
+          key={event.eventId}
+          className="mt-2 text-center"
+          onClick={() => history.push(`/dashboard/${event.eventId}`)}
+        >
           <h1 className="font-semibold text-xl">{event.name}</h1>
           <h2 className="font-normal text-md">{event.venue.name}</h2>
           <h3 className="font-normal text-md">{`${new Date(
