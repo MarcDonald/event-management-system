@@ -11,7 +11,7 @@ import {
   createNewEvent,
   deleteEvent,
   getAllEvents,
-  updateEventMetadata,
+  updateEventInformation,
   updateEventStaffMembers,
   updateEventSupervisors,
 } from '../../../Services/EventService';
@@ -174,12 +174,13 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
 
   const updateEvent = async (): Promise<Event> => {
     if (fields.id) {
-      const updatedMetadata = await updateEventMetadata(fields.id, {
+      const updatedInformation = {
         name: fields.name,
         // Have to divide by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
         start: fields.start.getTime() / 1000,
         end: fields.end.getTime() / 1000,
-      });
+      };
+      await updateEventInformation(fields.id, updatedInformation);
       const updatedSupervisors = await updateEventSupervisors(
         fields.id,
         fields.supervisors
@@ -193,7 +194,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
         venue: fields.venue!!,
         supervisors: updatedSupervisors,
         staff: updatedStaffMembers,
-        ...updatedMetadata,
+        ...updatedInformation,
       };
     }
     throw new Error('Trying to update without an event ID');
@@ -394,6 +395,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
         />
         <label htmlFor="venue">Venue</label>
         <Dropdown
+          disabled={!!fields.id}
           title="Select a venue"
           currentlySelectedKey={fields.venue?.venueId}
           list={dropdownVenues}

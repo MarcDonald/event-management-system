@@ -10,6 +10,9 @@ const {
   validEventName,
   validAreaOfSupervision,
   validTableName,
+  validStart,
+  validEnd,
+  invalidEnd,
 } = eventUtils.testValues;
 const {
   validVenueName,
@@ -68,9 +71,6 @@ const validStaff = [
     },
   },
 ];
-
-const validStart = 1606340678;
-const validEnd = 1606340800;
 
 let handler;
 const putMock = jest.fn();
@@ -344,7 +344,7 @@ test('Should return 400 when end date is before start date', async () => {
     name: validEventName,
     venue: validVenue,
     start: validStart,
-    end: validEnd - 5000,
+    end: invalidEnd,
     supervisors: validSupervisors,
     staff: validStaff,
   });

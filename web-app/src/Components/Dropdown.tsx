@@ -14,6 +14,7 @@ interface DropdownPropTypes {
   onSelected: (key: string | number, name?: string) => any;
   id?: string;
   className?: string | null;
+  disabled?: boolean;
 }
 
 export default function Dropdown(props: DropdownPropTypes) {
@@ -44,7 +45,7 @@ export default function Dropdown(props: DropdownPropTypes) {
       return (
         <div
           key={item.key}
-          className={`cursor-pointer hover:bg-lighter-gray ${
+          className={`hover:bg-lighter-gray ${
             index === props.list.length - 1 ? 'rounded-md rounded-t-none' : ''
           }`}
           onClick={() => selectItem(item.key)}
@@ -65,10 +66,18 @@ export default function Dropdown(props: DropdownPropTypes) {
 
   return (
     <div
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
+      onMouseEnter={() => {
+        if (!props.disabled) setIsOpen(true);
+      }}
+      onMouseLeave={() => {
+        if (!props.disabled) setIsOpen(false);
+      }}
       id={props.id}
-      className={`${additionalClassName}`}
+      className={`${additionalClassName} ${
+        props.disabled
+          ? 'cursor-not-allowed bg-lighter-gray'
+          : 'cursor-pointer bg-white'
+      } `}
     >
       <div
         className={`outline-none border border-gray-400 p-2 flex flex-row justify-between ${

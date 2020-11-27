@@ -6,6 +6,9 @@ const testValues = {
   invalidEventName: 'invalidEventName',
   validAreaOfSupervision: 'validAreaOfSupervision',
   validEventMetadataIndexName: 'validEventMetadataIndexName',
+  validStart: 1606340678,
+  validEnd: 1606340800,
+  invalidEnd: 1606330800,
 };
 
 const validStatuses = {

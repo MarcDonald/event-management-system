@@ -31,9 +31,20 @@ export default class VenueHttpEndpoints {
       integration: this.createAddEventHandler(),
     });
 
+    const updateEventInformationRoutes = api.addRoutes({
+      path: '/events/{eventId}/information',
+      methods: [HttpMethod.PUT],
+      integration: this.createUpdateEventInformationHandler(),
+    });
+
     // Flattens all the individual arrays of routes into one single array
     const allAdminRoutes = Array<HttpRoute>().concat(
-      ...[addEventRoutes, getAllEventsRoutes, deleteEventRoutes]
+      ...[
+        addEventRoutes,
+        getAllEventsRoutes,
+        deleteEventRoutes,
+        updateEventInformationRoutes,
+      ]
     );
     httpApiResources.addAdminJwtAuthorizerToRoutes(allAdminRoutes);
   }
@@ -64,6 +75,15 @@ export default class VenueHttpEndpoints {
           .indexName,
       },
       [this.dynamoResources.eventMetadataIndex.arn]
+    );
+  }
+
+  private createUpdateEventInformationHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'UpdateEventInformationFunction',
+      'EmsUpdateEventInformation',
+      'updateEventInformation',
+      ['dynamodb:UpdateItem', 'dynamodb:Query']
     );
   }
 
