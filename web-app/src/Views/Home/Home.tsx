@@ -3,8 +3,8 @@ import { useHistory } from 'react-router-dom';
 import BrandHeader from '../../Components/BrandHeader';
 import useLocalAuth from '../../Hooks/useLocalAuth';
 import StaffMember from '../../Models/StaffMember';
-import LoggedInUser from '../../Components/LoginStateDisplay/LoggedInUser';
 import LoginStateDisplay from '../../Components/LoginStateDisplay/LoginStateDisplay';
+import UpcomingEvents from './UpcomingEvents';
 
 export default function Home() {
   const localAuth = useLocalAuth();
@@ -44,11 +44,8 @@ export default function Home() {
             </div>
           </div>
           <div className="col-start-2 col-span-4 mx-32">
-            <section>
-              <h1 className="text-3xl font-bold text-center mt-4">
-                Upcoming Events
-              </h1>
-              <div>TODO</div>
+            <section className="flex flex-col">
+              <UpcomingEvents />
             </section>
             {localAuth.isAdmin(user) && (
               <section className="flex flex-col">

@@ -59,3 +59,10 @@ export async function deleteEvent(id: string): Promise<string> {
   await delet(`${baseUrl}/${id}`);
   return id;
 }
+
+export async function getUpcomingEvents(
+  count: number = 5
+): Promise<Array<Event>> {
+  const result = await get(`${baseUrl}/upcoming?count=${count}`);
+  return result.data;
+}

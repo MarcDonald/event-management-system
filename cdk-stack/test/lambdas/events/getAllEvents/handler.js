@@ -79,7 +79,7 @@ beforeEach(() => {
   const dependencies = {
     Dynamo,
     tableName: validTableName,
-    eventMetadataIndexName: validMetadataIndexName,
+    metadataIndexName: validMetadataIndexName,
   };
 
   handler = require('../../../../lambdas/events/getAllEvents/handler')(

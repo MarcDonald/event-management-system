@@ -4,6 +4,7 @@ import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import HttpApiResources from '../HttpApiResources';
 import DynamoDbResources from '../DynamoDbResources';
 import { createBaseHandler } from '../Utils/LambdaUtils';
+import { Http } from 'aws-sdk/clients/xray';
 
 export default class VenueHttpEndpoints {
   constructor(
@@ -49,6 +50,12 @@ export default class VenueHttpEndpoints {
       integration: this.createUpdateEventSupervisorsHandler(),
     });
 
+    const getUpcomingEventsRoutes = api.addRoutes({
+      path: '/events/upcoming',
+      methods: [HttpMethod.GET],
+      integration: this.createGetUpcomingEventsHandler(),
+    });
+
     // Flattens all the individual arrays of routes into one single array
     const allAdminRoutes = Array<HttpRoute>().concat(
       ...[
@@ -61,6 +68,11 @@ export default class VenueHttpEndpoints {
       ]
     );
     httpApiResources.addAdminJwtAuthorizerToRoutes(allAdminRoutes);
+
+    const nonAdminProtectedRoute = Array<HttpRoute>().concat(
+      ...[getUpcomingEventsRoutes]
+    );
+    httpApiResources.addJwtAuthorizerToRoutes(nonAdminProtectedRoute);
   }
 
   private createAddEventHandler(): LambdaProxyIntegration {
@@ -115,6 +127,19 @@ export default class VenueHttpEndpoints {
       'EmsUpdateEventSupervisors',
       'updateEventSupervisors',
       ['dynamodb:UpdateItem']
+    );
+  }
+
+  private createGetUpcomingEventsHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'GetUpcomingEventsFunction',
+      'EmsGetUpcomingEvents',
+      'getUpcomingEvents',
+      ['dynamodb:Query'],
+      {
+        METADATA_INDEX_NAME: this.dynamoResources.metadataIndex.indexName,
+      },
+      [this.dynamoResources.metadataIndex.arn]
     );
   }
 
