@@ -3,6 +3,14 @@ const response = {
   statusCode: 500,
 };
 
+const badBodyResponse = {
+  ...response,
+  statusCode: 400,
+  body: JSON.stringify({
+    message: `Request must contain a body containing a name and positions`,
+  }),
+};
+
 // TODO maybe invoke the addVenuePositions lambda instead of doing the same code twice
 const addIdToPositions = (positions, generateUUID) => {
   const processedPositions = [];
@@ -19,26 +27,14 @@ module.exports = (dependencies) => async (event) => {
   const { tableName, Dynamo, generateUUID } = dependencies;
 
   if (!event.body) {
-    return {
-      ...response,
-      statusCode: 400,
-      body: JSON.stringify({
-        message: `Request must contain a body containing a name and positions`,
-      }),
-    };
+    return badBodyResponse;
   }
 
   const { name, positions } = JSON.parse(event.body);
 
   // TODO trim name and position names
   if (!name || !positions) {
-    return {
-      ...response,
-      statusCode: 400,
-      body: JSON.stringify({
-        message: `Request must contain a body containing a name and positions`,
-      }),
-    };
+    return badBodyResponse;
   }
 
   if (positions.length === 0) {

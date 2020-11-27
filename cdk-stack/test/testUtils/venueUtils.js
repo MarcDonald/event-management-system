@@ -9,13 +9,6 @@ const testValues = {
   invalidPositionId: 'rty-456-qwe-123',
 };
 
-const validStatuses = {
-  ALL_OK: 'AllOk',
-  YELLOW_ALERT: 'YellowAlert',
-  RED_ALERT: 'RedAlert',
-};
-
 module.exports = {
   testValues,
-  validStatuses,
 };

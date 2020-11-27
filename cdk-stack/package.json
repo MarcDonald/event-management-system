@@ -9,6 +9,7 @@
     "watch": "tsc -w",
     "test": "jest --coverage=true --silent",
     "test:watch": "jest --watchAll --coverage=true --silent",
+    "test:watch:nocoverage": "jest --watchAll --silent",
     "cdk": "cdk",
     "lint": "prettier -c 'lib/**/*{.ts,.js}' && prettier -c 'lambdas/**/*{.ts,.js}' && prettier --write 'test/**/*{.ts,.js}'",
     "lint:fix": "prettier --write 'lib/**/*{.ts,.tsx,.js}' && prettier --write 'lambdas/**/*{.ts,.js}' && prettier --write 'test/**/*{.ts,.js}'"

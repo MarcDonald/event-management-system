@@ -1,9 +1,11 @@
 const awsUtils = require('./awsUtils');
-const userUtils = require('./userUtils');
+const staffUtils = require('./staffUtils');
 const venueUtils = require('./venueUtils');
+const eventUtils = require('./eventUtils');
 
 module.exports = {
   awsUtils,
-  userUtils,
+  staffUtils,
   venueUtils,
+  eventUtils,
 };

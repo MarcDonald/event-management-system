@@ -1,0 +1,9 @@
+{
+  "name": "add-event",
+  "version": "1.0.0",
+  "description": "Add Event Lambda",
+  "author": "Marc Donald",
+  "dependencies": {
+    "uuid": "8.3.1"
+  }
+}

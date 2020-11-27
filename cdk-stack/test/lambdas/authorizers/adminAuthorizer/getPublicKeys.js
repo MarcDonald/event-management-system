@@ -1,5 +1,5 @@
 const { region } = require('../../../testUtils/awsUtils').testValues;
-const { validUserPoolId } = require('../../../testUtils/userUtils').testValues;
+const { validUserPoolId } = require('../../../testUtils/staffUtils').testValues;
 
 let getPublicKeys;
 

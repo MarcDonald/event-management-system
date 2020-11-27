@@ -114,6 +114,19 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
     setSelectablePositions([]);
   };
 
+  const determineSelectableStaffOfEvent = (event: Event): StaffMember[] => {
+    const assignedStaff: string[] = [];
+    event.supervisors.map((assignedSupervisor) => {
+      assignedStaff.push(assignedSupervisor.staffMember.username);
+    });
+    event.staff.map((assignedStaffMember) => {
+      assignedStaff.push(assignedStaffMember.staffMember.username);
+    });
+    return [...allStaff].filter((staffMember) => {
+      return !assignedStaff.includes(staffMember.username);
+    });
+  };
+
   const selectEventToEdit = (id: string) => {
     const event = allEvents.find((event) => event.eventId === id);
     if (event) {
@@ -128,6 +141,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
         staff: event.staff,
       });
       setSelectablePositions(event.venue.positions);
+      setSelectableStaff(determineSelectableStaffOfEvent(event));
     } else {
       console.log(`Setup new event`);
       setupNewEvent();

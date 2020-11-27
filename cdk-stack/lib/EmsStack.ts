@@ -4,6 +4,7 @@ import HttpApiResources from './HttpApiResources';
 import StaffHttpEndpoints from './HttpEndpoints/StaffHttpEndpoints';
 import DynamoDbResources from './DynamoDbResources';
 import VenueHttpEndpoints from './HttpEndpoints/VenueHttpEndpoints';
+import EventHttpEndpoints from './HttpEndpoints/EventHttpEndpoints';
 
 export default class EmsStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -22,6 +23,11 @@ export default class EmsStack extends cdk.Stack {
       httpApiResources
     );
     const venueHttpEndpoints = new VenueHttpEndpoints(
+      this,
+      httpApiResources,
+      dynamoDbResources
+    );
+    const eventsHttpEndpoints = new EventHttpEndpoints(
       this,
       httpApiResources,
       dynamoDbResources

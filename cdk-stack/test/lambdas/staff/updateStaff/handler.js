@@ -1,6 +1,6 @@
-const { awsUtils, userUtils } = require('../../../testUtils');
+const { awsUtils, staffUtils } = require('../../../testUtils');
 const { MockAWSError } = awsUtils;
-const { testValues } = userUtils;
+const { testValues } = staffUtils;
 const {
   validUsername,
   validUserPoolId,
