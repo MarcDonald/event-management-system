@@ -36,8 +36,8 @@ module.exports = (dependencies) => async (event) => {
     const time = getCurrentTime();
 
     const itemToAdd = {
-      id: assistanceRequestId,
-      metadata: `assistanceRequest_${eventId}`,
+      id: eventId,
+      metadata: `assistanceRequest_${assistanceRequestId}`,
       position,
       message,
       time,

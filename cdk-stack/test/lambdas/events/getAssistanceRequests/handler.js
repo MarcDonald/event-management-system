@@ -36,8 +36,8 @@ test('Should return formatted assistance requests for event when provided with a
     promise: () => {
       return dynamoQueryResponseBuilder([
         {
-          id: validAssistanceRequestId + '1',
-          metadata: `assistanceRequest_${validEventId}`,
+          id: validEventId + '1',
+          metadata: `assistanceRequest_${validAssistanceRequestId + '1'}`,
           position: {
             positionId: validPositionId,
             name: validPositionName,
@@ -46,8 +46,8 @@ test('Should return formatted assistance requests for event when provided with a
           message: validAssistanceRequestMessage + '1',
         },
         {
-          id: validAssistanceRequestId,
-          metadata: `assistanceRequest_${validEventId}`,
+          id: validEventId,
+          metadata: `assistanceRequest_${validAssistanceRequestId}`,
           position: {
             positionId: validPositionId,
             name: validPositionName,
@@ -69,10 +69,11 @@ test('Should return formatted assistance requests for event when provided with a
 
   expect(queryMock).toBeCalledWith({
     TableName: validTableName,
-    IndexName: validMetadataIndexName,
-    KeyConditionExpression: 'metadata = :metadata',
+    KeyConditionExpression:
+      'id = :eventId and begins_with(metadata, :metadata)',
     ExpressionAttributeValues: {
-      ':metadata': `assistanceRequest_${validEventId}`,
+      ':eventId': validEventId,
+      ':metadata': `assistanceRequest`,
     },
   });
   expect(queryMock).toBeCalledTimes(1);

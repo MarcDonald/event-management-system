@@ -18,30 +18,39 @@ module.exports = (dependencies) => async (event) => {
   try {
     const result = await Dynamo.query({
       TableName: tableName,
-      KeyConditionExpression:
-        'id = :eventId and begins_with(metadata, :metadata)',
+      KeyConditionExpression: 'id = :eventId and metadata = :metadata',
       ExpressionAttributeValues: {
         ':eventId': eventId,
-        ':metadata': `assistanceRequest`,
+        ':metadata': 'event',
       },
+      Limit: 1,
     }).promise();
 
-    const formattedAssistanceRequests = result.Items.map((dbItem) => {
-      const assistanceRequestId = dbItem.metadata.substring(
-        dbItem.metadata.indexOf('_') + 1
-      );
+    if (result.Items.length === 0) {
       return {
-        assistanceRequestId,
-        position: dbItem.position,
-        message: dbItem.message,
-        time: dbItem.time,
+        ...result,
+        statusCode: 404,
+        body: JSON.stringify({
+          message: 'Event with that ID could not be found',
+        }),
       };
-    });
+    }
+
+    const dbItem = result.Items[0];
+    const formattedEventList = {
+      eventId: dbItem.id,
+      name: dbItem.name,
+      venue: dbItem.venue,
+      start: dbItem.start,
+      end: dbItem.end,
+      supervisors: dbItem.supervisors,
+      staff: dbItem.staff,
+    };
 
     return {
       ...response,
       statusCode: 200,
-      body: JSON.stringify(formattedAssistanceRequests),
+      body: JSON.stringify(formattedEventList),
     };
   } catch (e) {
     console.error(`${e.code} - ${e.message}`);
@@ -49,7 +58,7 @@ module.exports = (dependencies) => async (event) => {
     return {
       ...response,
       body: JSON.stringify({
-        message: `Error getting assistance requests for event '${eventId}' - ${e.message}`,
+        message: `Error getting event information ${eventId} - ${e.message}`,
       }),
     };
   }

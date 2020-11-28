@@ -32,6 +32,12 @@ export default class VenueHttpEndpoints {
       integration: this.createAddEventHandler(),
     });
 
+    const getEventInformation = api.addRoutes({
+      path: '/events/{eventId}/information',
+      methods: [HttpMethod.GET],
+      integration: this.createGetEventInformationHandler(),
+    });
+
     const updateEventInformationRoutes = api.addRoutes({
       path: '/events/{eventId}/information',
       methods: [HttpMethod.PUT],
@@ -88,7 +94,9 @@ export default class VenueHttpEndpoints {
     );
 
     httpApiResources.addControlRoomAuthorizerToRoutes(
-      Array<HttpRoute>().concat(...[getAssistanceRequestRoutes])
+      Array<HttpRoute>().concat(
+        ...[getAssistanceRequestRoutes, getEventInformation]
+      )
     );
   }
 
@@ -114,6 +122,15 @@ export default class VenueHttpEndpoints {
       'getAllEvents',
       ['dynamodb:Query'],
       true
+    );
+  }
+
+  private createGetEventInformationHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'GetEventInformationFunction',
+      'EmsGetEventInformation',
+      'getEventInformation',
+      ['dynamodb:Query']
     );
   }
 

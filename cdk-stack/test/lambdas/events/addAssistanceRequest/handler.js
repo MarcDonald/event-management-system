@@ -62,8 +62,8 @@ test('Should add assistance request and return information when provided with a 
   expect(putMock).toBeCalledWith({
     TableName: validTableName,
     Item: {
-      id: 'uuid',
-      metadata: `assistanceRequest_${validEventId}`,
+      id: validEventId,
+      metadata: `assistanceRequest_uuid`,
       position: {
         positionId: validPositionId,
         name: validPositionName,
@@ -230,8 +230,8 @@ test('Should return 500 when another error is thrown', async () => {
   expect(putMock).toBeCalledWith({
     TableName: validTableName,
     Item: {
-      id: 'uuid',
-      metadata: `assistanceRequest_${validEventId}`,
+      id: validEventId,
+      metadata: `assistanceRequest_uuid`,
       position: {
         positionId: validPositionId,
         name: validPositionName,

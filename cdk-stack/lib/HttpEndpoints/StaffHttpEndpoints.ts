@@ -88,7 +88,7 @@ export default class StaffHttpEndpoints {
       'DeleteStaffFunction',
       'EmsDeleteStaff',
       'deleteStaff',
-      ['cognito-idp:AdminDeleteStaff']
+      ['cognito-idp:AdminDeleteUser']
     );
   };
 
