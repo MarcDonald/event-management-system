@@ -1,6 +1,7 @@
 const testValues = {
   region: 'eu-test-1',
   validMetadataIndexName: 'validMetadataIndexName',
+  validTableName: 'validTableName',
 };
 
 const dynamoQueryResponseBuilder = (items) => {

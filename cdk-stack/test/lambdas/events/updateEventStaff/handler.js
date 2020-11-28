@@ -4,7 +4,7 @@ const {
   staffUtils,
   venueUtils,
 } = require('../../../testUtils');
-const { validEventId, invalidEventId, validTableName } = eventUtils.testValues;
+const { validEventId, invalidEventId } = eventUtils.testValues;
 const {
   validUsername,
   validSub,
@@ -13,6 +13,7 @@ const {
   validRole,
 } = staffUtils.testValues;
 const { validPositionId, validPositionName } = venueUtils.testValues;
+const { validTableName } = awsUtils.testValues;
 const { MockAWSError } = awsUtils;
 
 let handler;

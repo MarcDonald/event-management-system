@@ -1,7 +1,7 @@
 const { awsUtils, venueUtils } = require('../../../testUtils');
 const { MockAWSError } = awsUtils;
-const { testValues } = venueUtils;
-const { validTableName, validVenueId, validVenueName } = testValues;
+const { validTableName } = awsUtils.testValues;
+const { validVenueId, validVenueName } = venueUtils.testValues;
 
 const updateMock = jest.fn();
 let handler;

@@ -6,10 +6,11 @@ const {
 } = require('../../../testUtils');
 const { MockAWSError } = awsUtils;
 
+const { validTableName } = awsUtils.testValues;
+
 const {
   validEventName,
   validAreaOfSupervision,
-  validTableName,
   validStart,
   validEnd,
   invalidEnd,

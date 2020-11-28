@@ -1,0 +1,9 @@
+{
+  "name": "add-assistance-request",
+  "version": "1.0.0",
+  "description": "Add Assistance Request Lambda",
+  "author": "Marc Donald",
+  "dependencies": {
+    "uuid": "8.3.1"
+  }
+}

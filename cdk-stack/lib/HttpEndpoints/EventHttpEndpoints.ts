@@ -4,7 +4,6 @@ import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import HttpApiResources from '../HttpApiResources';
 import DynamoDbResources from '../DynamoDbResources';
 import { createBaseHandler } from '../Utils/LambdaUtils';
-import { Http } from 'aws-sdk/clients/xray';
 
 export default class VenueHttpEndpoints {
   constructor(
@@ -56,6 +55,18 @@ export default class VenueHttpEndpoints {
       integration: this.createGetUpcomingEventsHandler(),
     });
 
+    const addAssistanceRequestRoutes = api.addRoutes({
+      path: '/events/{eventId}/assistance',
+      methods: [HttpMethod.POST],
+      integration: this.createAddAssistanceRequestHandler(),
+    });
+
+    const getAssistanceRequestRoutes = api.addRoutes({
+      path: '/events/{eventId}/assistance',
+      methods: [HttpMethod.GET],
+      integration: this.createGetAssistanceRequestsHandler(),
+    });
+
     // Flattens all the individual arrays of routes into one single array
     const allAdminRoutes = Array<HttpRoute>().concat(
       ...[
@@ -65,12 +76,13 @@ export default class VenueHttpEndpoints {
         updateEventInformationRoutes,
         updateEventStaffRoutes,
         updateEventSupervisorsRoutes,
+        getAssistanceRequestRoutes,
       ]
     );
     httpApiResources.addAdminJwtAuthorizerToRoutes(allAdminRoutes);
 
     const nonAdminProtectedRoute = Array<HttpRoute>().concat(
-      ...[getUpcomingEventsRoutes]
+      ...[getUpcomingEventsRoutes, addAssistanceRequestRoutes]
     );
     httpApiResources.addJwtAuthorizerToRoutes(nonAdminProtectedRoute);
   }
@@ -96,10 +108,7 @@ export default class VenueHttpEndpoints {
       'EmsGetAllEvents',
       'getAllEvents',
       ['dynamodb:Query'],
-      {
-        METADATA_INDEX_NAME: this.dynamoResources.metadataIndex.indexName,
-      },
-      [this.dynamoResources.metadataIndex.arn]
+      true
     );
   }
 
@@ -136,10 +145,26 @@ export default class VenueHttpEndpoints {
       'EmsGetUpcomingEvents',
       'getUpcomingEvents',
       ['dynamodb:Query'],
-      {
-        METADATA_INDEX_NAME: this.dynamoResources.metadataIndex.indexName,
-      },
-      [this.dynamoResources.metadataIndex.arn]
+      true
+    );
+  }
+
+  private createAddAssistanceRequestHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'AddAssistanceRequestFunction',
+      'EmsAddAssistanceRequest',
+      'addAssistanceRequest',
+      ['dynamodb:PutItem']
+    );
+  }
+
+  private createGetAssistanceRequestsHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'GetAssistanceRequestsFunction',
+      'EmsGetAssistanceRequests',
+      'getAssistanceRequests',
+      ['dynamodb:Query'],
+      true
     );
   }
 
@@ -148,14 +173,16 @@ export default class VenueHttpEndpoints {
     functionName: string,
     codeDir: string,
     actions: string[],
-    additionalEnvironmentVariables?: object,
-    additionalResources?: string[]
+    usesIndex: boolean = false
   ): LambdaProxyIntegration {
     const { tableName, tableArn } = this.dynamoResources.table;
+    const { indexName, arn: indexArn } = this.dynamoResources.metadataIndex;
 
+    let environment: { [key: string]: string } = { TABLE_NAME: tableName };
     let resources = [tableArn];
-    if (additionalResources) {
-      resources = [...resources, ...additionalResources];
+    if (usesIndex) {
+      environment = { ...environment, METADATA_INDEX_NAME: indexName };
+      resources = [...resources, indexArn];
     }
 
     return createBaseHandler(
@@ -165,7 +192,7 @@ export default class VenueHttpEndpoints {
       `./lambdas/events/${codeDir}`,
       resources,
       actions,
-      { TABLE_NAME: tableName, ...additionalEnvironmentVariables }
+      environment
     );
   }
 }

@@ -1,7 +1,6 @@
 const testValues = {
   validVenueId: 'abc-123-def-456',
   invalidVenueId: 'def-456-abc-123',
-  validTableName: 'validVenuesTableName',
   validVenueName: 'validVenueName',
   invalidVenueName: 'invalidVenueName',
   validPositionName: 'validPositionName',

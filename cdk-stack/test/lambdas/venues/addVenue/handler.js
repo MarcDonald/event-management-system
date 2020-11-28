@@ -1,7 +1,7 @@
 const { awsUtils, venueUtils } = require('../../../testUtils');
 const { MockAWSError } = awsUtils;
-const { testValues } = venueUtils;
-const { validTableName, validVenueName, validPositionName } = testValues;
+const { validVenueName, validPositionName } = venueUtils.testValues;
+const { validTableName } = awsUtils.testValues;
 
 const generateUUIDMock = jest.fn();
 const putMock = jest.fn();
@@ -58,7 +58,7 @@ test('Should create venue and return formatted venue object when provided with a
 
   expect(generateUUIDMock).toBeCalledTimes(3);
   expect(putMock).toBeCalledWith({
-    TableName: testValues.validTableName,
+    TableName: validTableName,
     Item: {
       id: 'uuid1',
       metadata: 'venue',
@@ -188,7 +188,7 @@ test('Should return 500 when another error is thrown', async () => {
 
   expect(generateUUIDMock).toBeCalledTimes(2);
   expect(putMock).toBeCalledWith({
-    TableName: testValues.validTableName,
+    TableName: validTableName,
     Item: {
       id: 'uuid',
       metadata: 'venue',

@@ -1,7 +1,7 @@
 const { awsUtils, eventUtils } = require('../../../testUtils');
 const { MockAWSError } = awsUtils;
-const { testValues } = eventUtils;
-const { validEventId, validTableName } = testValues;
+const { validTableName } = awsUtils.testValues;
+const { validEventId } = eventUtils.testValues;
 
 let handler;
 
