@@ -13,7 +13,7 @@ export default function DashDetailsDrawer(props: DashDetailsDrawerPropTypes) {
   const supervisorDisplayList = () => {
     return props.supervisors.map((supervisor) => {
       return (
-        <Card className="mt-2 mx-2">
+        <Card className="mt-2 mx-2" key={supervisor.staffMember.sub}>
           <h1 className="font-bold text-xl">
             {supervisor.staffMember.givenName}{' '}
             {supervisor.staffMember.familyName}

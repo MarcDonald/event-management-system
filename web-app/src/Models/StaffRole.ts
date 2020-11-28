@@ -1,7 +1,7 @@
 enum StaffRole {
   Administrator = 'Administrator',
   Steward = 'Steward',
-  ControlRoomOperator = 'ControlRoomOperator',
+  ControlRoomOperator = 'Control Room Operator',
 }
 
 export default StaffRole;

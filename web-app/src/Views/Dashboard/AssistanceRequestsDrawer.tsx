@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import AsyncButton from '../../Components/AsyncButton';
 import AssistanceRequest from '../../Models/AssistanceRequest';
-import Card from '../../Components/Card';
 import AssistanceRequestCard from './AssistanceRequestCard';
+import Loading from '../../Components/Loading';
 
 interface AssistanceRequestsDrawerPropTypes {
   refresh: () => any | void;
@@ -14,9 +14,18 @@ export default function AssistanceRequestsDrawer(
   props: AssistanceRequestsDrawerPropTypes
 ) {
   const assistanceRequestListDisplay = () => {
-    return props.assistanceRequests.map((assistanceRequest) => {
-      return <AssistanceRequestCard assistanceRequest={assistanceRequest} />;
-    });
+    if (props.isLoading) {
+      return <Loading containerClassName="mt-4" />;
+    } else {
+      return props.assistanceRequests.map((assistanceRequest) => {
+        return (
+          <AssistanceRequestCard
+            assistanceRequest={assistanceRequest}
+            key={assistanceRequest.assistanceRequestId}
+          />
+        );
+      });
+    }
   };
 
   return (
@@ -26,12 +35,14 @@ export default function AssistanceRequestsDrawer(
         {assistanceRequestListDisplay()}
       </section>
       <section className="self-end m-2">
-        <AsyncButton
-          enabledClassName="btn w-full"
-          onClick={props.refresh}
-          text="Refresh"
-          isLoading={props.isLoading}
-        />
+        {!props.isLoading && (
+          <AsyncButton
+            enabledClassName="btn w-full"
+            onClick={props.refresh}
+            text="Refresh"
+            isLoading={props.isLoading}
+          />
+        )}
       </section>
     </div>
   );

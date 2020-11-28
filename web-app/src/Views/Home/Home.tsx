@@ -44,9 +44,20 @@ export default function Home() {
             </div>
           </div>
           <div className="col-start-2 col-span-4 mx-32">
-            <section className="flex flex-col">
-              <UpcomingEvents />
-            </section>
+            {localAuth.isSteward(user) && (
+              <section className="mt-16">
+                <h1 className="text-center text-2xl font-bold">
+                  This dashboard is for Control Room Operators and
+                  Administrators only
+                </h1>
+              </section>
+            )}
+            {(localAuth.isControlRoomOperator(user) ||
+              localAuth.isAdmin(user)) && (
+              <section className="flex flex-col">
+                <UpcomingEvents />
+              </section>
+            )}
             {localAuth.isAdmin(user) && (
               <section className="flex flex-col">
                 <h2 className="text-2xl font-bold text-center mt-4">

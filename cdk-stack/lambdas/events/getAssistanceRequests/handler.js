@@ -27,6 +27,7 @@ module.exports = (dependencies) => async (event) => {
 
     const formattedAssistanceRequests = result.Items.map((dbItem) => {
       return {
+        assistanceRequestId: dbItem.id,
         position: dbItem.position,
         message: dbItem.message,
         time: dbItem.time,

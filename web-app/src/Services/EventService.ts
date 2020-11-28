@@ -4,6 +4,7 @@ import Event from '../Models/Event';
 import AssignedStaffMember from '../Models/AssignedStaffMember';
 import AssignedSupervisor from '../Models/AssignedSupervisor';
 import Venue from '../Models/Venue';
+import AssistanceRequest from '../Models/AssistanceRequest';
 
 const baseUrl = `${config.API.BASE_URL}/events`;
 
@@ -64,5 +65,12 @@ export async function getUpcomingEvents(
   count: number = 5
 ): Promise<Array<Event>> {
   const result = await get(`${baseUrl}/upcoming?count=${count}`);
+  return result.data;
+}
+
+export async function getAssistanceRequests(
+  eventId: string
+): Promise<AssistanceRequest[]> {
+  const result = await get(`${baseUrl}/${eventId}/assistance`);
   return result.data;
 }

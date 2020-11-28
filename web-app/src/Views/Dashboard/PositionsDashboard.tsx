@@ -40,6 +40,7 @@ export default function PositionsDashboard(props: PositionsDashboardPropTypes) {
       return (
         <div
           className={`${borderStyle} mx-32 grid grid-cols-3 text-center py-2 items-center`}
+          key={position.positionId}
         >
           <div>{position.name}</div>
           <div>

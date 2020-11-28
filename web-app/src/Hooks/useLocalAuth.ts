@@ -5,6 +5,8 @@ import StaffRole from '../Models/StaffRole';
 interface LoggedInUser {
   getLoggedInUser: () => Promise<StaffMember> | any;
   isAdmin: (user: StaffMember) => boolean;
+  isControlRoomOperator: (user: StaffMember) => boolean;
+  isSteward: (user: StaffMember) => boolean;
 }
 
 export default function useLocalAuth(): LoggedInUser {
@@ -29,8 +31,18 @@ export default function useLocalAuth(): LoggedInUser {
     return user.role === StaffRole.Administrator;
   };
 
+  const isControlRoomOperator = (user: StaffMember): boolean => {
+    return user.role === StaffRole.ControlRoomOperator;
+  };
+
+  const isSteward = (user: StaffMember): boolean => {
+    return user.role === StaffRole.Steward;
+  };
+
   return {
     getLoggedInUser,
     isAdmin,
+    isControlRoomOperator,
+    isSteward,
   };
 }

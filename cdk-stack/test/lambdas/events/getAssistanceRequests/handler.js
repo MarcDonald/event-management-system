@@ -46,7 +46,7 @@ test('Should return formatted assistance requests for event when provided with a
           message: validAssistanceRequestMessage + '1',
         },
         {
-          id: validAssistanceRequestId + '1',
+          id: validAssistanceRequestId,
           metadata: `assistanceRequest_${validEventId}`,
           position: {
             positionId: validPositionId,
@@ -80,6 +80,7 @@ test('Should return formatted assistance requests for event when provided with a
   expect(body).toBe(
     JSON.stringify([
       {
+        assistanceRequestId: validAssistanceRequestId + '1',
         position: {
           positionId: validPositionId,
           name: validPositionName,
@@ -88,6 +89,7 @@ test('Should return formatted assistance requests for event when provided with a
         time: validAssistanceRequestTime + 1,
       },
       {
+        assistanceRequestId: validAssistanceRequestId,
         position: {
           positionId: validPositionId,
           name: validPositionName,
