@@ -19,24 +19,17 @@ export default class HttpApiResources {
   public readonly api: HttpApi;
   public readonly jwtAuthorizer: CfnAuthorizer;
   public readonly adminJwtAuthorizer: CfnAuthorizer;
+  public readonly controlRoomAuthorizer: CfnAuthorizer;
 
   constructor(
-    scope: cdk.Construct,
-    cognitoResources: CognitoResources,
-    region: string
+    private scope: cdk.Construct,
+    private cognitoResources: CognitoResources,
+    private region: string
   ) {
     this.api = this.createApi(scope);
-    this.jwtAuthorizer = this.createJwtAuthorizer(
-      scope,
-      this.api,
-      cognitoResources
-    );
-    this.adminJwtAuthorizer = this.createAdminJwtAuthorizer(
-      scope,
-      this.api,
-      cognitoResources,
-      region
-    );
+    this.jwtAuthorizer = this.createJwtAuthorizer();
+    this.adminJwtAuthorizer = this.createAdminJwtAuthorizer();
+    this.controlRoomAuthorizer = this.createControlRoomAuthorizer();
   }
 
   private createApi = (scope: cdk.Construct): HttpApi => {
@@ -73,42 +66,37 @@ export default class HttpApiResources {
     return api;
   };
 
-  private createJwtAuthorizer = (
-    scope: cdk.Construct,
-    api: HttpApi,
-    cognitoResources: CognitoResources
-  ): CfnAuthorizer =>
-    new CfnAuthorizer(scope, 'JwtAuthorizerFunction', {
-      apiId: api.httpApiId,
+  private createJwtAuthorizer = (): CfnAuthorizer =>
+    new CfnAuthorizer(this.scope, 'JwtAuthorizerFunction', {
+      apiId: this.api.httpApiId,
       authorizerType: 'JWT',
       identitySource: ['$request.header.Authorization'],
-      name: 'ems-jwt-authorizer',
+      name: 'JwtAuthorizer',
       jwtConfiguration: {
-        issuer: `https://cognito-idp.eu-west-1.amazonaws.com/${cognitoResources.userPool.userPoolId}`,
+        issuer: `https://cognito-idp.eu-west-1.amazonaws.com/${this.cognitoResources.userPool.userPoolId}`,
         audience: [
-          cognitoResources.webDashboardUserPoolClient.userPoolClientId,
+          this.cognitoResources.webDashboardUserPoolClient.userPoolClientId,
         ],
       },
     });
 
-  private createAdminJwtAuthorizer = (
-    scope: cdk.Construct,
-    api: HttpApi,
-    cognitoResources: CognitoResources,
-    region: string
-  ): CfnAuthorizer => {
-    const authorizerFunc = new Function(scope, 'AdminJwtAuthorizerFunction', {
-      runtime: Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      functionName: 'EmsAdminAuthorizer',
-      code: Code.fromAsset('./lambdas/authorizers/adminAuthorizer'),
-      environment: {
-        USER_POOL_ID: cognitoResources.userPool.userPoolId,
-        REGION: region,
-      },
-    });
+  private createAdminJwtAuthorizer = (): CfnAuthorizer => {
+    const authorizerFunc = new Function(
+      this.scope,
+      'AdminJwtAuthorizerFunction',
+      {
+        runtime: Runtime.NODEJS_12_X,
+        handler: 'index.handler',
+        functionName: 'EmsAdminAuthorizer',
+        code: Code.fromAsset('./lambdas/authorizers/adminAuthorizer'),
+        environment: {
+          USER_POOL_ID: this.cognitoResources.userPool.userPoolId,
+          REGION: this.region,
+        },
+      }
+    );
 
-    const adminAuthorizerRole = new Role(scope, 'AdminAuthorizerRole', {
+    const adminAuthorizerRole = new Role(this.scope, 'AdminAuthorizerRole', {
       roleName: 'EmsAdminAuthorizerRole',
       assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
     });
@@ -121,16 +109,62 @@ export default class HttpApiResources {
       })
     );
 
-    return new CfnAuthorizer(scope, 'EmsAdminAuthorizer', {
-      apiId: api.httpApiId,
+    return new CfnAuthorizer(this.scope, 'EmsAdminAuthorizer', {
+      apiId: this.api.httpApiId,
       authorizerType: 'REQUEST',
       identitySource: ['$request.header.Authorization'],
       authorizerResultTtlInSeconds: 300,
-      name: 'ems-admin-authorizer',
+      name: 'AdminAuthorizer',
       enableSimpleResponses: true,
       authorizerCredentialsArn: adminAuthorizerRole.roleArn,
       authorizerPayloadFormatVersion: '2.0',
-      authorizerUri: `arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${authorizerFunc.functionArn}/invocations`,
+      authorizerUri: `arn:aws:apigateway:${this.region}:lambda:path/2015-03-31/functions/${authorizerFunc.functionArn}/invocations`,
+    });
+  };
+
+  private createControlRoomAuthorizer = (): CfnAuthorizer => {
+    const authorizerFunc = new Function(
+      this.scope,
+      'ControlRoomAuthorizerFunction',
+      {
+        runtime: Runtime.NODEJS_12_X,
+        handler: 'index.handler',
+        functionName: 'EmsControlRoomAuthorizer',
+        code: Code.fromAsset('./lambdas/authorizers/controlRoomAuthorizer'),
+        environment: {
+          USER_POOL_ID: this.cognitoResources.userPool.userPoolId,
+          REGION: this.region,
+        },
+      }
+    );
+
+    const controlRoomAuthorizerRole = new Role(
+      this.scope,
+      'ControlRoomAuthorizerRole',
+      {
+        roleName: 'EmsControlRoomAuthorizerRole',
+        assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
+      }
+    );
+
+    controlRoomAuthorizerRole.addToPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['lambda:InvokeFunction'],
+        resources: [authorizerFunc.functionArn],
+      })
+    );
+
+    return new CfnAuthorizer(this.scope, 'EmsControlRoomAuthorizer', {
+      apiId: this.api.httpApiId,
+      authorizerType: 'REQUEST',
+      identitySource: ['$request.header.Authorization'],
+      authorizerResultTtlInSeconds: 300,
+      name: 'ControlRoomAuthorizer',
+      enableSimpleResponses: true,
+      authorizerCredentialsArn: controlRoomAuthorizerRole.roleArn,
+      authorizerPayloadFormatVersion: '2.0',
+      authorizerUri: `arn:aws:apigateway:${this.region}:lambda:path/2015-03-31/functions/${authorizerFunc.functionArn}/invocations`,
     });
   };
 
@@ -146,6 +180,14 @@ export default class HttpApiResources {
     routes.forEach((route: HttpRoute) => {
       const routeCfn = route.node.defaultChild as CfnRoute;
       routeCfn.authorizerId = this.adminJwtAuthorizer.ref;
+      routeCfn.authorizationType = 'CUSTOM';
+    });
+  }
+
+  public addControlRoomAuthorizerToRoutes(routes: HttpRoute[]) {
+    routes.forEach((route: HttpRoute) => {
+      const routeCfn = route.node.defaultChild as CfnRoute;
+      routeCfn.authorizerId = this.controlRoomAuthorizer.ref;
       routeCfn.authorizationType = 'CUSTOM';
     });
   }

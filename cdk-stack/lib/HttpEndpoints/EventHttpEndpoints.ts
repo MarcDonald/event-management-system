@@ -4,6 +4,7 @@ import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import HttpApiResources from '../HttpApiResources';
 import DynamoDbResources from '../DynamoDbResources';
 import { createBaseHandler } from '../Utils/LambdaUtils';
+import { Http } from 'aws-sdk/clients/xray';
 
 export default class VenueHttpEndpoints {
   constructor(
@@ -67,24 +68,28 @@ export default class VenueHttpEndpoints {
       integration: this.createGetAssistanceRequestsHandler(),
     });
 
-    // Flattens all the individual arrays of routes into one single array
-    const allAdminRoutes = Array<HttpRoute>().concat(
-      ...[
-        addEventRoutes,
-        getAllEventsRoutes,
-        deleteEventRoutes,
-        updateEventInformationRoutes,
-        updateEventStaffRoutes,
-        updateEventSupervisorsRoutes,
-        getAssistanceRequestRoutes,
-      ]
+    httpApiResources.addAdminJwtAuthorizerToRoutes(
+      Array<HttpRoute>().concat(
+        ...[
+          addEventRoutes,
+          getAllEventsRoutes,
+          deleteEventRoutes,
+          updateEventInformationRoutes,
+          updateEventStaffRoutes,
+          updateEventSupervisorsRoutes,
+        ]
+      )
     );
-    httpApiResources.addAdminJwtAuthorizerToRoutes(allAdminRoutes);
 
-    const nonAdminProtectedRoute = Array<HttpRoute>().concat(
-      ...[getUpcomingEventsRoutes, addAssistanceRequestRoutes]
+    httpApiResources.addJwtAuthorizerToRoutes(
+      Array<HttpRoute>().concat(
+        ...[getUpcomingEventsRoutes, addAssistanceRequestRoutes]
+      )
     );
-    httpApiResources.addJwtAuthorizerToRoutes(nonAdminProtectedRoute);
+
+    httpApiResources.addControlRoomAuthorizerToRoutes(
+      Array<HttpRoute>().concat(...[getAssistanceRequestRoutes])
+    );
   }
 
   private createAddEventHandler(): LambdaProxyIntegration {
