@@ -4,7 +4,12 @@ const {
   staffUtils,
   venueUtils,
 } = require('../../../testUtils');
-const { validEventId, invalidEventId, validTableName } = eventUtils.testValues;
+const {
+  validEventId,
+  invalidEventId,
+  validTableName,
+  validAreaOfSupervision,
+} = eventUtils.testValues;
 const {
   validUsername,
   validSub,
@@ -48,6 +53,77 @@ beforeEach(() => {
 });
 
 afterEach(jest.resetAllMocks);
+
+test('Should update event supervisors when provided with a valid event', async () => {
+  const supervisors = [
+    {
+      staffMember: {
+        username: validUsername,
+        givenName: validGivenName,
+        familyName: validFamilyName,
+        sub: validSub,
+        role: validRole,
+      },
+      areaOfSupervision: validAreaOfSupervision,
+    },
+  ];
+
+  const eventBody = JSON.stringify(supervisors);
+
+  updateMock.mockReturnValue({
+    promise: () => {},
+  });
+
+  const event = {
+    pathParameters: {
+      eventId: validEventId,
+    },
+    body: eventBody,
+  };
+
+  const { statusCode, body } = await handler(event);
+
+  expect(updateMock).toBeCalledTimes(1);
+  expect(updateMock).toBeCalledWith({
+    TableName: validTableName,
+    Key: {
+      id: validEventId,
+      metadata: 'event',
+    },
+    UpdateExpression: 'set #supervisors = :supervisors',
+    ConditionExpression: 'id = :id and metadata = :metadata',
+    ExpressionAttributeNames: {
+      '#supervisors': 'supervisors',
+    },
+    ExpressionAttributeValues: {
+      ':supervisors': supervisors,
+      ':id': validEventId,
+      ':metadata': 'event',
+    },
+  });
+  expect(statusCode).toBe(200);
+  expect(body).toBe(
+    JSON.stringify({
+      message: `Successfully updated supervisors of ${validEventId}`,
+    })
+  );
+});
+
+test('Should return 400 when called with an event with no event ID', async () => {
+  const event = {
+    pathParameters: {},
+  };
+
+  const { statusCode, body } = await handler(event);
+
+  expect(updateMock).toBeCalledTimes(0);
+  expect(statusCode).toBe(400);
+  expect(body).toBe(
+    JSON.stringify({
+      message: 'Event ID must be provided',
+    })
+  );
+});
 
 test('Should return 400 when called with an event with no body', async () => {
   const event = {

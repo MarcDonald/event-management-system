@@ -98,9 +98,7 @@ beforeEach(() => {
 afterEach(jest.resetAllMocks);
 
 test('Should return a formatted list of upcoming events with default count', async () => {
-  const event = {
-    query: {},
-  };
+  const event = {};
 
   queryMock.mockReturnValue({
     promise: () => {

@@ -49,6 +49,80 @@ beforeEach(() => {
 
 afterEach(jest.resetAllMocks);
 
+test('Should update event staff when provided with a valid event', async () => {
+  const staff = [
+    {
+      staffMember: {
+        username: validUsername,
+        givenName: validGivenName,
+        familyName: validFamilyName,
+        sub: validSub,
+        role: validRole,
+      },
+      position: {
+        positionId: validPositionId,
+        name: validPositionName,
+      },
+    },
+  ];
+
+  const eventBody = JSON.stringify(staff);
+
+  updateMock.mockReturnValue({
+    promise: () => {},
+  });
+
+  const event = {
+    pathParameters: {
+      eventId: validEventId,
+    },
+    body: eventBody,
+  };
+
+  const { statusCode, body } = await handler(event);
+
+  expect(updateMock).toBeCalledTimes(1);
+  expect(updateMock).toBeCalledWith({
+    TableName: validTableName,
+    Key: {
+      id: validEventId,
+      metadata: 'event',
+    },
+    UpdateExpression: 'set #staff = :staff',
+    ConditionExpression: 'id = :id and metadata = :metadata',
+    ExpressionAttributeNames: {
+      '#staff': 'staff',
+    },
+    ExpressionAttributeValues: {
+      ':staff': staff,
+      ':id': validEventId,
+      ':metadata': 'event',
+    },
+  });
+  expect(statusCode).toBe(200);
+  expect(body).toBe(
+    JSON.stringify({
+      message: `Successfully updated staff members of ${validEventId}`,
+    })
+  );
+});
+
+test('Should return 400 when called with an event with no event ID', async () => {
+  const event = {
+    pathParameters: {},
+  };
+
+  const { statusCode, body } = await handler(event);
+
+  expect(updateMock).toBeCalledTimes(0);
+  expect(statusCode).toBe(400);
+  expect(body).toBe(
+    JSON.stringify({
+      message: 'Event ID must be provided',
+    })
+  );
+});
+
 test('Should return 400 when called with an event with no body', async () => {
   const event = {
     pathParameters: {
