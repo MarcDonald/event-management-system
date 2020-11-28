@@ -9,8 +9,12 @@ import { sleep } from '../../Services/ApiService';
 import DashDetailsDrawer from './DashDetailsDrawer';
 import PositionsDashboard from './PositionsDashboard';
 import AssistanceRequestsDrawer from './AssistanceRequestsDrawer';
-import { getAssistanceRequests } from '../../Services/EventService';
+import {
+  getAssistanceRequests,
+  getEventInformation,
+} from '../../Services/EventService';
 import useLocalAuth from '../../Hooks/useLocalAuth';
+import Loading from '../../Components/Loading';
 
 interface DashboardPropTypes {}
 
@@ -20,11 +24,23 @@ export default function Dashboard(props: DashboardPropTypes) {
   const history = useHistory();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [activeEvent, setActiveEvent] = useState<Event>();
+  const [eventInformation, setEventInformation] = useState<Event>();
   const [assistanceRequests, setAssistanceRequests] = useState<
     AssistanceRequest[]
   >([]);
   const [venueStatus, setVenueStatus] = useState<VenueStatus>(VenueStatus.Low);
+
+  const refresh = async () => {
+    setIsLoading(true);
+    const dbEventInformation = await getEventInformation(eventId);
+    setEventInformation(dbEventInformation);
+
+    const dbAssistanceRequests = await getAssistanceRequests(eventId);
+    setAssistanceRequests(dbAssistanceRequests);
+
+    setVenueStatus(VenueStatus.Low);
+    setIsLoading(false);
+  };
 
   useEffect(() => {
     const authorizeUser = async () => {
@@ -37,115 +53,49 @@ export default function Dashboard(props: DashboardPropTypes) {
       }
     };
 
-    const setup = async () => {
-      setIsLoading(true);
-      setActiveEvent({
-        eventId,
-        name: 'My Cool Event',
-        start: new Date().getTime() / 1000,
-        end: new Date().getTime() / 1000 + 40000,
-        venue: {
-          venueId: 'jsdfjsdfjdfs',
-          name: 'The Big Arena',
-          positions: [
-            {
-              positionId: 'jsdfkjfgjfsd',
-              name: 'Door 1',
-            },
-            {
-              positionId: 'jgdghfsdfkjfgjfsd',
-              name: 'Door 2',
-            },
-          ],
-        },
-        staff: [
-          {
-            staffMember: {
-              username: 'abc123',
-              sub: 'fgjfds',
-              givenName: 'Marc',
-              familyName: 'Donald',
-              role: StaffRole.Steward,
-            },
-            position: {
-              positionId: 'jgdghfsdfkjfgjfsd',
-              name: 'Door 2',
-            },
-          },
-        ],
-        supervisors: [
-          {
-            staffMember: {
-              username: 'def456',
-              sub: 'fgfgfgddfg',
-              givenName: 'Darc',
-              familyName: 'Monald',
-              role: StaffRole.Steward,
-            },
-            areaOfSupervision: 'Tickets',
-          },
-          {
-            staffMember: {
-              username: 'hghgfhfggsdfsdfg',
-              sub: 'fgfgfsdfgfgsdgddfg',
-              givenName: 'Dorc',
-              familyName: 'Mernald',
-              role: StaffRole.Steward,
-            },
-            areaOfSupervision: 'Backstage',
-          },
-        ],
-      });
-
-      const dbAssistanceRequests = await getAssistanceRequests(eventId);
-      setAssistanceRequests(dbAssistanceRequests);
-
-      setVenueStatus(VenueStatus.Low);
-      setIsLoading(false);
-    };
-    authorizeUser().then(() => setup().then());
+    authorizeUser().then(() => refresh().then());
   }, [eventId]);
 
-  const refresh = async () => {
-    setIsLoading(true);
-    await sleep(1000);
-    setIsLoading(false);
-    return;
-  };
-
   return (
-    <div
-      className="min-h-screen bg-background-gray"
-      style={{
-        display: 'grid',
-        gridTemplateRows: 'auto 1fr auto',
-        gridTemplateColumns: '100%',
-      }}
-    >
-      <div className="row-start-1 h-auto">
-        <StatusHeader status={venueStatus} />
-      </div>
-      <div className="row-start-2 grid grid-cols-6">
-        {activeEvent && (
-          <>
-            <DashDetailsDrawer
-              venueName={activeEvent.venue.name}
-              eventName={activeEvent.name}
-              supervisors={activeEvent.supervisors}
-            />
-            <PositionsDashboard
-              positions={activeEvent.venue.positions}
-              assignedStaff={activeEvent.staff}
-              assistanceRequests={assistanceRequests}
-            />
-            <AssistanceRequestsDrawer
-              refresh={refresh}
-              isLoading={isLoading}
-              assistanceRequests={assistanceRequests}
-            />
-          </>
-        )}
-      </div>
-    </div>
+    <>
+      {isLoading && (
+        <Loading containerClassName="mt-16" spinnerClassName="text-4xl" />
+      )}
+      {!isLoading && (
+        <div
+          className="min-h-screen bg-background-gray"
+          style={{
+            display: 'grid',
+            gridTemplateRows: 'auto 1fr auto',
+            gridTemplateColumns: '100%',
+          }}
+        >
+          <div className="row-start-1 h-auto">
+            <StatusHeader status={venueStatus} />
+          </div>
+          <div className="row-start-2 grid grid-cols-6">
+            {eventInformation && (
+              <>
+                <DashDetailsDrawer
+                  venueName={eventInformation.venue.name}
+                  eventName={eventInformation.name}
+                  supervisors={eventInformation.supervisors}
+                />
+                <PositionsDashboard
+                  positions={eventInformation.venue.positions}
+                  assignedStaff={eventInformation.staff}
+                  assistanceRequests={assistanceRequests}
+                />
+                <AssistanceRequestsDrawer
+                  refresh={refresh}
+                  isLoading={isLoading}
+                  assistanceRequests={assistanceRequests}
+                />
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
