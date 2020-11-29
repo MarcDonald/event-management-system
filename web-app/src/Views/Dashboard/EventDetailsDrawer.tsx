@@ -3,13 +3,13 @@ import LoginStateDisplay from '../../Components/LoginStateDisplay';
 import AssignedSupervisor from '../../Models/AssignedSupervisor';
 import Card from '../../Components/Card';
 
-interface DashDetailsDrawerPropTypes {
+interface EventDetailsDrawerPropTypes {
   venueName: string;
   eventName: string;
   supervisors: AssignedSupervisor[];
 }
 
-export default function DashDetailsDrawer(props: DashDetailsDrawerPropTypes) {
+export default function EventDetailsDrawer(props: EventDetailsDrawerPropTypes) {
   const supervisorDisplayList = () => {
     return props.supervisors.map((supervisor) => {
       return (

@@ -1,7 +1,7 @@
 enum VenueStatus {
-  Low,
-  High,
-  Evacuate,
+  Low = 'Low',
+  High = 'High',
+  Evacuate = 'Evacuate',
 }
 
 export default VenueStatus;

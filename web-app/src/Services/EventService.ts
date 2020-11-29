@@ -5,7 +5,7 @@ import AssignedStaffMember from '../Models/AssignedStaffMember';
 import AssignedSupervisor from '../Models/AssignedSupervisor';
 import Venue from '../Models/Venue';
 import AssistanceRequest from '../Models/AssistanceRequest';
-import StaffRole from '../Models/StaffRole';
+import VenueStatus from '../Models/VenueStatus';
 
 const baseUrl = `${config.API.BASE_URL}/events`;
 
@@ -74,87 +74,26 @@ export async function getAssistanceRequests(
 ): Promise<AssistanceRequest[]> {
   const result = await get(`${baseUrl}/${eventId}/assistance`);
   return result.data;
-  // await sleep(1000);
-  // return [
-  //   {
-  //     assistanceRequestId: 'jasdjadjnjasdnasd',
-  //     position: {
-  //       positionId: 'jgdghfsdfkjfgjfsd',
-  //       name: 'Door 2',
-  //     },
-  //     time: new Date().getTime() / 1000,
-  //     message: 'Request for Supervisor',
-  //   },
-  //   {
-  //     assistanceRequestId: 'jasdjadjnjasdnasdasd',
-  //     position: {
-  //       positionId: 'jgdghfsdfkjfgjfsd',
-  //       name: 'Door 2',
-  //     },
-  //     time: new Date().getTime() / 1000,
-  //     message: 'Request for Security',
-  //   },
-  // ];
 }
 
 export async function getEventInformation(eventId: string): Promise<Event> {
   const result = await get(`${baseUrl}/${eventId}/information`);
   return result.data;
-  // return {
-  //   eventId,
-  //   name: 'My Cool Event',
-  //   start: new Date().getTime() / 1000,
-  //   end: new Date().getTime() / 1000 + 40000,
-  //   venue: {
-  //     venueId: 'jsdfjsdfjdfs',
-  //     name: 'The Big Arena',
-  //     positions: [
-  //       {
-  //         positionId: 'jsdfkjfgjfsd',
-  //         name: 'Door 1',
-  //       },
-  //       {
-  //         positionId: 'jgdghfsdfkjfgjfsd',
-  //         name: 'Door 2',
-  //       },
-  //     ],
-  //   },
-  //   staff: [
-  //     {
-  //       staffMember: {
-  //         username: 'abc123',
-  //         sub: 'fgjfds',
-  //         givenName: 'Marc',
-  //         familyName: 'Donald',
-  //         role: StaffRole.Steward,
-  //       },
-  //       position: {
-  //         positionId: 'jgdghfsdfkjfgjfsd',
-  //         name: 'Door 2',
-  //       },
-  //     },
-  //   ],
-  //   supervisors: [
-  //     {
-  //       staffMember: {
-  //         username: 'def456',
-  //         sub: 'fgfgfgddfg',
-  //         givenName: 'Darc',
-  //         familyName: 'Monald',
-  //         role: StaffRole.Steward,
-  //       },
-  //       areaOfSupervision: 'Tickets',
-  //     },
-  //     {
-  //       staffMember: {
-  //         username: 'hghgfhfggsdfsdfg',
-  //         sub: 'fgfgfsdfgfgsdgddfg',
-  //         givenName: 'Dorc',
-  //         familyName: 'Mernald',
-  //         role: StaffRole.Steward,
-  //       },
-  //       areaOfSupervision: 'Backstage',
-  //     },
-  //   ],
-  // };
+}
+
+export async function getEventVenueStatus(
+  eventId: string
+): Promise<VenueStatus> {
+  const result = await get(`${baseUrl}/${eventId}/status`);
+  return result.data.venueStatus;
+}
+
+export async function updateEventStatus(
+  eventId: string,
+  venueStatus: VenueStatus
+): Promise<VenueStatus> {
+  const result = await put(`${baseUrl}/${eventId}/status`, {
+    venueStatus: venueStatus.toString(),
+  });
+  return result.data.venueStatus;
 }

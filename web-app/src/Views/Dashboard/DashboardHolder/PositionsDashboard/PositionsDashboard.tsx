@@ -1,7 +1,7 @@
 import React from 'react';
-import Position from '../../Models/Position';
-import AssignedStaffMember from '../../Models/AssignedStaffMember';
-import AssistanceRequest from '../../Models/AssistanceRequest';
+import Position from '../../../../Models/Position';
+import AssignedStaffMember from '../../../../Models/AssignedStaffMember';
+import AssistanceRequest from '../../../../Models/AssistanceRequest';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faExclamationTriangle,
@@ -67,7 +67,7 @@ export default function PositionsDashboard(props: PositionsDashboardPropTypes) {
   };
 
   return (
-    <div className="col-start-2 col-span-4 mt-2">
+    <div>
       {listHeaderDisplay()}
       {positionDisplayList()}
     </div>

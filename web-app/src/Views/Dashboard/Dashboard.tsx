@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import Event from '../../Models/Event';
-import StaffRole from '../../Models/StaffRole';
 import AssistanceRequest from '../../Models/AssistanceRequest';
 import VenueStatus from '../../Models/VenueStatus';
 import StatusHeader from './StatusHeader';
-import { sleep } from '../../Services/ApiService';
-import DashDetailsDrawer from './DashDetailsDrawer';
-import PositionsDashboard from './PositionsDashboard';
-import AssistanceRequestsDrawer from './AssistanceRequestsDrawer';
+import EventDetailsDrawer from './EventDetailsDrawer';
+import AssistanceRequestsDrawer from './AssistanceRequestDrawer';
 import {
   getAssistanceRequests,
   getEventInformation,
+  getEventVenueStatus,
 } from '../../Services/EventService';
 import useLocalAuth from '../../Hooks/useLocalAuth';
 import Loading from '../../Components/Loading';
+import DashboardHolder from './DashboardHolder';
 
 interface DashboardPropTypes {}
 
@@ -38,7 +37,9 @@ export default function Dashboard(props: DashboardPropTypes) {
     const dbAssistanceRequests = await getAssistanceRequests(eventId);
     setAssistanceRequests(dbAssistanceRequests);
 
-    setVenueStatus(VenueStatus.Low);
+    const dbVenueStatus = await getEventVenueStatus(eventId);
+    setVenueStatus(dbVenueStatus);
+
     setIsLoading(false);
   };
 
@@ -76,15 +77,16 @@ export default function Dashboard(props: DashboardPropTypes) {
           <div className="row-start-2 grid grid-cols-6">
             {eventInformation && (
               <>
-                <DashDetailsDrawer
+                <EventDetailsDrawer
                   venueName={eventInformation.venue.name}
                   eventName={eventInformation.name}
                   supervisors={eventInformation.supervisors}
                 />
-                <PositionsDashboard
-                  positions={eventInformation.venue.positions}
-                  assignedStaff={eventInformation.staff}
+                <DashboardHolder
+                  eventInformation={eventInformation}
                   assistanceRequests={assistanceRequests}
+                  venueStatus={venueStatus}
+                  onVenueStatusChange={setVenueStatus}
                 />
                 <AssistanceRequestsDrawer
                   refresh={refresh}

@@ -16,7 +16,6 @@ export default function UpcomingEvents(props: UpcomingEventsPropTypes) {
 
   useEffect(() => {
     const setup = async () => {
-      await sleep(1000);
       const upcoming = await getUpcomingEvents();
       setUpcomingEvents(upcoming);
       setIsLoading(false);

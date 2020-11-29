@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import AssistanceRequest from '../../Models/AssistanceRequest';
-import Card from '../../Components/Card';
+import AssistanceRequest from '../../../Models/AssistanceRequest';
+import Card from '../../../Components/Card';
 
 interface AssistanceRequestCardPropTypes {
   assistanceRequest: AssistanceRequest;
@@ -16,7 +16,7 @@ export default function AssistanceRequestCard(
       </h1>
       <h2 className="text-lg">{props.assistanceRequest.message}</h2>
       <h3 className="text-md">
-        At {new Date(props.assistanceRequest.time).toLocaleTimeString()}
+        At {new Date(props.assistanceRequest.time * 1000).toTimeString()}
       </h3>
     </Card>
   );

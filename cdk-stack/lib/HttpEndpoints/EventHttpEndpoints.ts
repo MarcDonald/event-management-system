@@ -44,6 +44,18 @@ export default class VenueHttpEndpoints {
       integration: this.createUpdateEventInformationHandler(),
     });
 
+    const getEventVenueStatus = api.addRoutes({
+      path: '/events/{eventId}/status',
+      methods: [HttpMethod.GET],
+      integration: this.createGetEventVenueStatusHandler(),
+    });
+
+    const updateEventVenueStatus = api.addRoutes({
+      path: '/events/{eventId}/status',
+      methods: [HttpMethod.PUT],
+      integration: this.createUpdateEventVenueStatusHandler(),
+    });
+
     const updateEventStaffRoutes = api.addRoutes({
       path: '/events/{eventId}/staff',
       methods: [HttpMethod.PUT],
@@ -89,13 +101,21 @@ export default class VenueHttpEndpoints {
 
     httpApiResources.addJwtAuthorizerToRoutes(
       Array<HttpRoute>().concat(
-        ...[getUpcomingEventsRoutes, addAssistanceRequestRoutes]
+        ...[
+          getUpcomingEventsRoutes,
+          addAssistanceRequestRoutes,
+          getEventVenueStatus,
+        ]
       )
     );
 
     httpApiResources.addControlRoomAuthorizerToRoutes(
       Array<HttpRoute>().concat(
-        ...[getAssistanceRequestRoutes, getEventInformation]
+        ...[
+          getAssistanceRequestRoutes,
+          getEventInformation,
+          updateEventVenueStatus,
+        ]
       )
     );
   }
@@ -140,6 +160,24 @@ export default class VenueHttpEndpoints {
       'EmsUpdateEventInformation',
       'updateEventInformation',
       ['dynamodb:UpdateItem', 'dynamodb:Query']
+    );
+  }
+
+  private createGetEventVenueStatusHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'GetEventVenueStatusFunction',
+      'EmsGetEventVenueStatusFunction',
+      'getEventVenueStatus',
+      ['dynamodb:Query']
+    );
+  }
+
+  private createUpdateEventVenueStatusHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'UpdateEventVenueStatusFunction',
+      'EmsUpdateEventVenueStatusFunction',
+      'updateEventVenueStatus',
+      ['dynamodb:PutItem']
     );
   }
 
