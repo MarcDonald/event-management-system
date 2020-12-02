@@ -1,5 +1,5 @@
 import config from '../config.json';
-import { delet, get, post, put, sleep } from './ApiService';
+import { delet, get, post, put } from './ApiService';
 import Event from '../Models/Event';
 import AssignedStaffMember from '../Models/AssignedStaffMember';
 import AssignedSupervisor from '../Models/AssignedSupervisor';

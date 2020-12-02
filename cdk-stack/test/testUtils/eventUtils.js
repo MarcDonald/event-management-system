@@ -2,7 +2,6 @@ const testValues = {
   validEventId: 'fgh-123-hgf-456',
   invalidEventId: 'sdf-456-fds-123',
   validEventName: 'validEventName',
-  invalidEventName: 'invalidEventName',
   validAreaOfSupervision: 'validAreaOfSupervision',
   validStart: 1606340678,
   validEnd: 1606340800,

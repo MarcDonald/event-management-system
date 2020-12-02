@@ -58,20 +58,18 @@ module.exports = (dependencies) => async (event) => {
 
   try {
     const eventId = generateUUID().toString();
-    const itemToAdd = {
-      id: eventId,
-      name,
-      metadata: 'event',
-      venue,
-      start,
-      end,
-      supervisors,
-      staff,
-    };
-
     const putParams = {
       TableName: tableName,
-      Item: itemToAdd,
+      Item: {
+        id: eventId,
+        name,
+        metadata: 'event',
+        venue,
+        start,
+        end,
+        supervisors,
+        staff,
+      },
     };
 
     await Dynamo.put(putParams).promise();

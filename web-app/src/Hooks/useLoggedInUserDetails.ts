@@ -2,14 +2,17 @@ import { Auth } from 'aws-amplify';
 import StaffMember from '../Models/StaffMember';
 import StaffRole from '../Models/StaffRole';
 
-interface LoggedInUser {
+interface LoggedInUserDetails {
   getLoggedInUser: () => Promise<StaffMember> | any;
   isAdmin: (user: StaffMember) => boolean;
   isControlRoomOperator: (user: StaffMember) => boolean;
   isSteward: (user: StaffMember) => boolean;
 }
 
-export default function useLocalAuth(): LoggedInUser {
+/**
+ * Provides some convenience functions for retrieving details about the currently logged in user
+ */
+export default function useLoggedInUserDetails(): LoggedInUserDetails {
   const getLoggedInUser = async (): Promise<StaffMember | null> => {
     try {
       await Auth.currentSession();

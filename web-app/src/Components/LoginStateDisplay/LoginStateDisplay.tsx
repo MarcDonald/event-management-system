@@ -10,6 +10,9 @@ interface LoginStateDisplayPropTypes {
   showHomeButton?: boolean;
 }
 
+/**
+ * Displays the currently logged in user's details, an logout option, and an optional home button
+ */
 export default function LoginStateDisplay(props: LoginStateDisplayPropTypes) {
   const history = useHistory();
   const [showLogout, setShowLogout] = useState<boolean>(false);

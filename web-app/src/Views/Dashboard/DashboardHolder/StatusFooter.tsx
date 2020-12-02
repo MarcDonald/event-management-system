@@ -6,6 +6,9 @@ interface StatusFooterPropTypes {
   status: VenueStatus;
 }
 
+/**
+ * Colored footer displaying the current venue status color
+ */
 export default function StatusFooter(props: StatusFooterPropTypes) {
   const venueStatusColorCalculator = useVenueStatusColors();
 

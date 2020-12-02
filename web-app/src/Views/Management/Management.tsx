@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import useLocalAuth from '../../Hooks/useLocalAuth';
+import useLoggedInUserDetails from '../../Hooks/useLoggedInUserDetails';
 import BrandHeader from '../../Components/BrandHeader';
 import ManageStaff from './ManageStaff/ManageStaff';
 import ManageVenues from './ManageVenues/ManageVenues';
 import ManageEvents from './ManageEvents/ManageEvents';
 import LoginStateDisplay from '../../Components/LoginStateDisplay/LoginStateDisplay';
+import SideNavItem from './SideNavItem';
 
 export enum ManagementPage {
   Venues = 'venues',
@@ -17,8 +18,11 @@ interface ManagementPropTypes {
   initialSelectedPage: ManagementPage;
 }
 
+/**
+ * Container for all management pages
+ */
 export default function Management(props: ManagementPropTypes) {
-  const localAuth = useLocalAuth();
+  const loggedInUserDetails = useLoggedInUserDetails();
   const history = useHistory();
   const [selectedPage, setSelectedPage] = useState<ManagementPage>(
     props.initialSelectedPage
@@ -26,8 +30,8 @@ export default function Management(props: ManagementPropTypes) {
 
   useEffect(() => {
     const authorizeUser = async () => {
-      const user = await localAuth.getLoggedInUser();
-      if (!user || !localAuth.isAdmin(user)) {
+      const user = await loggedInUserDetails.getLoggedInUser();
+      if (!user || !loggedInUserDetails.isAdmin(user)) {
         history.replace('/404');
       }
     };
@@ -43,6 +47,7 @@ export default function Management(props: ManagementPropTypes) {
   return (
     <div
       className="min-h-screen bg-background-gray"
+      // This grid layout allows us to have an auto-sized header and footer, and have the entire middle area taken up by our main content
       style={{
         display: 'grid',
         gridTemplateRows: 'auto 1fr auto',
@@ -58,36 +63,21 @@ export default function Management(props: ManagementPropTypes) {
             <h1 className="side-nav-title">Manage</h1>
             <nav className="mt-8">
               <ul>
-                <li
-                  className={`${
-                    selectedPage === ManagementPage.Venues
-                      ? 'side-nav side-nav-selected'
-                      : 'side-nav'
-                  } pl-8 text-xl py-2 w-4/5 rounded-r-full`}
+                <SideNavItem
+                  name="Venues"
                   onClick={() => changeTab(ManagementPage.Venues)}
-                >
-                  Venues
-                </li>
-                <li
-                  className={`${
-                    selectedPage === ManagementPage.Events
-                      ? 'side-nav side-nav-selected'
-                      : 'side-nav'
-                  } pl-8 text-xl py-2 w-4/5 rounded-r-full`}
+                  isSelected={selectedPage === ManagementPage.Venues}
+                />
+                <SideNavItem
+                  name="Events"
                   onClick={() => changeTab(ManagementPage.Events)}
-                >
-                  Events
-                </li>
-                <li
-                  className={`${
-                    selectedPage === ManagementPage.Staff
-                      ? 'side-nav side-nav-selected'
-                      : 'side-nav'
-                  } pl-8 text-xl py-2 w-4/5 rounded-r-full`}
+                  isSelected={selectedPage === ManagementPage.Events}
+                />
+                <SideNavItem
+                  name="Staff"
                   onClick={() => changeTab(ManagementPage.Staff)}
-                >
-                  Staff
-                </li>
+                  isSelected={selectedPage === ManagementPage.Staff}
+                />
               </ul>
             </nav>
           </section>

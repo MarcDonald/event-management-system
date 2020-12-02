@@ -1,6 +1,3 @@
-import { Auth } from 'aws-amplify';
-import StaffMember from '../Models/StaffMember';
-import StaffRole from '../Models/StaffRole';
 import VenueStatus from '../Models/VenueStatus';
 
 interface VenueStatusColors {
@@ -8,13 +5,16 @@ interface VenueStatusColors {
   getLightVenueStatusColor: (venueStatus: VenueStatus) => string;
 }
 
+/**
+ * Convenience functions for determining the colors to display a Venue Status
+ */
 export default function useVenueStatusColors(): VenueStatusColors {
   const getVenueStatusColor = (venueStatus: VenueStatus): string => {
     switch (venueStatus) {
       case VenueStatus.Low:
         return 'bg-green-600';
       case VenueStatus.High:
-        return 'bg-orange-600';
+        return 'bg-yellow-600';
       case VenueStatus.Evacuate:
         return 'bg-red-600';
     }
@@ -25,7 +25,7 @@ export default function useVenueStatusColors(): VenueStatusColors {
       case VenueStatus.Low:
         return 'bg-green-500';
       case VenueStatus.High:
-        return 'bg-orange-500';
+        return 'bg-yellow-500';
       case VenueStatus.Evacuate:
         return 'bg-red-500';
     }

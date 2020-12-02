@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ErrorMessage from '../../../Components/ErrorMessage';
-import ListPanel from '../ListPanel';
+import ItemListDrawer from '../ItemListDrawer';
 import ManagementEditHeader from '../ManagementEditHeader';
 import AssignedStaffMember from '../../../Models/AssignedStaffMember';
 import Event from '../../../Models/Event';
@@ -23,11 +23,9 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import StaffMember from '../../../Models/StaffMember';
 import { getAllStaffMembers } from '../../../Services/StaffService';
-import StaffMemberAssignmentSection from './StaffMemberAssignmentSection';
+import StaffMemberAssignmentSection from './StaffMemberAssignmentSection/StaffMemberAssignmentSection';
 import Position from '../../../Models/Position';
-import SupervisorAssignmentSection from './SupervisorAssignmentSection';
-
-interface ManageEventsPropTypes {}
+import SupervisorAssignmentSection from './SupervisorAssignmentSection/SupervisorAssignmentSection';
 
 interface ManageEventsFormFields {
   id: string | null;
@@ -39,6 +37,7 @@ interface ManageEventsFormFields {
   staff: AssignedStaffMember[];
 }
 
+// This is used as the template when resetting the form
 const emptyFormFields = {
   id: null,
   name: '',
@@ -49,7 +48,10 @@ const emptyFormFields = {
   staff: [],
 };
 
-export default function ManageEvents(props: ManageEventsPropTypes) {
+/**
+ * Events management page
+ */
+export default function ManageEvents() {
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [displayedEvents, setDisplayedEvents] = useState<Event[]>([]);
   const [fields, setFields, setFieldsDirectly] = useFormFields<
@@ -115,15 +117,15 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
   };
 
   const determineSelectableStaffOfEvent = (event: Event): StaffMember[] => {
-    const assignedStaff: string[] = [];
-    event.supervisors.map((assignedSupervisor) => {
-      assignedStaff.push(assignedSupervisor.staffMember.username);
+    const assignedSupervisors = event.supervisors.map((assignedSupervisor) => {
+      return assignedSupervisor.staffMember.username;
     });
-    event.staff.map((assignedStaffMember) => {
-      assignedStaff.push(assignedStaffMember.staffMember.username);
+    const assignedStaffMembers = event.staff.map((assignedStaffMember) => {
+      return assignedStaffMember.staffMember.username;
     });
+    const allAssignedStaff = [...assignedStaffMembers, ...assignedSupervisors];
     return [...allStaff].filter((staffMember) => {
-      return !assignedStaff.includes(staffMember.username);
+      return !allAssignedStaff.includes(staffMember.username);
     });
   };
 
@@ -143,7 +145,6 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
       setSelectablePositions(event.venue.positions);
       setSelectableStaff(determineSelectableStaffOfEvent(event));
     } else {
-      console.log(`Setup new event`);
       setupNewEvent();
     }
   };
@@ -186,8 +187,8 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
       const updatedStaffMembers = fields.staff;
       await updateEventStaffMembers(fields.id, updatedStaffMembers);
       return {
-        eventId: fields.id!!,
-        venue: fields.venue!!,
+        eventId: fields.id!,
+        venue: fields.venue!,
         supervisors: updatedSupervisors,
         staff: updatedStaffMembers,
         ...updatedInformation,
@@ -201,10 +202,12 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
     if (validateForm()) {
       setIsSaving(true);
       try {
+        // If there's no ID then it will be a new event
         if (!fields.id) {
           const newEvent = await createNewEvent({
             name: fields.name,
-            venue: fields.venue!!,
+            // This is a safe non-null assertion because the form has already been validated
+            venue: fields.venue!,
             // Have to divide by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
             start: fields.start.getTime() / 1000,
             end: fields.end.getTime() / 1000,
@@ -217,6 +220,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
           const indexOfEvent = allEvents.findIndex(
             (event) => event.eventId === fields.id
           );
+          // Updates the event in the list with the new details
           allEvents[indexOfEvent] = {
             ...allEvents[indexOfEvent],
             ...updatedEvent,
@@ -395,9 +399,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
           title="Select a venue"
           currentlySelectedKey={fields.venue?.venueId}
           list={dropdownVenues}
-          onSelected={(key) => {
-            if (typeof key === 'string') selectVenue(key);
-          }}
+          onSelected={selectVenue}
         />
         <label htmlFor="start">Start Date</label>
         <DatePicker
@@ -461,7 +463,7 @@ export default function ManageEvents(props: ManageEventsPropTypes) {
           </div>
         </div>
       </div>
-      <ListPanel
+      <ItemListDrawer
         title="Events"
         newButtonClick={setupNewEvent}
         newButtonText="New Event"

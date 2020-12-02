@@ -11,15 +11,16 @@ import {
   getEventInformation,
   getEventVenueStatus,
 } from '../../Services/EventService';
-import useLocalAuth from '../../Hooks/useLocalAuth';
+import useLoggedInUserDetails from '../../Hooks/useLoggedInUserDetails';
 import Loading from '../../Components/Loading';
 import DashboardHolder from './DashboardHolder';
 
-interface DashboardPropTypes {}
-
-export default function Dashboard(props: DashboardPropTypes) {
+/**
+ * Main dashboards page
+ */
+export default function Dashboard() {
   const { eventId } = useParams();
-  const localAuth = useLocalAuth();
+  const loggedInUserDetails = useLoggedInUserDetails();
   const history = useHistory();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -45,10 +46,13 @@ export default function Dashboard(props: DashboardPropTypes) {
 
   useEffect(() => {
     const authorizeUser = async () => {
-      const user = await localAuth.getLoggedInUser();
+      const user = await loggedInUserDetails.getLoggedInUser();
       if (
         !user ||
-        !(localAuth.isControlRoomOperator(user) || localAuth.isAdmin(user))
+        !(
+          loggedInUserDetails.isControlRoomOperator(user) ||
+          loggedInUserDetails.isAdmin(user)
+        )
       ) {
         history.replace('/404');
       }

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import AssistanceRequest from '../../../Models/AssistanceRequest';
 import Card from '../../../Components/Card';
 
+/**
+ * Card to display Assistance Request information
+ */
 interface AssistanceRequestCardPropTypes {
   assistanceRequest: AssistanceRequest;
 }

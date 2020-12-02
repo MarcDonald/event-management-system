@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import BrandHeader from '../../Components/BrandHeader';
-import useLocalAuth from '../../Hooks/useLocalAuth';
+import useLoggedInUserDetails from '../../Hooks/useLoggedInUserDetails';
 import StaffMember from '../../Models/StaffMember';
 import LoginStateDisplay from '../../Components/LoginStateDisplay/LoginStateDisplay';
 import UpcomingEvents from './UpcomingEvents';
 
+/**
+ * Home page for logged in users
+ */
 export default function Home() {
-  const localAuth = useLocalAuth();
+  const loggedInUserDetails = useLoggedInUserDetails();
   const history = useHistory();
   const [user, setUser] = useState<null | StaffMember>(null);
 
   useEffect(() => {
     const redirectToLogin = async () => {
-      const user = await localAuth.getLoggedInUser();
+      const user = await loggedInUserDetails.getLoggedInUser();
       if (user) {
         setUser(user);
       } else {
@@ -44,7 +47,7 @@ export default function Home() {
             </div>
           </div>
           <div className="col-start-2 col-span-4 mx-32">
-            {localAuth.isSteward(user) && (
+            {loggedInUserDetails.isSteward(user) && (
               <section className="mt-16">
                 <h1 className="text-center text-2xl font-bold">
                   This dashboard is for Control Room Operators and
@@ -52,13 +55,13 @@ export default function Home() {
                 </h1>
               </section>
             )}
-            {(localAuth.isControlRoomOperator(user) ||
-              localAuth.isAdmin(user)) && (
+            {(loggedInUserDetails.isControlRoomOperator(user) ||
+              loggedInUserDetails.isAdmin(user)) && (
               <section className="flex flex-col">
                 <UpcomingEvents />
               </section>
             )}
-            {localAuth.isAdmin(user) && (
+            {loggedInUserDetails.isAdmin(user) && (
               <section className="flex flex-col">
                 <h2 className="text-2xl font-bold text-center mt-4">
                   Management

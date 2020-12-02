@@ -2,14 +2,18 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
-interface SideNavSearchPropTypes {
+interface DrawerSearchBarPropTypes {
   search: (searchTerm: string) => any;
 }
 
-export function SideNavSearch(props: SideNavSearchPropTypes) {
+/**
+ * Search bar for use in a side drawer
+ */
+export function DrawerSearchBar(props: DrawerSearchBarPropTypes) {
   return (
     <form
       className="w-full text-center"
+      // event.preventDefault() prevents the page from being reloaded if the user hits enter
       onSubmit={(event) => event.preventDefault()}
     >
       <label htmlFor="staff-search" className="absolute">

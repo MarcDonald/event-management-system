@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
 
 export interface ColorDropdownItem {
-  key: string | number;
+  key: string;
   name: string;
   textColorClass: string;
   backgroundColorClass: string;
@@ -13,13 +13,16 @@ export interface ColorDropdownItem {
 interface ColorDropdownPropTypes {
   title: string;
   list: ColorDropdownItem[];
-  currentlySelectedKey?: string | number;
-  onSelected: (key: string | number, name?: string) => any;
+  currentlySelectedKey?: string;
+  onSelected: (key: string, name?: string) => any;
   id?: string;
   className?: string | null;
   disabled?: boolean;
 }
 
+/**
+ * Dropdown that highlights each option in a given color
+ */
 export default function ColorDropdown(props: ColorDropdownPropTypes) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [currentlySelected, setCurrentlySelected] = useState<
@@ -36,7 +39,7 @@ export default function ColorDropdown(props: ColorDropdownPropTypes) {
     }
   }, [props.currentlySelectedKey]);
 
-  const selectItem = (keySelected: string | number) => {
+  const selectItem = (keySelected: string) => {
     setIsOpen(false);
     setCurrentlySelected(keySelected);
     const selectedItem = props.list.find((item) => item.key === keySelected);

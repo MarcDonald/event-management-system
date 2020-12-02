@@ -15,11 +15,14 @@ import {
   Role,
 } from '@aws-cdk/aws-iam';
 
+/**
+ * User Pool, Identity Pool, and User Pool Clients
+ */
 export default class CognitoResources {
   public readonly userPool: UserPool;
   public readonly webDashboardUserPoolClient: UserPoolClient;
   public readonly apiUserPoolClient: UserPoolClient;
-  public readonly identityPool: CfnIdentityPool;
+  public readonly webDashboardIdentityPool: CfnIdentityPool;
   public readonly defaultUnauthenticatedRole: Role;
   public readonly defaultAuthenticatedRole: Role;
   public readonly identityPoolRoleAttachment: CfnIdentityPoolRoleAttachment;
@@ -30,7 +33,7 @@ export default class CognitoResources {
       this.userPool
     );
     this.apiUserPoolClient = this.createApiClient(this.userPool);
-    this.identityPool = this.createIdentityPool(scope, [
+    this.webDashboardIdentityPool = this.createIdentityPool(scope, [
       {
         clientId: this.webDashboardUserPoolClient.userPoolClientId,
         providerName: this.userPool.userPoolProviderName,
@@ -38,15 +41,15 @@ export default class CognitoResources {
     ]);
     this.defaultUnauthenticatedRole = this.createUnauthenticatedRole(
       scope,
-      this.identityPool
+      this.webDashboardIdentityPool
     );
     this.defaultAuthenticatedRole = this.createAuthenticatedRole(
       scope,
-      this.identityPool
+      this.webDashboardIdentityPool
     );
     this.identityPoolRoleAttachment = this.createIdentityPoolRoleAttachment(
       scope,
-      this.identityPool,
+      this.webDashboardIdentityPool,
       this.defaultUnauthenticatedRole,
       this.defaultAuthenticatedRole
     );
@@ -55,6 +58,7 @@ export default class CognitoResources {
   private createUserPool = (scope: cdk.Construct): UserPool =>
     new UserPool(scope, 'UserPool', {
       userPoolName: 'EmsUserPool',
+      // No need for account recovery since admin users can change the password
       accountRecovery: AccountRecovery.NONE,
       signInAliases: {
         username: true,
@@ -75,6 +79,7 @@ export default class CognitoResources {
           mutable: true,
         },
       },
+      // Only admins should be able to create users
       selfSignUpEnabled: false,
       customAttributes: {
         jobRole: new StringAttribute({ mutable: true }),
@@ -95,6 +100,7 @@ export default class CognitoResources {
   private createApiClient = (userPool: UserPool): UserPoolClient =>
     userPool.addClient('Api', {
       userPoolClientName: 'API',
+      // Since this is the client used by the API, we want to see user existence errors in order to handle them properly
       preventUserExistenceErrors: false,
       authFlows: {
         adminUserPassword: true,

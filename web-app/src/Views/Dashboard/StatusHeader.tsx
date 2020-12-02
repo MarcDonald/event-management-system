@@ -6,6 +6,9 @@ interface StatusHeaderPropTypes {
   status: VenueStatus;
 }
 
+/**
+ * Header that displays the current venue status
+ */
 export default function StatusHeader(props: StatusHeaderPropTypes) {
   const venueStatusColorCalculator = useVenueStatusColors();
 

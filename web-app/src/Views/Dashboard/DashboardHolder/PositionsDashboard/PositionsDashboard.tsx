@@ -14,6 +14,9 @@ interface PositionsDashboardPropTypes {
   assistanceRequests: AssistanceRequest[];
 }
 
+/**
+ * Dashboard showing the positions of an event in a list and the current status of each position
+ */
 export default function PositionsDashboard(props: PositionsDashboardPropTypes) {
   const listHeaderDisplay = () => {
     return (

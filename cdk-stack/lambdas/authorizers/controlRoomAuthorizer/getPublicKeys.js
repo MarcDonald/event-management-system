@@ -11,6 +11,7 @@ module.exports = (dependencies) => async () => {
   if (keyCache) {
     return keyCache;
   } else {
+    // Gets the public keys from AWS and converts it to a usable format
     const publicKeysUrl = `https://cognito-idp.${region}.amazonaws.com/${userPoolId}/.well-known/jwks.json`;
     const publicKeysJwkResponse = await axios.get(publicKeysUrl);
 

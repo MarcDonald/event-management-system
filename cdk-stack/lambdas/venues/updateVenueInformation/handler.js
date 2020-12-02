@@ -85,7 +85,7 @@ module.exports = (dependencies) => async (event) => {
       ...response,
       statusCode: 500,
       body: JSON.stringify({
-        message: `Error editing venue metadata - ${err.message}`,
+        message: `Error editing venue information - ${err.message}`,
       }),
     };
   }

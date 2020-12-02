@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { Auth } from 'aws-amplify';
 import BrandHeader from '../../Components/BrandHeader';
 import AsyncButton from '../../Components/AsyncButton';
-import useLocalAuth from '../../Hooks/useLocalAuth';
+import useLoggedInUserDetails from '../../Hooks/useLoggedInUserDetails';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useFormFields } from '../../Hooks/useFormFields';
@@ -13,8 +13,11 @@ interface LoginFormFields {
   password: string;
 }
 
+/**
+ * Login page
+ */
 export default function Login() {
-  const localAuth = useLocalAuth();
+  const loggedInUserDetails = useLoggedInUserDetails();
   const history = useHistory();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -27,7 +30,7 @@ export default function Login() {
 
   useEffect(() => {
     const onLoad = async () => {
-      const user = await localAuth.getLoggedInUser();
+      const user = await loggedInUserDetails.getLoggedInUser();
       if (user) {
         history.replace('/');
       }
@@ -99,6 +102,7 @@ export default function Login() {
             disabled={!validateForm()}
             type="submit"
             isLoading={isLoading}
+            className="mt-2"
           />
           {error && (
             <div className="text-center mt-2 mb-8">

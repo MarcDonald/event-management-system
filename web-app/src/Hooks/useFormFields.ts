@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 
+/**
+ * Convenience hook for forms to easily change the state based on a change in a form input
+ */
 export function useFormFields<T>(
   initialState: T
 ): [

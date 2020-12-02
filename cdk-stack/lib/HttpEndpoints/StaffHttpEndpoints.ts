@@ -5,6 +5,9 @@ import CognitoResources from '../CognitoResources';
 import HttpApiResources from '../HttpApiResources';
 import { createBaseHandler } from '../Utils/LambdaUtils';
 
+/**
+ * /staff/ endpoints for the HttpApi
+ */
 export default class StaffHttpEndpoints {
   constructor(
     private scope: cdk.Construct,

@@ -28,6 +28,7 @@ module.exports = (dependencies) => async (event) => {
       Limit: 1,
     }).promise();
 
+    // Returns a default status if the status has not been changed
     if (result.Items.length === 0) {
       return {
         ...response,

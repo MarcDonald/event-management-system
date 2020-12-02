@@ -4,8 +4,10 @@ import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import HttpApiResources from '../HttpApiResources';
 import DynamoDbResources from '../DynamoDbResources';
 import { createBaseHandler } from '../Utils/LambdaUtils';
-import { Http } from 'aws-sdk/clients/xray';
 
+/**
+ * /venues/ endpoints for the HttpApi
+ */
 export default class VenueHttpEndpoints {
   constructor(
     private scope: cdk.Construct,

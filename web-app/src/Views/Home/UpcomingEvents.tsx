@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { sleep } from '../../Services/ApiService';
 import Loading from '../../Components/Loading';
 import Card from '../../Components/Card';
 import Event from '../../Models/Event';
 import { getUpcomingEvents } from '../../Services/EventService';
 import { useHistory } from 'react-router-dom';
 
-interface UpcomingEventsPropTypes {}
-
-export default function UpcomingEvents(props: UpcomingEventsPropTypes) {
+/**
+ * Fetches a list of upcoming events and displays them
+ */
+export default function UpcomingEvents() {
   const history = useHistory();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);

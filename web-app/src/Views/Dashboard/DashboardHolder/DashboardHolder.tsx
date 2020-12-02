@@ -14,6 +14,9 @@ interface DashboardHolderPropTypes {
   onVenueStatusChange: (venueStatus: VenueStatus) => any | void;
 }
 
+/**
+ * Centerpiece of the main dashboard page which contains the tabs for changing the type of dashboard, as well as containing the specific dashboard selected
+ */
 export default function DashboardHolder(props: DashboardHolderPropTypes) {
   const { eventInformation, assistanceRequests, venueStatus } = props;
 

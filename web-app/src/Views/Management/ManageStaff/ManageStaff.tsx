@@ -12,7 +12,7 @@ import {
 } from '../../../Services/StaffService';
 import Loading from '../../../Components/Loading';
 import Dropdown from '../../../Components/Dropdown';
-import ListPanel from '../ListPanel';
+import ItemListDrawer from '../ItemListDrawer';
 import ErrorMessage from '../../../Components/ErrorMessage';
 
 interface ManageStaffFormFields {
@@ -25,6 +25,7 @@ interface ManageStaffFormFields {
   isNew: boolean;
 }
 
+// This is used as the default values when resetting the form
 const emptyFormFields = {
   username: '',
   password: '',
@@ -35,6 +36,9 @@ const emptyFormFields = {
   isNew: true,
 };
 
+/**
+ * Staff management page
+ */
 export default function ManageStaff() {
   const [allStaff, setAllStaff] = useState<StaffMember[]>([]);
   const [displayedStaff, setDisplayedStaff] = useState<StaffMember[]>([]);
@@ -134,6 +138,7 @@ export default function ManageStaff() {
       setIsSaving(true);
       const userDetails = {
         username: fields.username,
+        // Safe non-null assertion because the form has already been validated
         role: fields.role!,
         givenName: fields.givenName,
         familyName: fields.familyName,
@@ -149,6 +154,7 @@ export default function ManageStaff() {
           const indexOfUser = allStaff.findIndex(
             (user) => user.username === userDetails.username
           );
+          // Updates the details in the list with the new details of the user
           allStaff[indexOfUser] = {
             ...allStaff[indexOfUser],
             ...updatedUser,
@@ -242,7 +248,7 @@ export default function ManageStaff() {
         <label htmlFor="username">Username</label>
         <input
           id="username"
-          disabled={!!fields.username}
+          disabled={!fields.isNew}
           inputMode="text"
           type="text"
           value={fields.username}
@@ -352,7 +358,7 @@ export default function ManageStaff() {
         {header()}
         <div className="grid grid-cols-4">{userDetailsForm()}</div>
       </div>
-      <ListPanel
+      <ItemListDrawer
         title="Staff"
         newButtonClick={setupNewUser}
         newButtonText="New Staff Member"

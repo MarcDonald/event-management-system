@@ -5,6 +5,9 @@ import HttpApiResources from '../HttpApiResources';
 import DynamoDbResources from '../DynamoDbResources';
 import { createBaseHandler } from '../Utils/LambdaUtils';
 
+/**
+ * /venues/ endpoints for the HttpApi
+ */
 export default class VenueHttpEndpoints {
   constructor(
     private scope: cdk.Construct,
@@ -37,10 +40,10 @@ export default class VenueHttpEndpoints {
       integration: this.createDeleteVenueHandler(),
     });
 
-    const updateMetadataRoutes = api.addRoutes({
-      path: '/venues/{venueId}/metadata',
+    const updateInformationRoutes = api.addRoutes({
+      path: '/venues/{venueId}/information',
       methods: [HttpMethod.PUT],
-      integration: this.createUpdateMetadataHandler(),
+      integration: this.createUpdateInformationHandler(),
     });
 
     const addPositionsRoutes = api.addRoutes({
@@ -68,7 +71,7 @@ export default class VenueHttpEndpoints {
         getAllRoutes,
         getOneRoutes,
         deleteOneRoutes,
-        updateMetadataRoutes,
+        updateInformationRoutes,
         addPositionsRoutes,
         deletePositionsRoutes,
         updatePositionsRoutes,
@@ -111,11 +114,11 @@ export default class VenueHttpEndpoints {
     );
   }
 
-  private createUpdateMetadataHandler(): LambdaProxyIntegration {
+  private createUpdateInformationHandler(): LambdaProxyIntegration {
     return this.createHandler(
       'UpdateVenueMetadataFunction',
       'EmsUpdateVenueMetadata',
-      'updateVenueMetadata',
+      'updateVenueInformation',
       ['dynamodb:UpdateItem']
     );
   }

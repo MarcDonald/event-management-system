@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import Dropdown, { DropdownItem } from '../../../Components/Dropdown';
+import Dropdown, { DropdownItem } from '../../../../Components/Dropdown';
 
 interface NewStaffAssignmentEntryPropTypes {
   onSave: (staffSelectedId: string, positionSelectedId: string) => any;
@@ -9,6 +9,9 @@ interface NewStaffAssignmentEntryPropTypes {
   positionsToShow: DropdownItem[];
 }
 
+/**
+ * Input area for assigning a new staff member to an event
+ */
 export default function NewStaffAssignmentEntry(
   props: NewStaffAssignmentEntryPropTypes
 ) {
@@ -32,18 +35,14 @@ export default function NewStaffAssignmentEntry(
           title="Select Staff Member"
           list={props.staffToShow}
           currentlySelectedKey={staffSelected}
-          onSelected={(key) => {
-            if (typeof key === 'string') setStaffSelected(key);
-          }}
+          onSelected={setStaffSelected}
         />
         <Dropdown
           className="mt-2"
           title="Select Position"
           list={props.positionsToShow}
           currentlySelectedKey={positionSelected}
-          onSelected={(key) => {
-            if (typeof key === 'string') setPositionSelected(key);
-          }}
+          onSelected={setPositionSelected}
         />
       </div>
       <button

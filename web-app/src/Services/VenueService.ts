@@ -22,15 +22,15 @@ export async function createNewVenue(
   return result.data;
 }
 
-interface EditableVenueMetadata {
+interface EditableVenueInformation {
   name: string;
 }
 
-export async function updateVenueMetadata(
+export async function updateVenueInformation(
   venueId: string,
-  metadata: EditableVenueMetadata
+  information: EditableVenueInformation
 ): Promise<any> {
-  return await put(`${baseUrl}/${venueId}/metadata`, metadata);
+  return await put(`${baseUrl}/${venueId}/information`, information);
 }
 
 export interface NewPosition {

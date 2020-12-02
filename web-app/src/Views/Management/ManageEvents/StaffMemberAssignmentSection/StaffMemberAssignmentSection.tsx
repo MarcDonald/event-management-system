@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import StaffMember from '../../../Models/StaffMember';
-import { DropdownItem } from '../../../Components/Dropdown';
+import StaffMember from '../../../../Models/StaffMember';
+import { DropdownItem } from '../../../../Components/Dropdown';
 import NewStaffAssignmentEntry from './NewStaffAssignmentEntry';
-import RemovableListItem from '../../../Components/RemovableListItem';
-import AssignedStaffMember from '../../../Models/AssignedStaffMember';
-import Position from '../../../Models/Position';
+import RemovableListItem from '../../../../Components/RemovableListItem';
+import AssignedStaffMember from '../../../../Models/AssignedStaffMember';
+import Position from '../../../../Models/Position';
 
 interface StaffMemberAssignmentSectionPropTypes {
   selectableStaff: StaffMember[];
@@ -17,6 +17,9 @@ interface StaffMemberAssignmentSectionPropTypes {
   unassignStaffMember: (staffMember: StaffMember) => any | void;
 }
 
+/**
+ * Displays a list of assigned staff members as well as the input to assign more staff members
+ */
 export default function StaffMemberAssignmentSection(
   props: StaffMemberAssignmentSectionPropTypes
 ) {

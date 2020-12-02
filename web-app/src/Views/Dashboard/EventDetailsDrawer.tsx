@@ -9,6 +9,9 @@ interface EventDetailsDrawerPropTypes {
   supervisors: AssignedSupervisor[];
 }
 
+/**
+ * Drawer that displays the basic details of the event as well as the supervisors assigned to the event
+ */
 export default function EventDetailsDrawer(props: EventDetailsDrawerPropTypes) {
   const supervisorDisplayList = () => {
     return props.supervisors.map((supervisor) => {

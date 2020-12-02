@@ -9,43 +9,35 @@ html {
 }
 
 .btn {
-    @apply bg-brand rounded-md text-white font-semibold p-2;
+    @apply bg-brand rounded-md text-white font-semibold p-2 hover:bg-brand-light focus:bg-brand-light focus:outline-none hover:bg-brand-light;
 }
 
-.btn:hover {
-    @apply bg-brand-light;
-}
-
-.btn:focus {
-    @apply outline-none;
+.btn:disabled {
+    @apply bg-gray-500 rounded-md text-white font-semibold p-2 cursor-not-allowed focus:outline-none;
 }
 
 .btn-negative {
-    @apply bg-red-600;
-}
-
-.btn-negative:hover {
-    @apply bg-red-400;
+    @apply bg-red-600 hover:bg-red-400 focus:bg-red-400;
 }
 
 .side-nav-title {
     @apply text-center font-bold text-2xl mt-2;
 }
 
-.side-nav {
-    @apply cursor-pointer
-}
-
-.side-nav-selected {
-    @apply font-semibold bg-lighter-gray;
-}
-
 .form-input {
-    @apply outline-none border border-gray-400 rounded-md p-2;
+    @apply outline-none border border-gray-400 rounded-md p-2 focus:border-brand;
 }
 
-.form-input:focus {
-    @apply border-brand;
+.form-input:disabled {
+    @apply cursor-not-allowed;
+}
+
+.card {
+    @apply cursor-pointer p-2 rounded-md bg-lighter-gray hover:bg-darker-gray;
+}
+
+.card-selected {
+    @apply bg-darker-gray hover:bg-darkest-gray;
 }
 
 /*noinspection CssInvalidAtRule*/

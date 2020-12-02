@@ -15,7 +15,7 @@ beforeEach(() => {
     tableName: validTableName,
   };
 
-  handler = require('../../../../lambdas/venues/updateVenueMetadata/handler')(
+  handler = require('../../../../lambdas/venues/updateVenueInformation/handler')(
     dependencies
   );
 });
@@ -214,6 +214,6 @@ test('Should return 500 when another error is thrown', async () => {
 
   expect(statusCode).toBe(500);
   expect(body).toBe(
-    JSON.stringify({ message: 'Error editing venue metadata - Error message' })
+    JSON.stringify({ message: 'Error editing venue information - Error message' })
   );
 });

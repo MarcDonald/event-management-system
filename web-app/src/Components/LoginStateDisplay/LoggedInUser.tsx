@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import useLocalAuth from '../../Hooks/useLocalAuth';
+import useLoggedInUserDetails from '../../Hooks/useLoggedInUserDetails';
 import Card from '../Card';
 
 interface LoggedInUserPropTypes {
   showLogout: () => any | void;
 }
 
+/**
+ * Displays the currently logged in user's details as well as a logout option
+ */
 export default function LoggedInUser(props: LoggedInUserPropTypes) {
-  const localAuth = useLocalAuth();
+  const loggedInUserDetails = useLoggedInUserDetails();
   const [user, setUser] = useState({
     name: '',
     role: '',
@@ -15,7 +18,7 @@ export default function LoggedInUser(props: LoggedInUserPropTypes) {
 
   useEffect(() => {
     const onLoad = async () => {
-      const currentUser = await localAuth.getLoggedInUser();
+      const currentUser = await loggedInUserDetails.getLoggedInUser();
       setUser({
         name: `${currentUser.givenName} ${currentUser.familyName}`,
         role: currentUser.role,

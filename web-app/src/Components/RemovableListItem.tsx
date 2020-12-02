@@ -8,6 +8,9 @@ interface RemovableListItemPropTypes {
   deleteAction: (key: string) => any;
 }
 
+/**
+ * Readonly display of data with a delete button
+ */
 export default function RemovableListItem(props: RemovableListItemPropTypes) {
   return (
     <div

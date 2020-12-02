@@ -8,6 +8,9 @@ interface EventCardPropTypes {
   isSelected: boolean;
 }
 
+/**
+ * Card that displays basic event information
+ */
 export default function EventCard(props: EventCardPropTypes) {
   return (
     <Card

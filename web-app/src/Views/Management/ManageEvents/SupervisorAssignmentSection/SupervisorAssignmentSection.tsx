@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import StaffMember from '../../../Models/StaffMember';
-import { DropdownItem } from '../../../Components/Dropdown';
-import RemovableListItem from '../../../Components/RemovableListItem';
+import StaffMember from '../../../../Models/StaffMember';
+import { DropdownItem } from '../../../../Components/Dropdown';
+import RemovableListItem from '../../../../Components/RemovableListItem';
 import NewSupervisorAssignmentEntry from './NewSupervisorAssignmentEntry';
-import AssignedSupervisor from '../../../Models/AssignedSupervisor';
+import AssignedSupervisor from '../../../../Models/AssignedSupervisor';
 
 interface SupervisorAssignmentSectionPropTypes {
   selectableStaff: StaffMember[];
@@ -14,7 +14,9 @@ interface SupervisorAssignmentSectionPropTypes {
   ) => any | void;
   unassignSupervisor: (supervisor: StaffMember) => any | void;
 }
-
+/**
+ * Displays a list of assigned supervisors as well as the input to assign more supervisors
+ */
 export default function SupervisorAssignmentSection(
   props: SupervisorAssignmentSectionPropTypes
 ) {

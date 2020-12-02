@@ -7,6 +7,9 @@ interface LoadingPropTypes {
   containerClassName?: string;
 }
 
+/**
+ * Loading spinner
+ */
 export default function Loading(props: LoadingPropTypes) {
   return (
     <div className={`text-center ${props.containerClassName}`}>

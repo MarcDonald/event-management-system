@@ -1,6 +1,9 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 
+/**
+ * Basic header displaying the brand name
+ */
 export default function BrandHeader() {
   const history = useHistory();
 

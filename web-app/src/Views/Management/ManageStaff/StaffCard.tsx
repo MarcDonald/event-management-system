@@ -8,6 +8,9 @@ interface StaffCardPropTypes {
   isSelected: boolean;
 }
 
+/**
+ * Card that displays basic user details
+ */
 export default function StaffCard(props: StaffCardPropTypes) {
   return (
     <Card

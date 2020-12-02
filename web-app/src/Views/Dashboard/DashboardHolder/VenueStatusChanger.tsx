@@ -12,6 +12,9 @@ interface VenueStatusChangerPropTypes {
   onVenueStatusChange: (venueStatus: VenueStatus) => any | void;
 }
 
+/**
+ * Dropdown for a control room operator to change the status of a venue from the dashboard
+ */
 export default function VenueStatusChanger(props: VenueStatusChangerPropTypes) {
   const colorCalculator = useVenueStatusColors();
 
@@ -20,7 +23,7 @@ export default function VenueStatusChanger(props: VenueStatusChangerPropTypes) {
   const statusList: Array<ColorDropdownItem> = [
     {
       key: VenueStatus.Low,
-      name: VenueStatus.Low.toString(),
+      name: VenueStatus.Low,
       backgroundColorClass: colorCalculator.getVenueStatusColor(
         VenueStatus.Low
       ),
@@ -31,7 +34,7 @@ export default function VenueStatusChanger(props: VenueStatusChangerPropTypes) {
     },
     {
       key: VenueStatus.High,
-      name: VenueStatus.High.toString(),
+      name: VenueStatus.High,
       backgroundColorClass: colorCalculator.getVenueStatusColor(
         VenueStatus.High
       ),
@@ -42,7 +45,7 @@ export default function VenueStatusChanger(props: VenueStatusChangerPropTypes) {
     },
     {
       key: VenueStatus.Evacuate,
-      name: VenueStatus.Evacuate.toString(),
+      name: VenueStatus.Evacuate,
       backgroundColorClass: colorCalculator.getVenueStatusColor(
         VenueStatus.Evacuate
       ),
@@ -53,16 +56,14 @@ export default function VenueStatusChanger(props: VenueStatusChangerPropTypes) {
     },
   ];
 
-  const changeVenueStatus = async (newStatus: string | number) => {
-    if (typeof newStatus === 'string') {
-      setIsUpdating(true);
-      const result = await updateEventStatus(
-        props.eventId,
-        newStatus as VenueStatus
-      );
-      props.onVenueStatusChange(result);
-      setIsUpdating(false);
-    }
+  const changeVenueStatus = async (newStatus: string) => {
+    setIsUpdating(true);
+    const result = await updateEventStatus(
+      props.eventId,
+      newStatus as VenueStatus
+    );
+    props.onVenueStatusChange(result);
+    setIsUpdating(false);
   };
 
   return (

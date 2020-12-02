@@ -6,6 +6,9 @@ interface NewPositionEntryPropTypes {
   onSave: (name: string) => any;
 }
 
+/**
+ * Input area for creating a new position at a venue
+ */
 export default function NewPositionEntry(props: NewPositionEntryPropTypes) {
   let nameInput: HTMLInputElement;
   const [name, setName] = useState<string>('');

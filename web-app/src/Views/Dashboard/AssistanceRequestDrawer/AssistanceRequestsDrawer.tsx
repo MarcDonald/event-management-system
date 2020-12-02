@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import AsyncButton from '../../../Components/AsyncButton';
 import AssistanceRequest from '../../../Models/AssistanceRequest';
 import AssistanceRequestCard from './AssistanceRequestCard';
@@ -10,6 +10,9 @@ interface AssistanceRequestsDrawerPropTypes {
   assistanceRequests: AssistanceRequest[];
 }
 
+/**
+ * Displays a list of Assistance Requests in a side drawer
+ */
 export default function AssistanceRequestsDrawer(
   props: AssistanceRequestsDrawerPropTypes
 ) {
@@ -37,7 +40,7 @@ export default function AssistanceRequestsDrawer(
       <section className="self-end m-2">
         {!props.isLoading && (
           <AsyncButton
-            enabledClassName="btn w-full"
+            className="btn w-full"
             onClick={props.refresh}
             text="Refresh"
             isLoading={props.isLoading}

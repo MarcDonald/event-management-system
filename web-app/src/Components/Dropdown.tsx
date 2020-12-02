@@ -3,20 +3,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
 
 export interface DropdownItem {
-  key: string | number;
+  key: string;
   name: string;
 }
 
 interface DropdownPropTypes {
   title: string;
   list: DropdownItem[];
-  currentlySelectedKey?: string | number;
-  onSelected: (key: string | number, name?: string) => any;
+  currentlySelectedKey?: string;
+  onSelected: (key: string, name?: string) => any;
   id?: string;
-  className?: string | null;
+  className?: string;
   disabled?: boolean;
 }
 
+/**
+ * Dropdown that displays various options and returns the key of an option when one is selected
+ */
 export default function Dropdown(props: DropdownPropTypes) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [currentlySelected, setCurrentlySelected] = useState<
@@ -33,7 +36,7 @@ export default function Dropdown(props: DropdownPropTypes) {
     }
   }, [props.currentlySelectedKey]);
 
-  const selectItem = (keySelected: string | number) => {
+  const selectItem = (keySelected: string) => {
     setIsOpen(false);
     setCurrentlySelected(keySelected);
     const selectedItem = props.list.find((item) => item.key === keySelected);

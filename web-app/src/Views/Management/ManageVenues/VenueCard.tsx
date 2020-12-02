@@ -7,6 +7,9 @@ interface VenueCardPropTypes {
   isSelected: boolean;
 }
 
+/**
+ * Card that displays basic Venue details
+ */
 export default function VenueCard(props: VenueCardPropTypes) {
   return (
     <Card

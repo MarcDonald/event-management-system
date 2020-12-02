@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ManagementEditHeader from '../ManagementEditHeader';
-import ListPanel from '../ListPanel';
+import ItemListDrawer from '../ItemListDrawer';
 import Venue from '../../../Models/Venue';
 import {
   addVenuePositions,
@@ -9,7 +9,7 @@ import {
   deleteVenuePositions,
   getAllVenues,
   NewPosition,
-  updateVenueMetadata,
+  updateVenueInformation,
 } from '../../../Services/VenueService';
 import Loading from '../../../Components/Loading';
 import VenueCard from './VenueCard';
@@ -25,12 +25,16 @@ interface ManageVenueFormFields {
   positions: Position[];
 }
 
+// Default values that will be used when the form is reset
 const emptyFormFields = {
   id: null,
   name: '',
   positions: [],
 };
 
+/**
+ * Venue management page
+ */
 export default function ManageVenues() {
   const [allVenues, setAllVenues] = useState<Venue[]>([]);
   const [displayedVenues, setDisplayedVenues] = useState<Venue[]>([]);
@@ -86,7 +90,6 @@ export default function ManageVenues() {
       setPositionsToAdd([]);
       setPositionsToDelete([]);
     } else {
-      console.log(`Setup new venue`);
       setupNewVenue();
     }
   };
@@ -105,14 +108,14 @@ export default function ManageVenues() {
 
   const updateVenue = async (): Promise<Venue> => {
     if (fields.id) {
-      await updateVenueMetadata(fields.id, {
+      await updateVenueInformation(fields.id, {
         name: fields.name,
       });
       await addVenuePositions(fields.id, positionsToAdd);
       await deleteVenuePositions(fields.id, positionsToDelete);
     }
     return {
-      venueId: fields.id!!,
+      venueId: fields.id!,
       name: fields.name,
       positions: fields.positions,
     };
@@ -136,6 +139,7 @@ export default function ManageVenues() {
           const indexOfVenue = allVenues.findIndex(
             (venue) => venue.venueId === fields.id
           );
+          // Updates venue details in the list
           allVenues[indexOfVenue] = {
             ...allVenues[indexOfVenue],
             ...updatedVenue,
@@ -286,7 +290,7 @@ export default function ManageVenues() {
           </div>
         </div>
       </div>
-      <ListPanel
+      <ItemListDrawer
         title="Venues"
         newButtonClick={setupNewVenue}
         newButtonText="New Venue"

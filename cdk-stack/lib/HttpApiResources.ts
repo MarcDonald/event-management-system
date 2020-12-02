@@ -15,10 +15,25 @@ import {
   ServicePrincipal,
 } from '@aws-cdk/aws-iam';
 
+/**
+ * HttpApi and Authorizers
+ */
 export default class HttpApiResources {
   public readonly api: HttpApi;
+
+  /**
+   * Basic authorizer that only checks that a JWT is valid
+   */
   public readonly jwtAuthorizer: CfnAuthorizer;
+
+  /**
+   * Authorizer that checks if the user is an Administrator
+   */
   public readonly adminJwtAuthorizer: CfnAuthorizer;
+
+  /**
+   * Authorizer that checks if the user is a Control Room Operator or an Administrator
+   */
   public readonly controlRoomAuthorizer: CfnAuthorizer;
 
   constructor(
@@ -26,16 +41,17 @@ export default class HttpApiResources {
     private cognitoResources: CognitoResources,
     private region: string
   ) {
-    this.api = this.createApi(scope);
+    this.api = this.createApi();
     this.jwtAuthorizer = this.createJwtAuthorizer();
     this.adminJwtAuthorizer = this.createAdminJwtAuthorizer();
     this.controlRoomAuthorizer = this.createControlRoomAuthorizer();
   }
 
-  private createApi = (scope: cdk.Construct): HttpApi => {
-    const api = new HttpApi(scope, 'HttpApi', {
+  private createApi = (): HttpApi => {
+    const api = new HttpApi(this.scope, 'HttpApi', {
       apiName: 'EmsHttpApi',
       createDefaultStage: false,
+      // Default CORS settings
       corsPreflight: {
         allowOrigins: ['*'],
         allowHeaders: [

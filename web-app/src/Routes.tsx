@@ -3,10 +3,12 @@ import { Route, Switch } from 'react-router-dom';
 import Home from './Views/Home';
 import NotFound from './Views/NotFound';
 import Login from './Views/Login';
-import Management, { ManagementPage } from './Views/Management/Management';
-import Sandbox from './Views/Sandbox/Sandbox';
+import Management, { ManagementPage } from './Views/Management';
 import Dashboard from './Views/Dashboard/Dashboard';
 
+/**
+ * Application routing
+ */
 function Routes() {
   return (
     <Switch>
@@ -27,10 +29,6 @@ function Routes() {
       </Route>
       <Route exact path="/dashboard/:eventId">
         <Dashboard />
-      </Route>
-      {/*TODO only for dev purposes - DELETE*/}
-      <Route exact path="/dev/sandbox">
-        <Sandbox />
       </Route>
       <Route component={NotFound} />
       <Route path="/404" component={NotFound} />

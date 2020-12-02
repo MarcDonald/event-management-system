@@ -4,6 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { useHistory } from 'react-router-dom';
 
+/**
+ * 404 Page
+ */
 function NotFound() {
   const history = useHistory();
 

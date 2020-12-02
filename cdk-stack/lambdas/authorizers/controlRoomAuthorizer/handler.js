@@ -5,6 +5,7 @@
 module.exports = (dependencies) => async (event) => {
   const { verify, getPublicKeys } = dependencies;
 
+  // The first index in the identity source array is the Authorization header value i.e the JWT
   const token = event.identitySource[0];
   try {
     const tokenSections = (token || '').split('.');

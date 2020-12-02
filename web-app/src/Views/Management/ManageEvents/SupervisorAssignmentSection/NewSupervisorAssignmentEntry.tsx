@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import Dropdown, { DropdownItem } from '../../../Components/Dropdown';
+import Dropdown, { DropdownItem } from '../../../../Components/Dropdown';
 
 interface NewSupervisorAssignmentEntryPropTypes {
   onSave: (staffSelectedId: string, areaOfSupervision: string) => any;
   staffToShow: DropdownItem[];
 }
 
+/**
+ * Input area for assigning a new supervisor member to an event
+ */
 export default function NewSupervisorAssignmentEntry(
   props: NewSupervisorAssignmentEntryPropTypes
 ) {
@@ -31,9 +34,7 @@ export default function NewSupervisorAssignmentEntry(
           title="Select Staff Member"
           list={props.staffToShow}
           currentlySelectedKey={supervisorSelected}
-          onSelected={(key) => {
-            if (typeof key === 'string') setSupervisorSelected(key);
-          }}
+          onSelected={setSupervisorSelected}
         />
         <input
           id="area-of-supervision"

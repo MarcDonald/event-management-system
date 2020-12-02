@@ -6,6 +6,9 @@ import DynamoDbResources from './DynamoDbResources';
 import VenueHttpEndpoints from './HttpEndpoints/VenueHttpEndpoints';
 import EventHttpEndpoints from './HttpEndpoints/EventHttpEndpoints';
 
+/**
+ * Main Stack
+ */
 export default class EmsStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);

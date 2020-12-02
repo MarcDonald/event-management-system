@@ -5,6 +5,7 @@ import App from './App';
 import { Amplify } from 'aws-amplify';
 import * as config from './config.json';
 
+// Configures AWS Amplify with the details stored in src/config.json
 Amplify.configure({
   Auth: {
     mandatorySignIn: true,

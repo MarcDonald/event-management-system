@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 
-interface DashboardSelectorTabsPropTypes {}
-
-export default function DashboardSelectorTabs(
-  props: DashboardSelectorTabsPropTypes
-) {
+/**
+ * Tabs for selecting a type of dashboard to display
+ */
+export default function DashboardSelectorTabs() {
   return (
     <div className="flex flex-row justify-evenly mb-4">
       <button className="btn bg-darker-gray hover:bg-darkest-gray text-2xl font-bold">

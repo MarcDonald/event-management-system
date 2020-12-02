@@ -3,6 +3,16 @@ import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import { Code, Function, Runtime } from '@aws-cdk/aws-lambda';
 import { PolicyStatement } from '@aws-cdk/aws-iam';
 
+/**
+ * Function to create a LambdaProxyIntegration with the base config required
+ * @param scope
+ * @param functionId
+ * @param functionName
+ * @param codeDir - Directory where Lambda code is stored
+ * @param resources - AWS resource ARNs that should be allowed in the PolicyStatement
+ * @param actions - Actions to be added to the PolicyStatement
+ * @param environment - Environment variables to pass to the Lambda
+ */
 export function createBaseHandler(
   scope: cdk.Construct,
   functionId: string,

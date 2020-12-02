@@ -7,22 +7,25 @@ interface GSI {
   arn: string;
 }
 
+/**
+ * DynamoDB Table and Global Secondary Index
+ */
 export default class DynamoDbResources {
-  private readonly metadataIndexName = 'EventMetadataIndex';
-
   public readonly table: Table;
   public readonly metadataIndex: GSI;
 
-  constructor(scope: cdk.Construct) {
-    this.table = this.createTable(scope);
+  private readonly metadataIndexName = 'EventMetadataIndex';
+
+  constructor(private scope: cdk.Construct) {
+    this.table = this.createTable();
     this.metadataIndex = {
       indexName: this.metadataIndexName,
       arn: `${this.table.tableArn}/index/${this.metadataIndexName}`,
     };
   }
 
-  private createTable = (scope: cdk.Construct): Table => {
-    const table = new Table(scope, 'MainTable', {
+  private createTable = (): Table => {
+    const table = new Table(this.scope, 'MainTable', {
       tableName: 'EventManagementSystem',
       partitionKey: { name: 'id', type: AttributeType.STRING },
       sortKey: { name: 'metadata', type: AttributeType.STRING },
