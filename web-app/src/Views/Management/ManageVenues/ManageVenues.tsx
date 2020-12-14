@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import ManagementEditHeader from '../ManagementEditHeader';
 import ItemListDrawer from '../ItemListDrawer';
 import Venue from '../../../Models/Venue';
@@ -8,204 +8,201 @@ import {
   deleteVenue,
   deleteVenuePositions,
   getAllVenues,
-  NewPosition,
   updateVenueInformation,
 } from '../../../Services/VenueService';
 import Loading from '../../../Components/Loading';
 import VenueCard from './VenueCard';
-import { useFormFields } from '../../../Hooks/useFormFields';
-import Position from '../../../Models/Position';
 import ErrorMessage from '../../../Components/ErrorMessage';
 import NewPositionEntry from './NewPositionEntry';
 import RemovableListItem from '../../../Components/RemovableListItem';
-
-interface ManageVenueFormFields {
-  id: string | null;
-  name: string;
-  positions: Position[];
-}
-
-// Default values that will be used when the form is reset
-const emptyFormFields = {
-  id: null,
-  name: '',
-  positions: [],
-};
+import ManageVenuesStateReducer, {
+  manageVenuesDefaultState,
+} from './State/ManageVenuesStateReducer';
+import ManageVenuesStateActions from './State/ManageVenuesStateActions';
 
 /**
  * Venue management page
  */
 export default function ManageVenues() {
-  const [allVenues, setAllVenues] = useState<Venue[]>([]);
-  const [displayedVenues, setDisplayedVenues] = useState<Venue[]>([]);
-  const [fields, setFields, setFieldsDirectly] = useFormFields<
-    ManageVenueFormFields
-  >(emptyFormFields);
-  const [error, setError] = useState<Error | null>(null);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [isLoadingVenues, setIsLoadingVenues] = useState<boolean>(true);
-  const [positionsToDelete, setPositionsToDelete] = useState<Array<string>>([]);
-  const [positionsToAdd, setPositionsToAdd] = useState<Array<NewPosition>>([]);
+  const [state, dispatch] = useReducer(
+    ManageVenuesStateReducer,
+    manageVenuesDefaultState
+  );
+  const {
+    allVenues,
+    displayedVenues,
+    error,
+    isSaving,
+    isDeleting,
+    isLoadingVenues,
+    positionsToDelete,
+    positionsToAdd,
+    name,
+    id,
+    positions,
+  } = state;
 
   const venueSearch = (searchContent: string) => {
     if (searchContent) {
-      searchContent = searchContent.toLowerCase();
-      setDisplayedVenues(
-        displayedVenues.filter((venue) => {
-          if (venue.name.toLowerCase().includes(searchContent)) {
-            return venue;
-          }
-        })
-      );
+      dispatch({
+        type: ManageVenuesStateActions.VenueSearch,
+        parameters: {
+          searchContent,
+        },
+      });
     } else {
-      setDisplayedVenues(allVenues);
+      dispatch({ type: ManageVenuesStateActions.ResetVenueSearch });
     }
   };
 
   useEffect(() => {
     const setup = async () => {
       const venueList = await getAllVenues();
-      setIsLoadingVenues(false);
-      setAllVenues(venueList);
-      setDisplayedVenues(venueList);
+      dispatch({
+        type: ManageVenuesStateActions.VenuesLoaded,
+        parameters: {
+          venues: venueList,
+        },
+      });
     };
     setup().then();
   }, []);
 
   const setupNewVenue = () => {
-    setFieldsDirectly(emptyFormFields);
-    setPositionsToAdd([]);
-    setPositionsToDelete([]);
+    dispatch({ type: ManageVenuesStateActions.SetupNewVenue });
   };
 
   const selectVenueToEdit = (id: string) => {
     const venue = allVenues.find((venue) => venue.venueId === id);
     if (venue) {
-      setFieldsDirectly({
-        id: venue.venueId,
-        name: venue.name,
-        positions: venue.positions,
+      dispatch({
+        type: ManageVenuesStateActions.SelectVenueToEdit,
+        parameters: {
+          venue,
+        },
       });
-      setPositionsToAdd([]);
-      setPositionsToDelete([]);
     } else {
-      setupNewVenue();
+      dispatch({ type: ManageVenuesStateActions.SetupNewVenue });
     }
   };
 
   const validateForm = (): boolean => {
-    if (fields.name.length < 1) {
-      setError(new Error('Name is too short'));
+    if (state.name.length < 1) {
+      dispatch({
+        type: ManageVenuesStateActions.FormInvalid,
+        parameters: { error: new Error('Name is too short') },
+      });
       return false;
     }
-    if (fields.positions.length < 1) {
-      setError(new Error('Cannot create a venue with no positions'));
+    if (state.positions.length < 1) {
+      dispatch({
+        type: ManageVenuesStateActions.FormInvalid,
+        parameters: {
+          error: new Error('Cannot create a venue with no positions'),
+        },
+      });
       return false;
     }
     return true;
   };
 
   const updateVenue = async (): Promise<Venue> => {
-    if (fields.id) {
-      await updateVenueInformation(fields.id, {
-        name: fields.name,
+    if (id) {
+      await updateVenueInformation(id, {
+        name: name,
       });
-      await addVenuePositions(fields.id, positionsToAdd);
-      await deleteVenuePositions(fields.id, positionsToDelete);
+      await addVenuePositions(id, positionsToAdd);
+      await deleteVenuePositions(id, positionsToDelete);
     }
     return {
-      venueId: fields.id!,
-      name: fields.name,
-      positions: fields.positions,
+      venueId: id!,
+      name: name,
+      positions: positions,
     };
   };
 
   const formSave = async (event: React.FormEvent<HTMLFormElement> | null) => {
     if (event) event.preventDefault();
     if (validateForm()) {
-      setIsSaving(true);
+      dispatch({ type: ManageVenuesStateActions.SaveVenue });
       try {
         const newDetails = {
-          name: fields.name,
-          positions: fields.positions,
+          name: name,
+          positions: positions,
         };
 
-        if (!fields.id) {
+        if (!id) {
           const newVenue = await createNewVenue(newDetails);
-          allVenues.push(newVenue);
+          dispatch({
+            type: ManageVenuesStateActions.VenueAdded,
+            parameters: { newVenue },
+          });
         } else {
           const updatedVenue = await updateVenue();
-          const indexOfVenue = allVenues.findIndex(
-            (venue) => venue.venueId === fields.id
-          );
-          // Updates venue details in the list
-          allVenues[indexOfVenue] = {
-            ...allVenues[indexOfVenue],
-            ...updatedVenue,
-          };
+          dispatch({
+            type: ManageVenuesStateActions.VenueUpdated,
+            parameters: {
+              id: id,
+              updatedVenue,
+            },
+          });
         }
-        setupNewVenue();
       } catch (e) {
-        console.error(JSON.stringify(e, null, 2));
-        setError(e);
+        dispatch({
+          type: ManageVenuesStateActions.SaveError,
+          parameters: { error: e },
+        });
       }
-      setIsSaving(false);
     }
   };
 
   const formDelete = async () => {
-    setIsDeleting(true);
-    if (fields.id) {
-      await deleteVenue(fields.id);
-      const listWithoutDeletedVenue = allVenues.filter(
-        (venue) => venue.venueId !== fields.id
-      );
-      setAllVenues(listWithoutDeletedVenue);
-      setDisplayedVenues(listWithoutDeletedVenue);
+    dispatch({ type: ManageVenuesStateActions.DeleteVenue });
+    if (id) {
+      try {
+        await deleteVenue(id);
+        dispatch({
+          type: ManageVenuesStateActions.SuccessfulVenueDeletion,
+          parameters: {
+            id: id,
+          },
+        });
+      } catch (e) {
+        dispatch({
+          type: ManageVenuesStateActions.DeleteError,
+          parameters: { error: e },
+        });
+      }
     }
-    setupNewVenue();
-    setIsDeleting(false);
   };
 
   const addNewPosition = (name: string) => {
-    const newPositions = [...fields.positions];
-    newPositions.push({
-      positionId: name,
-      name,
+    dispatch({
+      type: ManageVenuesStateActions.AddNewPosition,
+      parameters: { name },
     });
-    setFieldsDirectly({
-      ...fields,
-      positions: newPositions,
-    });
-    setPositionsToAdd([...positionsToAdd, { name }]);
-    setError(null);
   };
 
   const deletePosition = (id: string) => {
-    const newPositions = fields.positions.filter(
-      (position) => id !== position.positionId
-    );
-    setFieldsDirectly({
-      ...fields,
-      positions: newPositions,
+    dispatch({
+      type: ManageVenuesStateActions.DeletePosition,
+      parameters: { id },
     });
-    setPositionsToDelete([...positionsToDelete, id]);
   };
 
   const header = () => {
     return (
       <>
-        {fields.name && (
+        {name && (
           <ManagementEditHeader
             delete={formDelete}
-            title={fields.name}
+            title={name}
             save={() => formSave(null)}
             isDeleting={isDeleting}
             isSaving={isSaving}
           />
         )}
-        {!fields.name && (
+        {!name && (
           <ManagementEditHeader
             delete={formDelete}
             title="New Venue"
@@ -227,7 +224,7 @@ export default function ManageVenues() {
           <VenueCard
             key={venue.venueId}
             name={venue.name}
-            isSelected={venue.venueId === fields.id}
+            isSelected={venue.venueId === id}
             onClick={() => selectVenueToEdit(venue.venueId)}
           />
         );
@@ -243,13 +240,18 @@ export default function ManageVenues() {
           id="name"
           inputMode="text"
           type="text"
-          value={fields.name}
+          value={name}
           className="form-input"
           placeholder="Name"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
+          onChange={(event) =>
+            dispatch({
+              type: ManageVenuesStateActions.FieldChange,
+              parameters: {
+                fieldName: event.target.id,
+                fieldValue: event.target.value,
+              },
+            })
+          }
         />
       </form>
     );
@@ -266,7 +268,7 @@ export default function ManageVenues() {
   };
 
   const positionsList = () => {
-    return fields.positions.map((position) => {
+    return positions.map((position) => {
       return (
         <RemovableListItem
           key={position.positionId}

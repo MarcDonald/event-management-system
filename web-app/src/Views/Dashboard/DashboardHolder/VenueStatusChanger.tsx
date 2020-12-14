@@ -9,7 +9,7 @@ import { updateEventStatus } from '../../../Services/EventService';
 interface VenueStatusChangerPropTypes {
   status: VenueStatus;
   eventId: string;
-  onVenueStatusChange: (venueStatus: VenueStatus) => any | void;
+  onVenueStatusChange: (venueStatus: VenueStatus) => void;
 }
 
 /**

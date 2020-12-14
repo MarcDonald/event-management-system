@@ -11,8 +11,8 @@ interface SupervisorAssignmentSectionPropTypes {
   assignSupervisor: (
     staffMember: StaffMember,
     areaOfSupervision: string
-  ) => any | void;
-  unassignSupervisor: (supervisor: StaffMember) => any | void;
+  ) => void;
+  unassignSupervisor: (supervisor: StaffMember) => void;
 }
 /**
  * Displays a list of assigned supervisors as well as the input to assign more supervisors

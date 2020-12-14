@@ -5,7 +5,7 @@ import AssistanceRequestCard from './AssistanceRequestCard';
 import Loading from '../../../Components/Loading';
 
 interface AssistanceRequestsDrawerPropTypes {
-  refresh: () => any | void;
+  refresh: () => void;
   isLoading: boolean;
   assistanceRequests: AssistanceRequest[];
 }

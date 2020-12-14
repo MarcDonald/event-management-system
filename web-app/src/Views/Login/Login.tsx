@@ -1,60 +1,43 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Auth } from 'aws-amplify';
 import BrandHeader from '../../Components/BrandHeader';
 import AsyncButton from '../../Components/AsyncButton';
-import useLoggedInUserDetails from '../../Hooks/useLoggedInUserDetails';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
-import { useFormFields } from '../../Hooks/useFormFields';
-
-interface LoginFormFields {
-  username: string;
-  password: string;
-}
+import usePageProtection from '../../Hooks/usePageProtection';
+import LoginStateReducer, {
+  loginInitialState,
+} from './State/LoginStateReducer';
+import LoginStateActions from './State/LoginStateActions';
 
 /**
  * Login page
  */
 export default function Login() {
-  const loggedInUserDetails = useLoggedInUserDetails();
+  const [state, dispatch] = useReducer(LoginStateReducer, loginInitialState);
+  const { isLoading, error, username, password } = state;
+  const pageProtection = usePageProtection();
   const history = useHistory();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [fields, setFields, setFieldsDirectly] = useFormFields<LoginFormFields>(
-    {
-      username: '',
-      password: '',
-    }
-  );
 
   useEffect(() => {
-    const onLoad = async () => {
-      const user = await loggedInUserDetails.getLoggedInUser();
-      if (user) {
-        history.replace('/');
-      }
-    };
-
-    onLoad().then();
+    pageProtection.loggedOutProtection().then();
   }, []);
 
-  const validateForm = () => {
-    return fields.username.length > 0 && fields.password.length >= 8;
-  };
+  const validateForm = () => username.length > 0 && password.length >= 8;
 
   const submit = async (event: React.FormEvent<HTMLElement>) => {
     event.preventDefault();
-
-    setIsLoading(true);
-
+    dispatch({ type: LoginStateActions.Login });
     try {
-      await Auth.signIn(fields.username, fields.password);
+      await Auth.signIn(username, password);
+      dispatch({ type: LoginStateActions.LoginSuccess });
       history.replace('/');
     } catch (e) {
-      setIsLoading(false);
-      setError(e);
-      setFieldsDirectly({ ...fields, password: '' });
+      dispatch({
+        type: LoginStateActions.LoginFailure,
+        parameters: { error: e },
+      });
     }
   };
 
@@ -74,13 +57,18 @@ export default function Login() {
             id="username"
             inputMode="text"
             type="text"
-            value={fields.username}
+            value={username}
             className="outline-none border border-gray-400 focus:border-brand rounded-md p-2"
             placeholder="Username"
-            onChange={(event) => {
-              setFields(event);
-              setError(null);
-            }}
+            onChange={(event) =>
+              dispatch({
+                type: LoginStateActions.FieldChange,
+                parameters: {
+                  fieldName: event.target.id,
+                  fieldValue: event.target.value,
+                },
+              })
+            }
           />
           <label htmlFor="password" className="mt-2">
             Password
@@ -89,13 +77,18 @@ export default function Login() {
             id="password"
             inputMode="text"
             type="password"
-            value={fields.password}
+            value={password}
             className="outline-none border border-gray-400 focus:border-brand rounded-md p-2"
             placeholder="Password"
-            onChange={(event) => {
-              setFields(event);
-              setError(null);
-            }}
+            onChange={(event) =>
+              dispatch({
+                type: LoginStateActions.FieldChange,
+                parameters: {
+                  fieldName: event.target.id,
+                  fieldValue: event.target.value,
+                },
+              })
+            }
           />
           <AsyncButton
             text="Login"

@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 /**
  * 404 Page
  */
-function NotFound() {
+export default function NotFound() {
   const history = useHistory();
 
   return (
@@ -24,5 +24,3 @@ function NotFound() {
     </>
   );
 }
-
-export default NotFound;

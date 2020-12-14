@@ -5,7 +5,7 @@ import Routes from './Routes';
 /**
  * Main app container
  */
-function App() {
+export default function App() {
   return (
     <div className="relative min-h-screen">
       <Router>
@@ -14,5 +14,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

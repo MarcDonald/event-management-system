@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import React, { useEffect, useReducer } from 'react';
+import { useParams } from 'react-router-dom';
 import Event from '../../Models/Event';
 import AssistanceRequest from '../../Models/AssistanceRequest';
 import VenueStatus from '../../Models/VenueStatus';
@@ -11,54 +11,105 @@ import {
   getEventInformation,
   getEventVenueStatus,
 } from '../../Services/EventService';
-import useLoggedInUserDetails from '../../Hooks/useLoggedInUserDetails';
 import Loading from '../../Components/Loading';
 import DashboardHolder from './DashboardHolder';
+import usePageProtection from '../../Hooks/usePageProtection';
+import StaffRole from '../../Models/StaffRole';
+import StateAction from '../../Utils/StateAction';
+
+interface DashboardState {
+  isLoading: boolean;
+  eventInformation: Event | null;
+  assistanceRequests: AssistanceRequest[];
+  venueStatus: VenueStatus;
+}
+
+const initialState: DashboardState = {
+  isLoading: false,
+  eventInformation: null,
+  assistanceRequests: [],
+  venueStatus: VenueStatus.Low,
+};
+
+enum DashboardStateAction {
+  Refresh,
+  DataLoaded,
+  VenueStatusChange,
+}
+
+function stateReducer(
+  state: DashboardState,
+  action: StateAction<DashboardStateAction>
+): DashboardState {
+  const { type, parameters } = action;
+  switch (type) {
+    case DashboardStateAction.Refresh: {
+      return {
+        ...state,
+        isLoading: true,
+      };
+    }
+    case DashboardStateAction.DataLoaded: {
+      return {
+        ...state,
+        isLoading: false,
+        eventInformation: parameters?.eventInformation,
+        assistanceRequests: parameters?.assistanceRequests,
+        venueStatus: parameters?.venueStatus,
+      };
+    }
+    case DashboardStateAction.VenueStatusChange: {
+      return {
+        ...state,
+        venueStatus: parameters?.venueStatus,
+      };
+    }
+    default:
+      break;
+  }
+  return state;
+}
 
 /**
  * Main dashboards page
  */
 export default function Dashboard() {
   const { eventId } = useParams();
-  const loggedInUserDetails = useLoggedInUserDetails();
-  const history = useHistory();
+  const pageProtection = usePageProtection();
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [eventInformation, setEventInformation] = useState<Event>();
-  const [assistanceRequests, setAssistanceRequests] = useState<
-    AssistanceRequest[]
-  >([]);
-  const [venueStatus, setVenueStatus] = useState<VenueStatus>(VenueStatus.Low);
+  const [state, dispatch] = useReducer(stateReducer, initialState);
+  const {
+    isLoading,
+    eventInformation,
+    assistanceRequests,
+    venueStatus,
+  } = state;
 
   const refresh = async () => {
-    setIsLoading(true);
-    const dbEventInformation = await getEventInformation(eventId);
-    setEventInformation(dbEventInformation);
+    dispatch({ type: DashboardStateAction.Refresh });
 
-    const dbAssistanceRequests = await getAssistanceRequests(eventId);
-    setAssistanceRequests(dbAssistanceRequests);
+    const dbEventInformation = getEventInformation(eventId);
+    const dbAssistanceRequests = getAssistanceRequests(eventId);
+    const dbVenueStatus = getEventVenueStatus(eventId);
 
-    const dbVenueStatus = await getEventVenueStatus(eventId);
-    setVenueStatus(dbVenueStatus);
-
-    setIsLoading(false);
+    Promise.all([dbEventInformation, dbAssistanceRequests, dbVenueStatus]).then(
+      (values) => {
+        dispatch({
+          type: DashboardStateAction.DataLoaded,
+          parameters: {
+            eventInformation: values[0],
+            assistanceRequests: values[1],
+            venueStatus: values[2],
+          },
+        });
+      }
+    );
   };
 
   useEffect(() => {
-    const authorizeUser = async () => {
-      const user = await loggedInUserDetails.getLoggedInUser();
-      if (
-        !user ||
-        !(
-          loggedInUserDetails.isControlRoomOperator(user) ||
-          loggedInUserDetails.isAdmin(user)
-        )
-      ) {
-        history.replace('/404');
-      }
-    };
-
-    authorizeUser().then(() => refresh().then());
+    pageProtection
+      .protectPage(StaffRole.ControlRoomOperator, StaffRole.Administrator)
+      .then(() => refresh().then());
   }, [eventId]);
 
   return (
@@ -90,7 +141,14 @@ export default function Dashboard() {
                   eventInformation={eventInformation}
                   assistanceRequests={assistanceRequests}
                   venueStatus={venueStatus}
-                  onVenueStatusChange={setVenueStatus}
+                  onVenueStatusChange={(newStatus) => {
+                    dispatch({
+                      type: DashboardStateAction.VenueStatusChange,
+                      parameters: {
+                        venueStatus: newStatus,
+                      },
+                    });
+                  }}
                 />
                 <AssistanceRequestsDrawer
                   refresh={refresh}

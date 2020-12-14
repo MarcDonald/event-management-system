@@ -11,7 +11,7 @@ interface DashboardHolderPropTypes {
   eventInformation: Event;
   assistanceRequests: AssistanceRequest[];
   venueStatus: VenueStatus;
-  onVenueStatusChange: (venueStatus: VenueStatus) => any | void;
+  onVenueStatusChange: (venueStatus: VenueStatus) => void;
 }
 
 /**

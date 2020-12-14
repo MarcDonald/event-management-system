@@ -9,7 +9,7 @@ import Dashboard from './Views/Dashboard/Dashboard';
 /**
  * Application routing
  */
-function Routes() {
+export default function Routes() {
   return (
     <Switch>
       <Route exact path="/">
@@ -35,5 +35,3 @@ function Routes() {
     </Switch>
   );
 }
-
-export default Routes;

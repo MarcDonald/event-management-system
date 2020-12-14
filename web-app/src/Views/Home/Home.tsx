@@ -5,26 +5,22 @@ import useLoggedInUserDetails from '../../Hooks/useLoggedInUserDetails';
 import StaffMember from '../../Models/StaffMember';
 import LoginStateDisplay from '../../Components/LoginStateDisplay/LoginStateDisplay';
 import UpcomingEvents from './UpcomingEvents';
+import usePageProtection from '../../Hooks/usePageProtection';
 
 /**
  * Home page for logged in users
  */
 export default function Home() {
   const loggedInUserDetails = useLoggedInUserDetails();
+  const pageProtection = usePageProtection();
   const history = useHistory();
   const [user, setUser] = useState<null | StaffMember>(null);
 
   useEffect(() => {
-    const redirectToLogin = async () => {
+    pageProtection.loggedInProtection().then(async () => {
       const user = await loggedInUserDetails.getLoggedInUser();
-      if (user) {
-        setUser(user);
-      } else {
-        history.replace('/login');
-      }
-    };
-
-    redirectToLogin().then();
+      setUser(user);
+    });
   }, []);
 
   if (user) {

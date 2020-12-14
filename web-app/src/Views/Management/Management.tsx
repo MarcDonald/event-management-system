@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import useLoggedInUserDetails from '../../Hooks/useLoggedInUserDetails';
 import BrandHeader from '../../Components/BrandHeader';
 import ManageStaff from './ManageStaff/ManageStaff';
 import ManageVenues from './ManageVenues/ManageVenues';
 import ManageEvents from './ManageEvents/ManageEvents';
 import LoginStateDisplay from '../../Components/LoginStateDisplay/LoginStateDisplay';
 import SideNavItem from './SideNavItem';
+import usePageProtection from '../../Hooks/usePageProtection';
+import StaffRole from '../../Models/StaffRole';
 
 export enum ManagementPage {
   Venues = 'venues',
@@ -22,21 +23,14 @@ interface ManagementPropTypes {
  * Container for all management pages
  */
 export default function Management(props: ManagementPropTypes) {
-  const loggedInUserDetails = useLoggedInUserDetails();
+  const pageProtection = usePageProtection();
   const history = useHistory();
   const [selectedPage, setSelectedPage] = useState<ManagementPage>(
     props.initialSelectedPage
   );
 
   useEffect(() => {
-    const authorizeUser = async () => {
-      const user = await loggedInUserDetails.getLoggedInUser();
-      if (!user || !loggedInUserDetails.isAdmin(user)) {
-        history.replace('/404');
-      }
-    };
-
-    authorizeUser().then();
+    pageProtection.protectPage(StaffRole.Administrator).then();
   }, []);
 
   const changeTab = (page: ManagementPage) => {

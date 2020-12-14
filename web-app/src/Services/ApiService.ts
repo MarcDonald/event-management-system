@@ -34,6 +34,7 @@ export async function put(url: string, data: object): Promise<any> {
   });
 }
 
+// Can't name a function 'delete' in JS
 export async function delet(url: string, data?: object): Promise<any> {
   const token = await getIdToken();
   const config: AxiosRequestConfig = {

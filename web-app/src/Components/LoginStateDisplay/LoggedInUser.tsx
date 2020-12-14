@@ -3,7 +3,7 @@ import useLoggedInUserDetails from '../../Hooks/useLoggedInUserDetails';
 import Card from '../Card';
 
 interface LoggedInUserPropTypes {
-  showLogout: () => any | void;
+  showLogout: () => void;
 }
 
 /**

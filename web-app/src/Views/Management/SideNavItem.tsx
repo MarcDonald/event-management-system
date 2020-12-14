@@ -2,7 +2,7 @@ import React from 'react';
 
 interface SideNavItemPropTypes {
   name: string;
-  onClick: () => any | void;
+  onClick: () => void;
   isSelected: boolean;
 }
 

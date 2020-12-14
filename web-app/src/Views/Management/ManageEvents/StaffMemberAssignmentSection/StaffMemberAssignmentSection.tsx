@@ -10,11 +10,8 @@ interface StaffMemberAssignmentSectionPropTypes {
   selectableStaff: StaffMember[];
   selectablePositions: Position[];
   assignedStaff: AssignedStaffMember[];
-  assignStaffMember: (
-    staffMember: StaffMember,
-    position: Position
-  ) => any | void;
-  unassignStaffMember: (staffMember: StaffMember) => any | void;
+  assignStaffMember: (staffMember: StaffMember, position: Position) => void;
+  unassignStaffMember: (staffMember: StaffMember) => void;
 }
 
 /**
