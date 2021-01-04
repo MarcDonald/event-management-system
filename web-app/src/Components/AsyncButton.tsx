@@ -1,5 +1,4 @@
 import React from 'react';
-import '../Animations.css';
 import Loading from './Loading';
 
 interface AsyncButtonPropTypes {

@@ -37,10 +37,10 @@ export default function AssistanceRequestsDrawer(
         <h1 className="side-nav-title">Assistance Requests</h1>
         {assistanceRequestListDisplay()}
       </section>
-      <section className="self-end m-2">
+      <section className="self-end m-2 text-center">
         {!props.isLoading && (
           <AsyncButton
-            className="btn w-full"
+            className="btn w-11/12"
             onClick={props.refresh}
             text="Refresh"
             isLoading={props.isLoading}

@@ -13,7 +13,7 @@ export default function AssistanceRequestCard(
   props: AssistanceRequestCardPropTypes
 ) {
   return (
-    <Card className="m-2">
+    <Card className="my-2 mx-3">
       <h1 className="font-bold text-xl">
         {props.assistanceRequest.position.name}
       </h1>

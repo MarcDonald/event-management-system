@@ -15,7 +15,7 @@ export default function Loading(props: LoadingPropTypes) {
     <div className={`text-center ${props.containerClassName}`}>
       <FontAwesomeIcon
         icon={faSpinner}
-        className={`spinning text-2xl ${props.spinnerClassName}`}
+        className={`animate-spin text-2xl ${props.spinnerClassName}`}
       />
     </div>
   );

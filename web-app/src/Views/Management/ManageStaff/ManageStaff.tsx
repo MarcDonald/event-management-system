@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import ManagementEditHeader from '../ManagementEditHeader';
 import StaffMember from '../../../Models/StaffMember';
 import StaffCard from './StaffCard';
@@ -14,120 +14,83 @@ import Loading from '../../../Components/Loading';
 import Dropdown from '../../../Components/Dropdown';
 import ItemListDrawer from '../ItemListDrawer';
 import ErrorMessage from '../../../Components/ErrorMessage';
-
-interface ManageStaffFormFields {
-  username: string;
-  password: string;
-  confirmPassword: string;
-  givenName: string;
-  familyName: string;
-  role: StaffRole | null;
-  isNew: boolean;
-}
-
-// This is used as the default values when resetting the form
-const emptyFormFields = {
-  username: '',
-  password: '',
-  confirmPassword: '',
-  givenName: '',
-  familyName: '',
-  role: null,
-  isNew: true,
-};
+import ManageStaffStateReducer, {
+  manageStaffDefaultState,
+} from './State/ManageStaffStateReducer';
+import ManageStaffStateActions from './State/ManageStaffStateActions';
 
 /**
  * Staff management page
  */
 export default function ManageStaff() {
-  const [allStaff, setAllStaff] = useState<StaffMember[]>([]);
-  const [displayedStaff, setDisplayedStaff] = useState<StaffMember[]>([]);
-  const [fields, setFields, setFieldsDirectly] = useFormFields<
-    ManageStaffFormFields
-  >(emptyFormFields);
-  const [error, setError] = useState<Error | null>(null);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [isLoadingStaffMembers, setIsLoadingStaffMembers] = useState<boolean>(
-    true
+  const [state, dispatch] = useReducer(
+    ManageStaffStateReducer,
+    manageStaffDefaultState
   );
 
-  const userSearch = (searchContent: string) => {
-    if (searchContent) {
-      searchContent = searchContent.toLowerCase();
-      setDisplayedStaff(
-        displayedStaff.filter((staffMember) => {
-          if (
-            staffMember.username.toLowerCase().includes(searchContent) ||
-            staffMember.familyName.toLowerCase().includes(searchContent) ||
-            staffMember.givenName.toLowerCase().includes(searchContent)
-          ) {
-            return staffMember;
-          }
-        })
-      );
-    } else {
-      setDisplayedStaff(allStaff);
-    }
-  };
-
-  const setupNewUser = () => {
-    setFieldsDirectly(emptyFormFields);
+  const staffSearch = (searchContent: string) => {
+    dispatch({
+      type: ManageStaffStateActions.StaffSearch,
+      parameters: {
+        searchContent,
+      },
+    });
   };
 
   useEffect(() => {
     const setup = async () => {
-      setupNewUser();
+      dispatch({
+        type: ManageStaffStateActions.Load,
+      });
       const staffList = await getAllStaffMembers();
-      setIsLoadingStaffMembers(false);
-      setAllStaff(staffList);
-      setDisplayedStaff(staffList);
+      dispatch({
+        type: ManageStaffStateActions.StaffMembersLoaded,
+        parameters: {
+          staffList,
+        },
+      });
     };
     setup().then();
   }, []);
 
   const selectStaffMemberToEdit = (username: string) => {
-    const user = allStaff.find((user) => user.username === username);
-    if (user) {
-      setFieldsDirectly({
-        username: user.username,
-        password: '',
-        confirmPassword: '',
-        givenName: user.givenName,
-        familyName: user.familyName,
-        role: user.role,
-        isNew: false,
-      });
-    } else {
-      setupNewUser();
-    }
+    dispatch({
+      type: ManageStaffStateActions.SelectStaffToEdit,
+      parameters: {
+        username,
+      },
+    });
   };
 
   const validateForm = (): boolean => {
-    if (fields.username.length < 1) {
-      setError(new Error('Username too short'));
-      return false;
-    }
-    if (fields.isNew || fields.password.length !== 0) {
-      if (fields.password !== fields.confirmPassword) {
-        setError(new Error('Passwords must match'));
-        return false;
+    try {
+      if (state.username.length < 1) {
+        throw new Error('Username too short');
       }
-      if (fields.password.length < 8) {
-        setError(new Error('Password must be more than 8 characters'));
-        return false;
+      if (state.isNew || state.password.length !== 0) {
+        if (state.password !== state.confirmPassword) {
+          throw new Error('Passwords must match');
+        }
+        if (state.password.length < 8) {
+          throw new Error('Password must be more than 8 characters');
+        }
       }
-    }
-    if (fields.givenName.length < 1) {
-      setError(new Error('Given name is too short'));
-      return false;
-    }
-    if (fields.familyName.length < 1) {
-      setError(new Error('Family name is too short'));
-      return false;
-    }
-    if (!fields.role) {
-      setError(new Error('Must select a role'));
+      if (state.givenName.length < 1) {
+        throw new Error('Given name is too short');
+      }
+      if (state.familyName.length < 1) {
+        throw new Error('Family name is too short');
+      }
+      if (!state.role) {
+        throw new Error('Must select a role');
+      }
+    } catch (error) {
+      dispatch({
+        type: ManageStaffStateActions.FormInvalid,
+        parameters: {
+          error,
+        },
+      });
       return false;
     }
     return true;
@@ -135,50 +98,55 @@ export default function ManageStaff() {
 
   const formSave = async () => {
     if (validateForm()) {
-      setIsSaving(true);
+      dispatch({
+        type: ManageStaffStateActions.Save,
+      });
       const userDetails = {
-        username: fields.username,
+        username: state.username,
         // Safe non-null assertion because the form has already been validated
-        role: fields.role!,
-        givenName: fields.givenName,
-        familyName: fields.familyName,
-        password: fields.password,
+        role: state.role!,
+        givenName: state.givenName,
+        familyName: state.familyName,
+        password: state.password,
       };
 
       try {
-        if (fields.isNew) {
-          const newUser = await createNewStaffMember(userDetails);
-          allStaff.push(newUser);
+        if (state.isNew) {
+          const newStaffMember = await createNewStaffMember(userDetails);
+          dispatch({
+            type: ManageStaffStateActions.StaffMemberAdded,
+            parameters: {
+              newUser: newStaffMember,
+            },
+          });
         } else {
-          const updatedUser = await updateExistingStaffMember(userDetails);
-          const indexOfUser = allStaff.findIndex(
-            (user) => user.username === userDetails.username
+          const updatedStaffMember = await updateExistingStaffMember(
+            userDetails
           );
           // Updates the details in the list with the new details of the user
-          allStaff[indexOfUser] = {
-            ...allStaff[indexOfUser],
-            ...updatedUser,
-          };
+          dispatch({
+            type: ManageStaffStateActions.StaffMemberUpdated,
+            parameters: {
+              updatedStaffMember,
+            },
+          });
         }
-        setupNewUser();
-      } catch (e) {
-        console.error(JSON.stringify(e, null, 2));
-        setError(e);
+        dispatch({ type: ManageStaffStateActions.SetupNewStaff });
+      } catch (error) {
+        dispatch({
+          type: ManageStaffStateActions.SaveError,
+          parameters: {
+            error,
+          },
+        });
       }
-      setIsSaving(false);
     }
   };
 
   const formDelete = async () => {
-    setIsDeleting(true);
-    await deleteStaffMember(fields.username);
-    const listWithoutDeletedUser = allStaff.filter(
-      (user) => user.username !== fields.username
-    );
-    setAllStaff(listWithoutDeletedUser);
-    setDisplayedStaff(listWithoutDeletedUser);
-    setupNewUser();
-    setIsDeleting(false);
+    dispatch({ type: ManageStaffStateActions.Delete });
+    await deleteStaffMember(state.username);
+    dispatch({ type: ManageStaffStateActions.StaffMemberDeleted });
   };
 
   const convertDropdownRoleToUserRole = (
@@ -199,22 +167,22 @@ export default function ManageStaff() {
   const header = () => {
     return (
       <>
-        {(fields.givenName || fields.familyName) && (
+        {(state.givenName || state.familyName) && (
           <ManagementEditHeader
             delete={formDelete}
-            title={`${fields.givenName} ${fields.familyName}`}
+            title={`${state.givenName} ${state.familyName}`}
             save={formSave}
-            isDeleting={isDeleting}
-            isSaving={isSaving}
+            isDeleting={state.isDeleting}
+            isSaving={state.isSaving}
           />
         )}
-        {!fields.givenName && !fields.familyName && (
+        {!state.givenName && !state.familyName && (
           <ManagementEditHeader
             delete={formDelete}
             title="New User"
             save={formSave}
-            isDeleting={isDeleting}
-            isSaving={isSaving}
+            isDeleting={state.isDeleting}
+            isSaving={state.isSaving}
           />
         )}
       </>
@@ -222,16 +190,16 @@ export default function ManageStaff() {
   };
 
   const staffList = () => {
-    if (isLoadingStaffMembers) {
+    if (state.isLoadingStaffMembers) {
       return <Loading containerClassName="mt-4" />;
     } else {
-      return displayedStaff.map((user) => {
+      return state.displayedStaff.map((user) => {
         return (
           <StaffCard
             key={user.username}
             name={`${user.givenName} ${user.familyName}`}
             username={user.username}
-            isSelected={user.username === fields.username}
+            isSelected={user.username === state.username}
             onClick={() => selectStaffMemberToEdit(user.username)}
           />
         );
@@ -248,16 +216,21 @@ export default function ManageStaff() {
         <label htmlFor="username">Username</label>
         <input
           id="username"
-          disabled={!fields.isNew}
+          disabled={!state.isNew}
           inputMode="text"
           type="text"
-          value={fields.username}
+          value={state.username}
           className="form-input"
           placeholder="Username"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
+          onChange={(event) =>
+            dispatch({
+              type: ManageStaffStateActions.FieldChange,
+              parameters: {
+                fieldName: event.target.id,
+                fieldValue: event.target.value,
+              },
+            })
+          }
         />
         <label htmlFor="password" className="mt-2">
           Password
@@ -266,13 +239,18 @@ export default function ManageStaff() {
           id="password"
           inputMode="text"
           type="password"
-          value={fields.password}
+          value={state.password}
           className="form-input"
           placeholder="Password"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
+          onChange={(event) =>
+            dispatch({
+              type: ManageStaffStateActions.FieldChange,
+              parameters: {
+                fieldName: event.target.id,
+                fieldValue: event.target.value,
+              },
+            })
+          }
         />
         <label htmlFor="confirmPassword" className="mt-2">
           Confirm Password
@@ -281,13 +259,18 @@ export default function ManageStaff() {
           id="confirmPassword"
           inputMode="text"
           type="password"
-          value={fields.confirmPassword}
+          value={state.confirmPassword}
           className="form-input"
           placeholder="Confirm Password"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
+          onChange={(event) =>
+            dispatch({
+              type: ManageStaffStateActions.FieldChange,
+              parameters: {
+                fieldName: event.target.id,
+                fieldValue: event.target.value,
+              },
+            })
+          }
         />
         <label htmlFor="givenName" className="mt-2">
           Given Name
@@ -296,13 +279,18 @@ export default function ManageStaff() {
           id="givenName"
           inputMode="text"
           type="text"
-          value={fields.givenName}
+          value={state.givenName}
           className="form-input"
           placeholder="Given Name"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
+          onChange={(event) =>
+            dispatch({
+              type: ManageStaffStateActions.FieldChange,
+              parameters: {
+                fieldName: event.target.id,
+                fieldValue: event.target.value,
+              },
+            })
+          }
         />
         <label htmlFor="familyName" className="mt-2">
           Family Name
@@ -311,13 +299,18 @@ export default function ManageStaff() {
           id="familyName"
           inputMode="text"
           type="text"
-          value={fields.familyName}
+          value={state.familyName}
           className="form-input"
           placeholder="Family Name"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
+          onChange={(event) =>
+            dispatch({
+              type: ManageStaffStateActions.FieldChange,
+              parameters: {
+                fieldName: event.target.id,
+                fieldValue: event.target.value,
+              },
+            })
+          }
         />
         <label htmlFor="role" className="mt-2">
           Role
@@ -340,14 +333,17 @@ export default function ManageStaff() {
             },
           ]}
           onSelected={(key) => {
-            setFieldsDirectly({
-              ...fields,
-              role: convertDropdownRoleToUserRole(key),
+            dispatch({
+              type: ManageStaffStateActions.FieldChange,
+              parameters: {
+                fieldName: 'role',
+                fieldValue: convertDropdownRoleToUserRole(key),
+              },
             });
           }}
-          currentlySelectedKey={fields.role ? fields.role : ''}
+          currentlySelectedKey={state.role ? state.role : ''}
         />
-        {error && <ErrorMessage message={error.message} />}
+        {state.error && <ErrorMessage message={state.error.message} />}
       </form>
     );
   };
@@ -360,9 +356,13 @@ export default function ManageStaff() {
       </div>
       <ItemListDrawer
         title="Staff"
-        newButtonClick={setupNewUser}
+        newButtonClick={() =>
+          dispatch({
+            type: ManageStaffStateActions.SetupNewStaff,
+          })
+        }
         newButtonText="New Staff Member"
-        onSearch={userSearch}
+        onSearch={staffSearch}
         displayedList={staffList()}
       />
     </div>

@@ -10,10 +10,14 @@ html {
 
 .btn {
     @apply bg-brand rounded-md text-white font-semibold p-2 hover:bg-brand-light focus:bg-brand-light focus:outline-none hover:bg-brand-light;
+    @apply transition duration-150 ease-in-out;
+    @apply transform hover:scale-105;
 }
 
 .btn:disabled {
     @apply bg-gray-500 rounded-md text-white font-semibold p-2 cursor-not-allowed focus:outline-none;
+    @apply transition-none;
+    @apply transform-none;
 }
 
 .btn-negative {
@@ -34,6 +38,8 @@ html {
 
 .card {
     @apply cursor-pointer p-2 rounded-md bg-lighter-gray hover:bg-darker-gray;
+    @apply transition duration-150 ease-in-out;
+    @apply transform hover:scale-105;
 }
 
 .card-selected {

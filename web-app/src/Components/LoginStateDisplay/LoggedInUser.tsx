@@ -32,7 +32,7 @@ export default function LoggedInUser(props: LoggedInUserPropTypes) {
     <div>
       <Card
         onMouseEnter={props.showLogout}
-        className="flex flex-row justify-end py-1"
+        className="flex flex-row justify-end py-1 transition-none transform-none cursor-auto"
       >
         <div className="flex flex-col text-right">
           <span className="text-md">

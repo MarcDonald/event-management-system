@@ -20,7 +20,7 @@ export default function SideNavItem(props: SideNavItemPropTypes) {
 
   return (
     <li
-      className={`cursor-pointer pl-8 text-xl py-2 w-4/5 rounded-r-full ${selectedStyle} ${hoverStyle}`}
+      className={`cursor-pointer pl-8 text-xl py-2 w-4/5 rounded-r-full transition duration-150 ease-in-out ${selectedStyle} ${hoverStyle}`}
       onClick={props.onClick}
     >
       {props.name}
