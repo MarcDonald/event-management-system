@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import ErrorMessage from '../../../Components/ErrorMessage';
 import ItemListDrawer from '../ItemListDrawer';
 import ManagementEditHeader from '../ManagementEditHeader';
-import AssignedStaffMember from '../../../Models/AssignedStaffMember';
 import Event from '../../../Models/Event';
-import { useFormFields } from '../../../Hooks/useFormFields';
 import Loading from '../../../Components/Loading';
 import EventCard from './EventCard';
 import {
@@ -15,344 +13,182 @@ import {
   updateEventStaffMembers,
   updateEventSupervisors,
 } from '../../../Services/EventService';
-import Dropdown, { DropdownItem } from '../../../Components/Dropdown';
-import Venue from '../../../Models/Venue';
+import Dropdown from '../../../Components/Dropdown';
 import { getAllVenues } from '../../../Services/VenueService';
-import AssignedSupervisor from '../../../Models/AssignedSupervisor';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import StaffMember from '../../../Models/StaffMember';
 import { getAllStaffMembers } from '../../../Services/StaffService';
 import StaffMemberAssignmentSection from './StaffMemberAssignmentSection/StaffMemberAssignmentSection';
-import Position from '../../../Models/Position';
 import SupervisorAssignmentSection from './SupervisorAssignmentSection/SupervisorAssignmentSection';
-
-interface ManageEventsFormFields {
-  id: string | null;
-  name: string;
-  venue: Venue | null;
-  start: Date;
-  end: Date;
-  supervisors: AssignedSupervisor[];
-  staff: AssignedStaffMember[];
-}
-
-// This is used as the template when resetting the form
-const emptyFormFields = {
-  id: null,
-  name: '',
-  venue: null,
-  start: new Date(),
-  end: new Date(),
-  supervisors: [],
-  staff: [],
-};
+import ManageEventsStateReducer, {
+  manageEventsDefaultState,
+} from './State/ManageEventsStateReducer';
+import ManageEventsStateActions from './State/ManageEventsStateActions';
 
 /**
  * Events management page
  */
 export default function ManageEvents() {
-  const [allEvents, setAllEvents] = useState<Event[]>([]);
-  const [displayedEvents, setDisplayedEvents] = useState<Event[]>([]);
-  const [fields, setFields, setFieldsDirectly] = useFormFields<
-    ManageEventsFormFields
-  >(emptyFormFields);
-  const [error, setError] = useState<Error | null>(null);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [isLoadingEvents, setIsLoadingEvents] = useState<boolean>(true);
-  const [dropdownVenues, setDropdownVenues] = useState<DropdownItem[]>([]);
-  const [allStaff, setAllStaff] = useState<StaffMember[]>([]);
-  const [selectableStaff, setSelectableStaff] = useState<StaffMember[]>([]);
-  const [selectablePositions, setSelectablePositions] = useState<Position[]>(
-    []
+  const [state, dispatch] = useReducer(
+    ManageEventsStateReducer,
+    manageEventsDefaultState
   );
-  const [allVenues, setAllVenues] = useState<Venue[]>([]);
 
   const eventSearch = (searchContent: string) => {
-    if (searchContent) {
-      searchContent = searchContent.toLowerCase();
-      setDisplayedEvents(
-        displayedEvents.filter((event) => {
-          if (event.name.toLowerCase().includes(searchContent)) {
-            return event;
-          }
-        })
-      );
-    } else {
-      setDisplayedEvents(allEvents);
-    }
-  };
-
-  const formatDropdownVenues = (venueList: Venue[]): DropdownItem[] => {
-    return venueList.map((venue) => {
-      return {
-        key: venue.venueId,
-        name: venue.name,
-      };
+    dispatch({
+      type: ManageEventsStateActions.Search,
+      parameters: { searchContent },
     });
   };
 
   useEffect(() => {
     const setup = async () => {
-      const eventList = await getAllEvents();
-      setIsLoadingEvents(false);
-      setAllEvents(eventList);
-      setDisplayedEvents(eventList);
-      const venueList = await getAllVenues();
-      setAllVenues(venueList);
-      const formattedVenues = formatDropdownVenues(venueList);
-      setDropdownVenues(formattedVenues);
-      const staffList = await getAllStaffMembers();
-      setAllStaff(staffList);
-      setSelectableStaff(staffList);
+      const allEventsReq = getAllEvents();
+      const allVenuesReq = getAllVenues();
+      const allStaffReq = getAllStaffMembers();
+      Promise.all([allEventsReq, allVenuesReq, allStaffReq]).then((values) => {
+        dispatch({
+          type: ManageEventsStateActions.DataLoaded,
+          parameters: {
+            eventsList: values[0],
+            venuesList: values[1],
+            staffList: values[2],
+          },
+        });
+      });
     };
     setup().then();
   }, []);
 
-  const setupNewEvent = () => {
-    setFieldsDirectly(emptyFormFields);
-    setSelectableStaff(allStaff);
-    setSelectablePositions([]);
-  };
-
-  const determineSelectableStaffOfEvent = (event: Event): StaffMember[] => {
-    const assignedSupervisors = event.supervisors.map((assignedSupervisor) => {
-      return assignedSupervisor.staffMember.username;
-    });
-    const assignedStaffMembers = event.staff.map((assignedStaffMember) => {
-      return assignedStaffMember.staffMember.username;
-    });
-    const allAssignedStaff = [...assignedStaffMembers, ...assignedSupervisors];
-    return [...allStaff].filter((staffMember) => {
-      return !allAssignedStaff.includes(staffMember.username);
-    });
-  };
-
-  const selectEventToEdit = (id: string) => {
-    const event = allEvents.find((event) => event.eventId === id);
-    if (event) {
-      setFieldsDirectly({
-        id: event.eventId,
-        name: event.name,
-        venue: event.venue,
-        // Have to multiply by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
-        start: new Date(event.start * 1000),
-        end: new Date(event.end * 1000),
-        supervisors: event.supervisors,
-        staff: event.staff,
-      });
-      setSelectablePositions(event.venue.positions);
-      setSelectableStaff(determineSelectableStaffOfEvent(event));
-    } else {
-      setupNewEvent();
-    }
-  };
-
   const validateForm = (): boolean => {
-    if (fields.name.length < 1) {
-      setError(new Error('Name is too short'));
-      return false;
-    }
-    if (!fields.venue) {
-      setError(new Error('Cannot create an event without a venue'));
-      return false;
-    }
-    if (fields.start > fields.end) {
-      setError(new Error('An event cannot end before it begins'));
-      return false;
-    }
-    if (fields.supervisors.length < 1) {
-      setError(new Error('Cannot create an event with no supervisors'));
-      return false;
-    }
-    if (fields.staff.length < 1) {
-      setError(new Error('Cannot create an event with no staff'));
+    try {
+      if (state.name.length < 1) {
+        throw new Error('Name is too short');
+      }
+      if (!state.venue) {
+        throw new Error('Cannot create an event without a venue');
+      }
+      if (state.start > state.end) {
+        throw new Error('An event cannot end before it begins');
+      }
+      if (state.supervisors.length < 1) {
+        throw new Error('Cannot create an event with no supervisors');
+      }
+      if (state.staff.length < 1) {
+        throw new Error('Cannot create an event with no staff');
+      }
+    } catch (error) {
+      dispatch({
+        type: ManageEventsStateActions.ValidationError,
+        parameters: { error },
+      });
       return false;
     }
     return true;
   };
 
-  const updateEvent = async (): Promise<Event> => {
-    if (fields.id) {
+  const saveNewEvent = async (): Promise<void> => {
+    const newEvent = await createNewEvent({
+      name: state.name,
+      // This is a safe non-null assertion because the form has already been validated
+      venue: state.venue!,
+      // Have to divide by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
+      start: state.start.getTime() / 1000,
+      end: state.end.getTime() / 1000,
+      supervisors: state.supervisors,
+      staff: state.staff,
+    });
+    dispatch({
+      type: ManageEventsStateActions.NewEventSaved,
+      parameters: { newEvent },
+    });
+  };
+
+  const updateEvent = async (): Promise<void> => {
+    if (state.id) {
       const updatedInformation = {
-        name: fields.name,
+        name: state.name,
         // Have to divide by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
-        start: fields.start.getTime() / 1000,
-        end: fields.end.getTime() / 1000,
+        start: state.start.getTime() / 1000,
+        end: state.end.getTime() / 1000,
       };
-      await updateEventInformation(fields.id, updatedInformation);
-      const updatedSupervisors = fields.supervisors;
-      await updateEventSupervisors(fields.id, updatedSupervisors);
-      const updatedStaffMembers = fields.staff;
-      await updateEventStaffMembers(fields.id, updatedStaffMembers);
-      return {
-        eventId: fields.id!,
-        venue: fields.venue!,
-        supervisors: updatedSupervisors,
-        staff: updatedStaffMembers,
-        ...updatedInformation,
-      };
+      await updateEventInformation(state.id, updatedInformation);
+      const updatedSupervisors = state.supervisors;
+      await updateEventSupervisors(state.id, updatedSupervisors);
+      const updatedStaffMembers = state.staff;
+      await updateEventStaffMembers(state.id, updatedStaffMembers);
+      dispatch({
+        type: ManageEventsStateActions.ExistingEventUpdated,
+        parameters: {
+          updatedId: state.id,
+          updatedName: state.name,
+        },
+      });
+    } else {
+      throw new Error('Trying to update without an event ID');
     }
-    throw new Error('Trying to update without an event ID');
   };
 
   const formSubmit = async (event: React.FormEvent<HTMLFormElement> | null) => {
     if (event) event.preventDefault();
     if (validateForm()) {
-      setIsSaving(true);
+      dispatch({ type: ManageEventsStateActions.Save });
       try {
         // If there's no ID then it will be a new event
-        if (!fields.id) {
-          const newEvent = await createNewEvent({
-            name: fields.name,
-            // This is a safe non-null assertion because the form has already been validated
-            venue: fields.venue!,
-            // Have to divide by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
-            start: fields.start.getTime() / 1000,
-            end: fields.end.getTime() / 1000,
-            supervisors: fields.supervisors,
-            staff: fields.staff,
-          });
-          allEvents.push(newEvent);
+        if (!state.id) {
+          await saveNewEvent();
         } else {
-          const updatedEvent = await updateEvent();
-          const indexOfEvent = allEvents.findIndex(
-            (event) => event.eventId === fields.id
-          );
-          // Updates the event in the list with the new details
-          allEvents[indexOfEvent] = {
-            ...allEvents[indexOfEvent],
-            ...updatedEvent,
-          };
+          await updateEvent();
         }
-        setError(null);
-        setupNewEvent();
-      } catch (e) {
-        console.error(JSON.stringify(e, null, 2));
-        setError(e);
+        dispatch({ type: ManageEventsStateActions.SetupNewEvent });
+      } catch (error) {
+        dispatch({
+          type: ManageEventsStateActions.SaveError,
+          parameters: { error },
+        });
       }
-      setIsSaving(false);
+      dispatch({ type: ManageEventsStateActions.FinishedSaving });
     }
   };
 
   const formDelete = async () => {
-    setIsDeleting(true);
-    if (fields.id) {
-      await deleteEvent(fields.id);
-      const listWithoutDeletedEvent = allEvents.filter(
-        (event) => event.eventId !== fields.id
-      );
-      setAllEvents(listWithoutDeletedEvent);
-      setDisplayedEvents(listWithoutDeletedEvent);
-    }
-    setupNewEvent();
-    setIsDeleting(false);
-  };
-
-  const assignSupervisor = (
-    supervisor: StaffMember,
-    areaOfSupervision: string
-  ) => {
-    setFieldsDirectly({
-      ...fields,
-      supervisors: [
-        ...fields.supervisors,
-        {
-          staffMember: supervisor,
-          areaOfSupervision,
-        },
-      ],
-    });
-    const indexToRemove = selectableStaff.findIndex(
-      (staffInArray) => staffInArray.username === supervisor.username
-    );
-    const newList = [...selectableStaff];
-    newList.splice(indexToRemove, 1);
-    setSelectableStaff(newList);
-  };
-
-  const unassignSupervisor = (supervisor: StaffMember) => {
-    const newAssignedList = [...fields.supervisors];
-    newAssignedList.splice(
-      fields.supervisors.findIndex(
-        (assignedStaffMember) =>
-          assignedStaffMember.staffMember.username === supervisor.username
-      ),
-      1
-    );
-    setFieldsDirectly({ ...fields, supervisors: newAssignedList });
-    setSelectableStaff([...selectableStaff, supervisor]);
-  };
-
-  const assignStaff = (staffMember: StaffMember, position: Position) => {
-    setFieldsDirectly({
-      ...fields,
-      staff: [
-        ...fields.staff,
-        {
-          staffMember,
-          position,
-        },
-      ],
-    });
-    const indexToRemove = selectableStaff.findIndex(
-      (staffInArray) => staffInArray.username === staffMember.username
-    );
-    const newList = [...selectableStaff];
-    newList.splice(indexToRemove, 1);
-    setSelectableStaff(newList);
-  };
-
-  const unassignStaff = (staffMember: StaffMember) => {
-    const newAssignedList = [...fields.staff];
-    newAssignedList.splice(
-      fields.staff.findIndex(
-        (assignedStaffMember) =>
-          assignedStaffMember.staffMember.username === staffMember.username
-      ),
-      1
-    );
-    setFieldsDirectly({ ...fields, staff: newAssignedList });
-    setSelectableStaff([...selectableStaff, staffMember]);
-  };
-
-  const selectVenue = (venueId: string) => {
-    if (venueId !== fields.venue?.venueId) {
-      const selectedVenue = allVenues.find(
-        (venue) => venue.venueId === venueId
-      );
-      if (selectedVenue) {
-        setFieldsDirectly({
-          ...fields,
-          venue: selectedVenue,
-          supervisors: [],
-          staff: [],
+    dispatch({ type: ManageEventsStateActions.Delete });
+    if (state.id) {
+      try {
+        await deleteEvent(state.id);
+        dispatch({
+          type: ManageEventsStateActions.DeleteSuccess,
+          parameters: { deletedId: state.id },
         });
-        setSelectablePositions(selectedVenue.positions);
+      } catch (error) {
+        dispatch({
+          type: ManageEventsStateActions.DeleteError,
+          parameters: { error },
+        });
       }
     }
+    dispatch({ type: ManageEventsStateActions.FinishedDeleting });
   };
 
   const header = () => {
     return (
       <>
-        {fields.name && (
+        {state.name && (
           <ManagementEditHeader
             delete={formDelete}
-            title={fields.name}
+            title={state.name}
             save={() => formSubmit(null)}
-            isDeleting={isDeleting}
-            isSaving={isSaving}
+            isDeleting={state.isDeleting}
+            isSaving={state.isSaving}
           />
         )}
-        {!fields.name && (
+        {!state.name && (
           <ManagementEditHeader
             delete={formDelete}
             title="New Event"
             save={() => formSubmit(null)}
-            isDeleting={isDeleting}
-            isSaving={isSaving}
+            isDeleting={state.isDeleting}
+            isSaving={state.isSaving}
           />
         )}
       </>
@@ -360,17 +196,22 @@ export default function ManageEvents() {
   };
 
   const eventList = () => {
-    if (isLoadingEvents) {
+    if (state.isLoadingEvents) {
       return <Loading containerClassName="mt-4" />;
     } else {
-      return displayedEvents.map((event) => {
+      return state.displayedEvents.map((event) => {
         return (
           <EventCard
             key={event.eventId}
             name={event.name}
             venueName={event.venue.name}
-            isSelected={event.eventId === fields.id}
-            onClick={() => selectEventToEdit(event.eventId)}
+            isSelected={event.eventId === state.id}
+            onClick={() =>
+              dispatch({
+                type: ManageEventsStateActions.SelectEventToEdit,
+                parameters: { selectedId: event.eventId },
+              })
+            }
           />
         );
       });
@@ -385,43 +226,65 @@ export default function ManageEvents() {
           id="name"
           inputMode="text"
           type="text"
-          value={fields.name}
+          value={state.name}
           className="form-input"
           placeholder="Name"
-          onChange={(event) => {
-            setFields(event);
-            setError(null);
-          }}
+          onChange={(event) =>
+            dispatch({
+              type: ManageEventsStateActions.FieldChange,
+              parameters: {
+                fieldName: event.target.id,
+                fieldValue: event.target.value,
+              },
+            })
+          }
         />
         <label htmlFor="venue">Venue</label>
         <Dropdown
-          disabled={!!fields.id}
+          disabled={!!state.id}
           title="Select a venue"
-          currentlySelectedKey={fields.venue?.venueId}
-          list={dropdownVenues}
-          onSelected={selectVenue}
+          currentlySelectedKey={state.venue?.venueId}
+          list={state.dropdownVenues}
+          onSelected={(venueId) =>
+            dispatch({
+              type: ManageEventsStateActions.SelectVenue,
+              parameters: { venueId },
+            })
+          }
         />
         <label htmlFor="start">Start Date</label>
         <DatePicker
           id="start"
-          selected={new Date(fields.start)}
+          selected={new Date(state.start)}
           className="form-input w-full"
           placeholderText="Start Date"
-          onChange={(date: Date) => {
+          onChange={(date) => {
             if (date) {
-              setFieldsDirectly({ ...fields, start: date });
+              dispatch({
+                type: ManageEventsStateActions.FieldChange,
+                parameters: {
+                  fieldName: 'start',
+                  fieldValue: date,
+                },
+              });
             }
           }}
         />
         <label htmlFor="start">End Date</label>
         <DatePicker
           id="end"
-          selected={new Date(fields.end)}
+          selected={new Date(state.end)}
           className="form-input w-full"
           placeholderText="End Date"
-          onChange={(date: Date) => {
+          onChange={(date) => {
             if (date) {
-              setFieldsDirectly({ ...fields, end: date });
+              dispatch({
+                type: ManageEventsStateActions.FieldChange,
+                parameters: {
+                  fieldName: 'end',
+                  fieldValue: date,
+                },
+              });
             }
           }}
         />
@@ -437,35 +300,57 @@ export default function ManageEvents() {
           <div className="col-start-2 col-span-2 mt-4 text-center">
             {eventDetailsForm()}
           </div>
-          {fields.venue && (
+          {state.venue && (
             <section className="col-start-1 col-span-4 grid grid-cols-6">
               <div className="col-start-1 col-span-2">
                 <SupervisorAssignmentSection
-                  selectableStaff={selectableStaff}
-                  assignedSupervisors={fields.supervisors}
-                  assignSupervisor={assignSupervisor}
-                  unassignSupervisor={unassignSupervisor}
+                  selectableStaff={state.selectableStaff}
+                  assignedSupervisors={state.supervisors}
+                  assignSupervisor={(supervisor, areaOfSupervision) =>
+                    dispatch({
+                      type: ManageEventsStateActions.AssignSupervisor,
+                      parameters: { supervisor, areaOfSupervision },
+                    })
+                  }
+                  unassignSupervisor={(supervisor) =>
+                    dispatch({
+                      type: ManageEventsStateActions.UnassignSupervisor,
+                      parameters: { supervisor },
+                    })
+                  }
                 />
               </div>
               <div className="col-start-5 col-span-2">
                 <StaffMemberAssignmentSection
-                  selectableStaff={selectableStaff}
-                  selectablePositions={selectablePositions}
-                  assignedStaff={fields.staff}
-                  assignStaffMember={assignStaff}
-                  unassignStaffMember={unassignStaff}
+                  selectableStaff={state.selectableStaff}
+                  selectablePositions={state.selectablePositions}
+                  assignedStaff={state.staff}
+                  assignStaffMember={(staffMember, position) =>
+                    dispatch({
+                      type: ManageEventsStateActions.AssignStaff,
+                      parameters: { staffMember, position },
+                    })
+                  }
+                  unassignStaffMember={(staffMember) =>
+                    dispatch({
+                      type: ManageEventsStateActions.UnassignStaff,
+                      parameters: { staffMember },
+                    })
+                  }
                 />
               </div>
             </section>
           )}
           <div className="col-start-2 col-span-2 mt-4 text-center">
-            {error && <ErrorMessage message={error.message} />}
+            {state.error && <ErrorMessage message={state.error.message} />}
           </div>
         </div>
       </div>
       <ItemListDrawer
         title="Events"
-        newButtonClick={setupNewEvent}
+        newButtonClick={() =>
+          dispatch({ type: ManageEventsStateActions.SetupNewEvent })
+        }
         newButtonText="New Event"
         onSearch={eventSearch}
         displayedList={eventList()}

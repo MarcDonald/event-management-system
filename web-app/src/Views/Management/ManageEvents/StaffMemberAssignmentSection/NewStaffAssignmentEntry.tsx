@@ -20,9 +20,11 @@ export default function NewStaffAssignmentEntry(
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    props.onSave(staffSelected, positionSelected);
-    setStaffSelected('');
-    setPositionSelected('');
+    if (staffSelected && positionSelected) {
+      props.onSave(staffSelected, positionSelected);
+      setStaffSelected('');
+      setPositionSelected('');
+    }
   };
 
   return (

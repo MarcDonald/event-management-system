@@ -19,9 +19,11 @@ export default function NewSupervisorAssignmentEntry(
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    props.onSave(supervisorSelected, areaOfSupervision);
-    setSupervisorSelected('');
-    setAreaOfSupervision('');
+    if (supervisorSelected && areaOfSupervision) {
+      props.onSave(supervisorSelected, areaOfSupervision);
+      setSupervisorSelected('');
+      setAreaOfSupervision('');
+    }
   };
 
   return (
@@ -46,7 +48,7 @@ export default function NewSupervisorAssignmentEntry(
       </div>
       <button
         type="submit"
-        className="text-center focus:outline-none bg-positive hover:bg-positive-light focus:bg-positive-light rounded-md p-1 text-white w-10 h-10"
+        className="text-center disabled:cursor-not-allowed focus:outline-none bg-positive hover:bg-positive-light focus:bg-positive-light rounded-md p-1 text-white w-10 h-10"
       >
         <FontAwesomeIcon icon={faCheck} className={`text-2xl align-middle`} />
       </button>
