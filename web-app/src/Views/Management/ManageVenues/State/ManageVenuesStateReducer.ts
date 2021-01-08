@@ -11,6 +11,7 @@ interface ManageVenuesState {
   name: string;
   positions: Position[];
   error: Error | null;
+  success: string | null;
   isSaving: boolean;
   isDeleting: boolean;
   isLoadingVenues: boolean;
@@ -26,6 +27,7 @@ export const manageVenuesDefaultState: ManageVenuesState = {
   name: '',
   positions: [],
   error: null,
+  success: null,
   isSaving: false,
   isDeleting: false,
   positionsToDelete: [],
@@ -102,6 +104,7 @@ export default function ManageVenuesStateReducer(
         displayedVenues: allVenuesWithNewVenue,
         isSaving: false,
         isLoadingVenues: false,
+        success: 'Venue Added Successfully',
       };
     }
     case ManageVenuesStateActions.VenueUpdated: {
@@ -120,6 +123,7 @@ export default function ManageVenuesStateReducer(
         displayedVenues: venues,
         isLoadingVenues: false,
         isSaving: false,
+        success: 'Venue Added Successfully',
       };
     }
     case ManageVenuesStateActions.SaveError: {
@@ -146,6 +150,7 @@ export default function ManageVenuesStateReducer(
         displayedVenues: listWithoutDeletedVenue,
         isDeleting: false,
         isLoadingVenues: false,
+        success: 'Venue Deleted Successfully',
       };
     }
     case ManageVenuesStateActions.DeleteError: {

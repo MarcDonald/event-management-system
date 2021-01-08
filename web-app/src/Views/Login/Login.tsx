@@ -3,13 +3,12 @@ import { useHistory } from 'react-router-dom';
 import { Auth } from 'aws-amplify';
 import BrandHeader from '../../Components/BrandHeader';
 import AsyncButton from '../../Components/AsyncButton';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import usePageProtection from '../../Hooks/usePageProtection';
 import LoginStateReducer, {
   loginInitialState,
 } from './State/LoginStateReducer';
 import LoginStateActions from './State/LoginStateActions';
+import { toast, Toaster } from 'react-hot-toast';
 
 /**
  * Login page
@@ -23,6 +22,12 @@ export default function Login() {
   useEffect(() => {
     pageProtection.loggedOutProtection().then();
   }, []);
+
+  useEffect(() => {
+    if (state.error) {
+      toast.error(state.error.message);
+    }
+  }, [state.error]);
 
   const validateForm = () => username.length > 0 && password.length >= 8;
 
@@ -43,6 +48,7 @@ export default function Login() {
 
   return (
     <>
+      <Toaster position="top-right" />
       <BrandHeader />
       <div className="grid grid-cols-5">
         <form
@@ -97,15 +103,6 @@ export default function Login() {
             isLoading={isLoading}
             className="mt-2"
           />
-          {error && (
-            <div className="text-center mt-2 mb-8">
-              <FontAwesomeIcon
-                icon={faExclamationTriangle}
-                className="text-error mr-2"
-              />
-              <span>{error.message}</span>
-            </div>
-          )}
         </form>
       </div>
     </>

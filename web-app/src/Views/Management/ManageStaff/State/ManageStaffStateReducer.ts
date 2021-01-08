@@ -14,6 +14,7 @@ interface ManageStaffState {
   allStaff: StaffMember[];
   displayedStaff: StaffMember[];
   error: Error | null;
+  success: string | null;
   isSaving: boolean;
   isDeleting: boolean;
   isLoadingStaffMembers: boolean;
@@ -30,6 +31,7 @@ export const manageStaffDefaultState: ManageStaffState = {
   allStaff: [],
   displayedStaff: [],
   error: null,
+  success: null,
   isDeleting: false,
   isLoadingStaffMembers: true,
   isSaving: false,
@@ -144,6 +146,8 @@ export default function ManageStaffStateReducer(
       return {
         ...state,
         allStaff: [...state.allStaff, parameters?.newStaffMember],
+        displayedStaff: [...state.allStaff, parameters?.newStaffMember],
+        success: 'Staff Added Successfully',
       };
     }
     case ManageStaffStateActions.StaffMemberUpdated: {
@@ -162,6 +166,7 @@ export default function ManageStaffStateReducer(
         displayedStaff: staffMembers,
         isLoadingStaffMembers: false,
         isSaving: false,
+        success: 'Staff Updated Successfully',
       };
     }
     case ManageStaffStateActions.Delete: {
@@ -179,6 +184,7 @@ export default function ManageStaffStateReducer(
         allStaff: listWithoutDeletedUser,
         displayedStaff: listWithoutDeletedUser,
         isLoadingStaffMembers: false,
+        success: 'Staff Deleted Successfully',
       };
     }
     default:

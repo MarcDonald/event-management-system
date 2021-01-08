@@ -18,6 +18,8 @@ import ManageStaffStateReducer, {
   manageStaffDefaultState,
 } from './State/ManageStaffStateReducer';
 import ManageStaffStateActions from './State/ManageStaffStateActions';
+import { toast, Toaster } from 'react-hot-toast';
+import { toastErrorStyle } from '../../../Utils/ToastStyles';
 
 /**
  * Staff management page
@@ -52,6 +54,14 @@ export default function ManageStaff() {
     };
     setup().then();
   }, []);
+
+  useEffect(() => {
+    if (state.error) toast.error(state.error.message);
+  }, [state.error]);
+
+  useEffect(() => {
+    if (state.success) toast.success(state.success);
+  }, [state.success]);
 
   const selectStaffMemberToEdit = (username: string) => {
     dispatch({
@@ -116,7 +126,7 @@ export default function ManageStaff() {
           dispatch({
             type: ManageStaffStateActions.StaffMemberAdded,
             parameters: {
-              newUser: newStaffMember,
+              newStaffMember,
             },
           });
         } else {
@@ -343,7 +353,6 @@ export default function ManageStaff() {
           }}
           currentlySelectedKey={state.role ? state.role : ''}
         />
-        {state.error && <ErrorMessage message={state.error.message} />}
       </form>
     );
   };

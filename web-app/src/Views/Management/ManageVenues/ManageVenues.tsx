@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import ManagementEditHeader from '../ManagementEditHeader';
 import ItemListDrawer from '../ItemListDrawer';
 import Venue from '../../../Models/Venue';
@@ -12,13 +12,13 @@ import {
 } from '../../../Services/VenueService';
 import Loading from '../../../Components/Loading';
 import VenueCard from './VenueCard';
-import ErrorMessage from '../../../Components/ErrorMessage';
 import NewPositionEntry from './NewPositionEntry';
 import RemovableListItem from '../../../Components/RemovableListItem';
 import ManageVenuesStateReducer, {
   manageVenuesDefaultState,
 } from './State/ManageVenuesStateReducer';
 import ManageVenuesStateActions from './State/ManageVenuesStateActions';
+import { toast, useToaster, useToasterStore } from 'react-hot-toast';
 
 /**
  * Venue management page
@@ -67,6 +67,16 @@ export default function ManageVenues() {
     };
     setup().then();
   }, []);
+
+  const [toastId, setToastId] = useState('');
+
+  useEffect(() => {
+    if (state.error) toast.error(state.error.message);
+  }, [state.error]);
+
+  useEffect(() => {
+    if (state.success) toast.success(state.success);
+  }, [state.success]);
 
   const setupNewVenue = () => {
     dispatch({ type: ManageVenuesStateActions.SetupNewVenue });
@@ -288,7 +298,6 @@ export default function ManageVenues() {
           <div className="col-start-2 col-span-2 mt-4 text-center">
             {venueDetailsForm()}
             {positionsSection()}
-            {error && <ErrorMessage message={error.message} />}
           </div>
         </div>
       </div>

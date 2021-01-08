@@ -24,6 +24,8 @@ import ManageEventsStateReducer, {
   manageEventsDefaultState,
 } from './State/ManageEventsStateReducer';
 import ManageEventsStateActions from './State/ManageEventsStateActions';
+import { toast, Toaster } from 'react-hot-toast';
+import { toastErrorStyle } from '../../../Utils/ToastStyles';
 
 /**
  * Events management page
@@ -59,6 +61,14 @@ export default function ManageEvents() {
     };
     setup().then();
   }, []);
+
+  useEffect(() => {
+    if (state.error) toast.error(state.error.message);
+  }, [state.error]);
+
+  useEffect(() => {
+    if (state.success) toast.success(state.success);
+  }, [state.success]);
 
   const validateForm = (): boolean => {
     try {
@@ -341,9 +351,6 @@ export default function ManageEvents() {
               </div>
             </section>
           )}
-          <div className="col-start-2 col-span-2 mt-4 text-center">
-            {state.error && <ErrorMessage message={state.error.message} />}
-          </div>
         </div>
       </div>
       <ItemListDrawer

@@ -8,6 +8,8 @@ import LoginStateDisplay from '../../Components/LoginStateDisplay/LoginStateDisp
 import SideNavItem from './SideNavItem';
 import usePageProtection from '../../Hooks/usePageProtection';
 import StaffRole from '../../Models/StaffRole';
+import { Toaster } from 'react-hot-toast';
+import { toastErrorStyle } from '../../Utils/ToastStyles';
 
 export enum ManagementPage {
   Venues = 'venues',
@@ -48,6 +50,13 @@ export default function Management(props: ManagementPropTypes) {
         gridTemplateColumns: '100%',
       }}
     >
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          error: toastErrorStyle,
+          duration: 1500,
+        }}
+      />
       <div className="row-start-1 h-auto">
         <BrandHeader />
       </div>
