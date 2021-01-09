@@ -1,8 +1,6 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import ManagementEditHeader from '../ManagementEditHeader';
-import StaffMember from '../../../Models/StaffMember';
 import StaffCard from './StaffCard';
-import { useFormFields } from '../../../Hooks/useFormFields';
 import StaffRole from '../../../Models/StaffRole';
 import {
   createNewStaffMember,
@@ -13,13 +11,11 @@ import {
 import Loading from '../../../Components/Loading';
 import Dropdown from '../../../Components/Dropdown';
 import ItemListDrawer from '../ItemListDrawer';
-import ErrorMessage from '../../../Components/ErrorMessage';
 import ManageStaffStateReducer, {
   manageStaffDefaultState,
 } from './State/ManageStaffStateReducer';
 import ManageStaffStateActions from './State/ManageStaffStateActions';
-import { toast, Toaster } from 'react-hot-toast';
-import { toastErrorStyle } from '../../../Utils/ToastStyles';
+import { toast } from 'react-hot-toast';
 
 /**
  * Staff management page
@@ -60,7 +56,7 @@ export default function ManageStaff() {
   }, [state.error]);
 
   useEffect(() => {
-    if (state.success) toast.success(state.success);
+    if (state.success) toast.success(state.success.message);
   }, [state.success]);
 
   const selectStaffMemberToEdit = (username: string) => {

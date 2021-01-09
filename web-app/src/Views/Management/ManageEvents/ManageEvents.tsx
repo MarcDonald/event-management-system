@@ -1,8 +1,6 @@
 import React, { useEffect, useReducer } from 'react';
-import ErrorMessage from '../../../Components/ErrorMessage';
 import ItemListDrawer from '../ItemListDrawer';
 import ManagementEditHeader from '../ManagementEditHeader';
-import Event from '../../../Models/Event';
 import Loading from '../../../Components/Loading';
 import EventCard from './EventCard';
 import {
@@ -24,8 +22,7 @@ import ManageEventsStateReducer, {
   manageEventsDefaultState,
 } from './State/ManageEventsStateReducer';
 import ManageEventsStateActions from './State/ManageEventsStateActions';
-import { toast, Toaster } from 'react-hot-toast';
-import { toastErrorStyle } from '../../../Utils/ToastStyles';
+import { toast } from 'react-hot-toast';
 
 /**
  * Events management page
@@ -67,7 +64,7 @@ export default function ManageEvents() {
   }, [state.error]);
 
   useEffect(() => {
-    if (state.success) toast.success(state.success);
+    if (state.success) toast.success(state.success.message);
   }, [state.success]);
 
   const validateForm = (): boolean => {

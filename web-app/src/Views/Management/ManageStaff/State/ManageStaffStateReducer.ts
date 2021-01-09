@@ -2,6 +2,7 @@ import StateAction from '../../../../Utils/StateAction';
 import ManageStaffStateActions from './ManageStaffStateActions';
 import StaffRole from '../../../../Models/StaffRole';
 import StaffMember from '../../../../Models/StaffMember';
+import SuccessMessage from '../../../../Models/SuccessMessage';
 
 interface ManageStaffState {
   username: string;
@@ -14,7 +15,7 @@ interface ManageStaffState {
   allStaff: StaffMember[];
   displayedStaff: StaffMember[];
   error: Error | null;
-  success: string | null;
+  success: SuccessMessage | null;
   isSaving: boolean;
   isDeleting: boolean;
   isLoadingStaffMembers: boolean;
@@ -147,7 +148,7 @@ export default function ManageStaffStateReducer(
         ...state,
         allStaff: [...state.allStaff, parameters?.newStaffMember],
         displayedStaff: [...state.allStaff, parameters?.newStaffMember],
-        success: 'Staff Added Successfully',
+        success: new SuccessMessage('Staff Added Successfully'),
       };
     }
     case ManageStaffStateActions.StaffMemberUpdated: {
@@ -166,7 +167,7 @@ export default function ManageStaffStateReducer(
         displayedStaff: staffMembers,
         isLoadingStaffMembers: false,
         isSaving: false,
-        success: 'Staff Updated Successfully',
+        success: new SuccessMessage('Staff Updated Successfully'),
       };
     }
     case ManageStaffStateActions.Delete: {
@@ -184,7 +185,7 @@ export default function ManageStaffStateReducer(
         allStaff: listWithoutDeletedUser,
         displayedStaff: listWithoutDeletedUser,
         isLoadingStaffMembers: false,
-        success: 'Staff Deleted Successfully',
+        success: new SuccessMessage('Staff Deleted Successfully'),
       };
     }
     default:

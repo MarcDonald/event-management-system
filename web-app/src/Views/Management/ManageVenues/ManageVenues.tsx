@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import ManagementEditHeader from '../ManagementEditHeader';
 import ItemListDrawer from '../ItemListDrawer';
 import Venue from '../../../Models/Venue';
@@ -18,7 +18,7 @@ import ManageVenuesStateReducer, {
   manageVenuesDefaultState,
 } from './State/ManageVenuesStateReducer';
 import ManageVenuesStateActions from './State/ManageVenuesStateActions';
-import { toast, useToaster, useToasterStore } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
 /**
  * Venue management page
@@ -68,14 +68,12 @@ export default function ManageVenues() {
     setup().then();
   }, []);
 
-  const [toastId, setToastId] = useState('');
-
   useEffect(() => {
     if (state.error) toast.error(state.error.message);
   }, [state.error]);
 
   useEffect(() => {
-    if (state.success) toast.success(state.success);
+    if (state.success) toast.success(state.success.message);
   }, [state.success]);
 
   const setupNewVenue = () => {

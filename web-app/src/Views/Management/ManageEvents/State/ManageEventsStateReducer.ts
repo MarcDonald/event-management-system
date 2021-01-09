@@ -7,7 +7,7 @@ import { DropdownItem } from '../../../../Components/Dropdown';
 import StaffMember from '../../../../Models/StaffMember';
 import Position from '../../../../Models/Position';
 import Event from '../../../../Models/Event';
-import { toast } from 'react-hot-toast';
+import SuccessMessage from '../../../../Models/SuccessMessage';
 
 interface ManageEventsState {
   id: string | null;
@@ -20,7 +20,7 @@ interface ManageEventsState {
   allEvents: Event[];
   displayedEvents: Event[];
   error: Error | null;
-  success: string | null;
+  success: SuccessMessage | null;
   isSaving: boolean;
   isDeleting: boolean;
   isLoadingEvents: boolean;
@@ -186,7 +186,7 @@ export default function ManageEventsStateReducer(
           ...state,
           allEvents: updatedAllEvents,
           displayedEvents: updatedAllEvents,
-          success: 'Event Updated Successfully',
+          success: new SuccessMessage('Event Updated Successfully'),
         };
       }
       return {
@@ -216,7 +216,7 @@ export default function ManageEventsStateReducer(
           ...state,
           allEvents: updatedEventList,
           displayedEvents: updatedEventList,
-          success: 'Event Saved Successfully',
+          success: new SuccessMessage('Event Saved Successfully'),
         };
       }
       return {
@@ -255,7 +255,7 @@ export default function ManageEventsStateReducer(
           ...state,
           allEvents: listWithoutDeletedEvent,
           displayedEvents: listWithoutDeletedEvent,
-          success: 'Event Deleted Successfully',
+          success: new SuccessMessage('Event Deleted Successfully'),
         };
       }
       return {

@@ -3,6 +3,7 @@ import Venue from '../../../../Models/Venue';
 import Position from '../../../../Models/Position';
 import { NewPosition } from '../../../../Services/VenueService';
 import ManageVenuesStateActions from './ManageVenuesStateActions';
+import SuccessMessage from '../../../../Models/SuccessMessage';
 
 interface ManageVenuesState {
   allVenues: Venue[];
@@ -11,7 +12,7 @@ interface ManageVenuesState {
   name: string;
   positions: Position[];
   error: Error | null;
-  success: string | null;
+  success: SuccessMessage | null;
   isSaving: boolean;
   isDeleting: boolean;
   isLoadingVenues: boolean;
@@ -104,7 +105,7 @@ export default function ManageVenuesStateReducer(
         displayedVenues: allVenuesWithNewVenue,
         isSaving: false,
         isLoadingVenues: false,
-        success: 'Venue Added Successfully',
+        success: new SuccessMessage('Venue Added Successfully'),
       };
     }
     case ManageVenuesStateActions.VenueUpdated: {
@@ -123,7 +124,7 @@ export default function ManageVenuesStateReducer(
         displayedVenues: venues,
         isLoadingVenues: false,
         isSaving: false,
-        success: 'Venue Added Successfully',
+        success: new SuccessMessage('Venue Updated Successfully'),
       };
     }
     case ManageVenuesStateActions.SaveError: {
@@ -150,7 +151,7 @@ export default function ManageVenuesStateReducer(
         displayedVenues: listWithoutDeletedVenue,
         isDeleting: false,
         isLoadingVenues: false,
-        success: 'Venue Deleted Successfully',
+        success: new SuccessMessage('Venue Deleted Successfully'),
       };
     }
     case ManageVenuesStateActions.DeleteError: {
