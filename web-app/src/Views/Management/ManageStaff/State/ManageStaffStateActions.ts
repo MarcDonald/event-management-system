@@ -4,7 +4,6 @@ enum ManageStaffStateActions {
   StaffSearch,
   SetupNewStaff,
   SelectStaffToEdit,
-  FormInvalid,
   FieldChange,
   Save,
   SaveError,

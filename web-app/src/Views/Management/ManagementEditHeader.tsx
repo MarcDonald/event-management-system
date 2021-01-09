@@ -1,12 +1,10 @@
 import React from 'react';
-import AsyncButton from '../../Components/AsyncButton';
 
 interface ManagementEditHeaderPropTypes {
-  delete: () => any;
   title: string;
+  delete: () => any;
   save: () => any;
-  isDeleting: boolean;
-  isSaving: boolean;
+  disableButtons: boolean;
 }
 
 /**
@@ -18,19 +16,21 @@ export default function ManagementEditHeader(
 ) {
   return (
     <div className="flex flex-row justify-between bg-white mt-8 p-4 rounded-md">
-      <AsyncButton
-        className="btn-negative px-8"
-        text="Delete"
-        isLoading={props.isDeleting}
+      <button
+        className="btn btn-negative px-8"
+        disabled={props.disableButtons}
         onClick={props.delete}
-      />
+      >
+        Delete
+      </button>
       <h1 className="text-4xl font-bold">{props.title}</h1>
-      <AsyncButton
+      <button
         className="btn px-8"
-        text="Save"
-        isLoading={props.isSaving}
+        disabled={props.disableButtons}
         onClick={props.save}
-      />
+      >
+        Save
+      </button>
     </div>
   );
 }

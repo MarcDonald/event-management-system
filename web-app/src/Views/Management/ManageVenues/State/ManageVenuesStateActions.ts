@@ -5,7 +5,6 @@ enum ManageVenuesStateActions {
   SetupNewVenue,
   SelectVenueToEdit,
   SaveVenue,
-  FormInvalid,
   VenueAdded,
   VenueUpdated,
   SaveError,

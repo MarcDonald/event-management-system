@@ -2,7 +2,6 @@ import StateAction from '../../../../Utils/StateAction';
 import ManageStaffStateActions from './ManageStaffStateActions';
 import StaffRole from '../../../../Models/StaffRole';
 import StaffMember from '../../../../Models/StaffMember';
-import SuccessMessage from '../../../../Models/SuccessMessage';
 
 interface ManageStaffState {
   username: string;
@@ -14,10 +13,7 @@ interface ManageStaffState {
   isNew: boolean;
   allStaff: StaffMember[];
   displayedStaff: StaffMember[];
-  error: Error | null;
-  success: SuccessMessage | null;
-  isSaving: boolean;
-  isDeleting: boolean;
+  disableButtons: boolean;
   isLoadingStaffMembers: boolean;
 }
 
@@ -31,11 +27,8 @@ export const manageStaffDefaultState: ManageStaffState = {
   isNew: true,
   allStaff: [],
   displayedStaff: [],
-  error: null,
-  success: null,
-  isDeleting: false,
   isLoadingStaffMembers: true,
-  isSaving: false,
+  disableButtons: false,
 };
 
 export default function ManageStaffStateReducer(
@@ -116,31 +109,22 @@ export default function ManageStaffStateReducer(
         isLoadingStaffMembers: false,
       };
     }
-    case ManageStaffStateActions.FormInvalid: {
-      return {
-        ...state,
-        error: parameters?.error,
-      };
-    }
     case ManageStaffStateActions.FieldChange: {
       return {
         ...state,
         [parameters?.fieldName]: parameters?.fieldValue,
-        error: null,
       };
     }
     case ManageStaffStateActions.Save: {
       return {
         ...state,
-        isSaving: true,
+        disableButtons: true,
       };
     }
     case ManageStaffStateActions.SaveError: {
-      console.error(JSON.stringify(parameters?.error, null, 2));
       return {
         ...state,
-        error: parameters?.error,
-        isSaving: false,
+        disableButtons: false,
       };
     }
     case ManageStaffStateActions.StaffMemberAdded: {
@@ -148,7 +132,6 @@ export default function ManageStaffStateReducer(
         ...state,
         allStaff: [...state.allStaff, parameters?.newStaffMember],
         displayedStaff: [...state.allStaff, parameters?.newStaffMember],
-        success: new SuccessMessage('Staff Added Successfully'),
       };
     }
     case ManageStaffStateActions.StaffMemberUpdated: {
@@ -166,14 +149,13 @@ export default function ManageStaffStateReducer(
         allStaff: staffMembers,
         displayedStaff: staffMembers,
         isLoadingStaffMembers: false,
-        isSaving: false,
-        success: new SuccessMessage('Staff Updated Successfully'),
+        disableButtons: false,
       };
     }
     case ManageStaffStateActions.Delete: {
       return {
         ...state,
-        isDeleting: true,
+        disableButtons: true,
       };
     }
     case ManageStaffStateActions.StaffMemberDeleted: {
@@ -185,7 +167,6 @@ export default function ManageStaffStateReducer(
         allStaff: listWithoutDeletedUser,
         displayedStaff: listWithoutDeletedUser,
         isLoadingStaffMembers: false,
-        success: new SuccessMessage('Staff Deleted Successfully'),
       };
     }
     default:

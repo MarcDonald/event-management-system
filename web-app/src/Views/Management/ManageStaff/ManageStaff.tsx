@@ -51,14 +51,6 @@ export default function ManageStaff() {
     setup().then();
   }, []);
 
-  useEffect(() => {
-    if (state.error) toast.error(state.error.message);
-  }, [state.error]);
-
-  useEffect(() => {
-    if (state.success) toast.success(state.success.message);
-  }, [state.success]);
-
   const selectStaffMemberToEdit = (username: string) => {
     dispatch({
       type: ManageStaffStateActions.SelectStaffToEdit,
@@ -91,12 +83,7 @@ export default function ManageStaff() {
         throw new Error('Must select a role');
       }
     } catch (error) {
-      dispatch({
-        type: ManageStaffStateActions.FormInvalid,
-        parameters: {
-          error,
-        },
-      });
+      toast.error(error.message);
       return false;
     }
     return true;
@@ -118,7 +105,17 @@ export default function ManageStaff() {
 
       try {
         if (state.isNew) {
-          const newStaffMember = await createNewStaffMember(userDetails);
+          const newStaffMember = await toast.promise(
+            createNewStaffMember(userDetails),
+            {
+              error: (e) => {
+                console.log(e);
+                return 'Error Adding New Staff Member';
+              },
+              loading: 'Adding New Staff Member',
+              success: 'New Staff Member Added',
+            }
+          );
           dispatch({
             type: ManageStaffStateActions.StaffMemberAdded,
             parameters: {
@@ -126,8 +123,16 @@ export default function ManageStaff() {
             },
           });
         } else {
-          const updatedStaffMember = await updateExistingStaffMember(
-            userDetails
+          const updatedStaffMember = await toast.promise(
+            updateExistingStaffMember(userDetails),
+            {
+              error: (e) => {
+                console.error(e);
+                return 'Error Updating Staff Member';
+              },
+              loading: 'Updating Staff Member',
+              success: 'Staff Member Updated',
+            }
           );
           // Updates the details in the list with the new details of the user
           dispatch({
@@ -151,7 +156,11 @@ export default function ManageStaff() {
 
   const formDelete = async () => {
     dispatch({ type: ManageStaffStateActions.Delete });
-    await deleteStaffMember(state.username);
+    await toast.promise(deleteStaffMember(state.username), {
+      error: 'Error Deleting Staff Member',
+      loading: 'Deleting Staff Member',
+      success: 'Staff Member Deleted',
+    });
     dispatch({ type: ManageStaffStateActions.StaffMemberDeleted });
   };
 
@@ -178,8 +187,7 @@ export default function ManageStaff() {
             delete={formDelete}
             title={`${state.givenName} ${state.familyName}`}
             save={formSave}
-            isDeleting={state.isDeleting}
-            isSaving={state.isSaving}
+            disableButtons={state.disableButtons}
           />
         )}
         {!state.givenName && !state.familyName && (
@@ -187,8 +195,7 @@ export default function ManageStaff() {
             delete={formDelete}
             title="New User"
             save={formSave}
-            isDeleting={state.isDeleting}
-            isSaving={state.isSaving}
+            disableButtons={state.disableButtons}
           />
         )}
       </>

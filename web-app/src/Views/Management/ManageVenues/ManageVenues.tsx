@@ -31,9 +31,6 @@ export default function ManageVenues() {
   const {
     allVenues,
     displayedVenues,
-    error,
-    isSaving,
-    isDeleting,
     isLoadingVenues,
     positionsToDelete,
     positionsToAdd,
@@ -68,14 +65,6 @@ export default function ManageVenues() {
     setup().then();
   }, []);
 
-  useEffect(() => {
-    if (state.error) toast.error(state.error.message);
-  }, [state.error]);
-
-  useEffect(() => {
-    if (state.success) toast.success(state.success.message);
-  }, [state.success]);
-
   const setupNewVenue = () => {
     dispatch({ type: ManageVenuesStateActions.SetupNewVenue });
   };
@@ -95,20 +84,15 @@ export default function ManageVenues() {
   };
 
   const validateForm = (): boolean => {
-    if (state.name.length < 1) {
-      dispatch({
-        type: ManageVenuesStateActions.FormInvalid,
-        parameters: { error: new Error('Name is too short') },
-      });
-      return false;
-    }
-    if (state.positions.length < 1) {
-      dispatch({
-        type: ManageVenuesStateActions.FormInvalid,
-        parameters: {
-          error: new Error('Cannot create a venue with no positions'),
-        },
-      });
+    try {
+      if (state.name.length < 1) {
+        throw new Error('Name is too short');
+      }
+      if (state.positions.length < 1) {
+        throw new Error('Cannot create a venue with no positions');
+      }
+    } catch (e) {
+      toast.error(e.message);
       return false;
     }
     return true;
@@ -140,13 +124,21 @@ export default function ManageVenues() {
         };
 
         if (!id) {
-          const newVenue = await createNewVenue(newDetails);
+          const newVenue = await toast.promise(createNewVenue(newDetails), {
+            error: 'Error Adding Venue',
+            loading: 'Adding New Venue',
+            success: 'New Venue Added',
+          });
           dispatch({
             type: ManageVenuesStateActions.VenueAdded,
             parameters: { newVenue },
           });
         } else {
-          const updatedVenue = await updateVenue();
+          const updatedVenue = await toast.promise(updateVenue(), {
+            error: 'Error Updating Venue',
+            loading: 'Updating Venue',
+            success: 'Venue Updated',
+          });
           dispatch({
             type: ManageVenuesStateActions.VenueUpdated,
             parameters: {
@@ -168,7 +160,11 @@ export default function ManageVenues() {
     dispatch({ type: ManageVenuesStateActions.DeleteVenue });
     if (id) {
       try {
-        await deleteVenue(id);
+        await toast.promise(deleteVenue(id), {
+          error: 'Error Deleting Venue',
+          loading: 'Deleting Venue',
+          success: 'Venue Deleted',
+        });
         dispatch({
           type: ManageVenuesStateActions.SuccessfulVenueDeletion,
           parameters: {
@@ -206,8 +202,7 @@ export default function ManageVenues() {
             delete={formDelete}
             title={name}
             save={() => formSave(null)}
-            isDeleting={isDeleting}
-            isSaving={isSaving}
+            disableButtons={state.disableButtons}
           />
         )}
         {!name && (
@@ -215,8 +210,7 @@ export default function ManageVenues() {
             delete={formDelete}
             title="New Venue"
             save={() => formSave(null)}
-            isDeleting={isDeleting}
-            isSaving={isSaving}
+            disableButtons={state.disableButtons}
           />
         )}
       </>

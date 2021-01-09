@@ -59,14 +59,6 @@ export default function ManageEvents() {
     setup().then();
   }, []);
 
-  useEffect(() => {
-    if (state.error) toast.error(state.error.message);
-  }, [state.error]);
-
-  useEffect(() => {
-    if (state.success) toast.success(state.success.message);
-  }, [state.success]);
-
   const validateForm = (): boolean => {
     try {
       if (state.name.length < 1) {
@@ -85,10 +77,7 @@ export default function ManageEvents() {
         throw new Error('Cannot create an event with no staff');
       }
     } catch (error) {
-      dispatch({
-        type: ManageEventsStateActions.ValidationError,
-        parameters: { error },
-      });
+      toast.error(error.message);
       return false;
     }
     return true;
@@ -143,18 +132,22 @@ export default function ManageEvents() {
       try {
         // If there's no ID then it will be a new event
         if (!state.id) {
-          await saveNewEvent();
+          await toast.promise(saveNewEvent(), {
+            error: 'Error Adding New Event',
+            loading: 'Saving New Event',
+            success: 'New Event Saved',
+          });
         } else {
-          await updateEvent();
+          await toast.promise(updateEvent(), {
+            error: 'Error Updating Event',
+            loading: 'Updating Event',
+            success: 'Event Updated',
+          });
         }
         dispatch({ type: ManageEventsStateActions.SetupNewEvent });
       } catch (error) {
-        dispatch({
-          type: ManageEventsStateActions.SaveError,
-          parameters: { error },
-        });
+        dispatch({ type: ManageEventsStateActions.SaveError });
       }
-      dispatch({ type: ManageEventsStateActions.FinishedSaving });
     }
   };
 
@@ -162,11 +155,16 @@ export default function ManageEvents() {
     dispatch({ type: ManageEventsStateActions.Delete });
     if (state.id) {
       try {
-        await deleteEvent(state.id);
+        await toast.promise(deleteEvent(state.id), {
+          error: 'Error Deleting Event',
+          loading: 'Deleting Event',
+          success: 'Event Deleted',
+        });
         dispatch({
           type: ManageEventsStateActions.DeleteSuccess,
           parameters: { deletedId: state.id },
         });
+        dispatch({ type: ManageEventsStateActions.SetupNewEvent });
       } catch (error) {
         dispatch({
           type: ManageEventsStateActions.DeleteError,
@@ -174,7 +172,6 @@ export default function ManageEvents() {
         });
       }
     }
-    dispatch({ type: ManageEventsStateActions.FinishedDeleting });
   };
 
   const header = () => {
@@ -185,8 +182,7 @@ export default function ManageEvents() {
             delete={formDelete}
             title={state.name}
             save={() => formSubmit(null)}
-            isDeleting={state.isDeleting}
-            isSaving={state.isSaving}
+            disableButtons={state.disableButtons}
           />
         )}
         {!state.name && (
@@ -194,8 +190,7 @@ export default function ManageEvents() {
             delete={formDelete}
             title="New Event"
             save={() => formSubmit(null)}
-            isDeleting={state.isDeleting}
-            isSaving={state.isSaving}
+            disableButtons={state.disableButtons}
           />
         )}
       </>

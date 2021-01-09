@@ -3,7 +3,6 @@ import Venue from '../../../../Models/Venue';
 import Position from '../../../../Models/Position';
 import { NewPosition } from '../../../../Services/VenueService';
 import ManageVenuesStateActions from './ManageVenuesStateActions';
-import SuccessMessage from '../../../../Models/SuccessMessage';
 
 interface ManageVenuesState {
   allVenues: Venue[];
@@ -11,10 +10,7 @@ interface ManageVenuesState {
   id: string | null;
   name: string;
   positions: Position[];
-  error: Error | null;
-  success: SuccessMessage | null;
-  isSaving: boolean;
-  isDeleting: boolean;
+  disableButtons: boolean;
   isLoadingVenues: boolean;
   positionsToDelete: string[];
   positionsToAdd: NewPosition[];
@@ -27,10 +23,7 @@ export const manageVenuesDefaultState: ManageVenuesState = {
   id: null,
   name: '',
   positions: [],
-  error: null,
-  success: null,
-  isSaving: false,
-  isDeleting: false,
+  disableButtons: false,
   positionsToDelete: [],
   positionsToAdd: [],
 };
@@ -88,13 +81,7 @@ export default function ManageVenuesStateReducer(
     case ManageVenuesStateActions.SaveVenue: {
       return {
         ...state,
-        isSaving: true,
-      };
-    }
-    case ManageVenuesStateActions.FormInvalid: {
-      return {
-        ...state,
-        error: parameters?.error,
+        disableButtons: true,
       };
     }
     case ManageVenuesStateActions.VenueAdded: {
@@ -103,9 +90,8 @@ export default function ManageVenuesStateReducer(
         ...manageVenuesDefaultState,
         allVenues: allVenuesWithNewVenue,
         displayedVenues: allVenuesWithNewVenue,
-        isSaving: false,
+        disableButtons: false,
         isLoadingVenues: false,
-        success: new SuccessMessage('Venue Added Successfully'),
       };
     }
     case ManageVenuesStateActions.VenueUpdated: {
@@ -123,22 +109,20 @@ export default function ManageVenuesStateReducer(
         allVenues: venues,
         displayedVenues: venues,
         isLoadingVenues: false,
-        isSaving: false,
-        success: new SuccessMessage('Venue Updated Successfully'),
+        disableButtons: false,
       };
     }
     case ManageVenuesStateActions.SaveError: {
       console.error(JSON.stringify(parameters?.error, null, 2));
       return {
         ...state,
-        error: parameters?.error,
-        isSaving: false,
+        disableButtons: false,
       };
     }
     case ManageVenuesStateActions.DeleteVenue: {
       return {
         ...state,
-        isDeleting: true,
+        disableButtons: true,
       };
     }
     case ManageVenuesStateActions.SuccessfulVenueDeletion: {
@@ -149,15 +133,14 @@ export default function ManageVenuesStateReducer(
         ...manageVenuesDefaultState,
         allVenues: listWithoutDeletedVenue,
         displayedVenues: listWithoutDeletedVenue,
-        isDeleting: false,
+        disableButtons: false,
         isLoadingVenues: false,
-        success: new SuccessMessage('Venue Deleted Successfully'),
       };
     }
     case ManageVenuesStateActions.DeleteError: {
       return {
         ...state,
-        error: parameters?.error,
+        disableButtons: false,
       };
     }
     case ManageVenuesStateActions.AddNewPosition: {
@@ -171,7 +154,6 @@ export default function ManageVenuesStateReducer(
         ...state,
         positions: newPositions,
         positionsToAdd: [...state.positionsToAdd, { name: parameters?.name }],
-        error: null,
       };
     }
     case ManageVenuesStateActions.DeletePosition: {
@@ -189,7 +171,6 @@ export default function ManageVenuesStateReducer(
       return {
         ...state,
         [parameters?.fieldName]: parameters?.fieldValue,
-        error: null,
       };
     }
     default:

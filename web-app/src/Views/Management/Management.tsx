@@ -51,7 +51,7 @@ export default function Management(props: ManagementPropTypes) {
       }}
     >
       <Toaster
-        position="bottom-center"
+        position="top-center"
         toastOptions={{
           error: toastErrorStyle,
           duration: 1500,

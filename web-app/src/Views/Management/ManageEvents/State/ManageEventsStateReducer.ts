@@ -7,7 +7,6 @@ import { DropdownItem } from '../../../../Components/Dropdown';
 import StaffMember from '../../../../Models/StaffMember';
 import Position from '../../../../Models/Position';
 import Event from '../../../../Models/Event';
-import SuccessMessage from '../../../../Models/SuccessMessage';
 
 interface ManageEventsState {
   id: string | null;
@@ -19,10 +18,7 @@ interface ManageEventsState {
   staff: AssignedStaffMember[];
   allEvents: Event[];
   displayedEvents: Event[];
-  error: Error | null;
-  success: SuccessMessage | null;
-  isSaving: boolean;
-  isDeleting: boolean;
+  disableButtons: boolean;
   isLoadingEvents: boolean;
   dropdownVenues: DropdownItem[];
   allStaff: StaffMember[];
@@ -44,11 +40,8 @@ export const manageEventsDefaultState: ManageEventsState = {
   allStaff: [],
   allVenues: [],
   dropdownVenues: [],
-  error: null,
-  success: null,
-  isDeleting: false,
-  isLoadingEvents: false,
-  isSaving: false,
+  isLoadingEvents: true,
+  disableButtons: false,
   selectablePositions: [],
   selectableStaff: [],
 };
@@ -83,9 +76,6 @@ export default function ManageEventsStateReducer(
       }
       return {
         ...state,
-        error: new Error(
-          'Missing one or more of eventsList, venuesList, or staffList'
-        ),
       };
     }
     case ManageEventsStateActions.SetupNewEvent: {
@@ -99,7 +89,6 @@ export default function ManageEventsStateReducer(
         selectableStaff: state.allStaff,
         selectablePositions: [],
         isLoadingEvents: false,
-        error: null,
       };
     }
     case ManageEventsStateActions.Search: {
@@ -169,7 +158,13 @@ export default function ManageEventsStateReducer(
           };
         }
       }
-      return { ...state, error: new Error('No selected ID') };
+      return { ...state };
+    }
+    case ManageEventsStateActions.Save: {
+      return {
+        ...state,
+        disableButtons: true,
+      };
     }
     case ManageEventsStateActions.ExistingEventUpdated: {
       if (parameters?.updatedId && parameters?.updatedName) {
@@ -186,27 +181,11 @@ export default function ManageEventsStateReducer(
           ...state,
           allEvents: updatedAllEvents,
           displayedEvents: updatedAllEvents,
-          success: new SuccessMessage('Event Updated Successfully'),
+          disableButtons: false,
         };
       }
       return {
         ...state,
-        error: new Error('Missing data required to update state'),
-      };
-    }
-    case ManageEventsStateActions.ValidationError: {
-      if (parameters?.error) {
-        return {
-          ...state,
-          error: parameters.error,
-        };
-      }
-      return state;
-    }
-    case ManageEventsStateActions.Save: {
-      return {
-        ...state,
-        isSaving: true,
       };
     }
     case ManageEventsStateActions.NewEventSaved: {
@@ -216,34 +195,23 @@ export default function ManageEventsStateReducer(
           ...state,
           allEvents: updatedEventList,
           displayedEvents: updatedEventList,
-          success: new SuccessMessage('Event Saved Successfully'),
+          disableButtons: false,
         };
       }
       return {
         ...state,
-        error: new Error('Missing newEvent'),
       };
     }
     case ManageEventsStateActions.SaveError: {
-      if (parameters?.error) {
-        console.error(JSON.stringify(parameters.error, null, 2));
-        return {
-          ...state,
-          error: parameters.error,
-        };
-      }
-      return state;
-    }
-    case ManageEventsStateActions.FinishedSaving: {
       return {
         ...state,
-        isSaving: false,
+        disableButtons: false,
       };
     }
     case ManageEventsStateActions.Delete: {
       return {
         ...state,
-        isDeleting: true,
+        disableButtons: true,
       };
     }
     case ManageEventsStateActions.DeleteSuccess: {
@@ -255,33 +223,16 @@ export default function ManageEventsStateReducer(
           ...state,
           allEvents: listWithoutDeletedEvent,
           displayedEvents: listWithoutDeletedEvent,
-          success: new SuccessMessage('Event Deleted Successfully'),
         };
       }
       return {
         ...state,
-        error: new Error('No deleted ID'),
       };
     }
     case ManageEventsStateActions.DeleteError: {
-      console.error(parameters?.error, null, 2);
       return {
         ...state,
-        error: parameters?.error,
-      };
-    }
-    case ManageEventsStateActions.FinishedDeleting: {
-      return {
-        ...manageEventsDefaultState,
-        allStaff: state.allStaff,
-        allVenues: state.allVenues,
-        allEvents: state.allEvents,
-        displayedEvents: state.displayedEvents,
-        selectableStaff: state.allStaff,
-        selectablePositions: [],
-        isLoadingEvents: false,
-        error: null,
-        isDeleting: false,
+        disableButtons: false,
       };
     }
     case ManageEventsStateActions.AssignSupervisor: {
@@ -305,12 +256,10 @@ export default function ManageEventsStateReducer(
         return {
           ...newState,
           selectableStaff,
-          error: null,
         };
       }
       return {
         ...state,
-        error: new Error('Missing supervisor or areaOfSupervision'),
       };
     }
     case ManageEventsStateActions.UnassignSupervisor: {
@@ -332,7 +281,6 @@ export default function ManageEventsStateReducer(
       }
       return {
         ...state,
-        error: new Error('Missing supervisor'),
       };
     }
     case ManageEventsStateActions.AssignStaff: {
@@ -346,7 +294,6 @@ export default function ManageEventsStateReducer(
         return {
           ...state,
           selectableStaff: newList,
-          error: null,
           staff: [
             ...state.staff,
             {
@@ -358,7 +305,6 @@ export default function ManageEventsStateReducer(
       }
       return {
         ...state,
-        error: new Error('Missing staffMember or position'),
       };
     }
     case ManageEventsStateActions.UnassignStaff: {
@@ -380,7 +326,6 @@ export default function ManageEventsStateReducer(
       }
       return {
         ...state,
-        error: new Error('Missing staffMember'),
       };
     }
     case ManageEventsStateActions.SelectVenue: {
@@ -396,21 +341,18 @@ export default function ManageEventsStateReducer(
               supervisors: [],
               staff: [],
               selectablePositions: selectedVenue.positions,
-              error: null,
             };
           }
         }
       }
       return {
         ...state,
-        error: new Error('Missing venueId'),
       };
     }
     case ManageEventsStateActions.FieldChange: {
       return {
         ...state,
         [parameters?.fieldName]: parameters?.fieldValue,
-        error: null,
       };
     }
     default:
