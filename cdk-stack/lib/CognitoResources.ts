@@ -64,9 +64,9 @@ export default class CognitoResources {
         username: true,
       },
       passwordPolicy: {
-        requireDigits: true,
+        requireDigits: false,
         requireLowercase: true,
-        requireUppercase: true,
+        requireUppercase: false,
         requireSymbols: false,
       },
       standardAttributes: {
