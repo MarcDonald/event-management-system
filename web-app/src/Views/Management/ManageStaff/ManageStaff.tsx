@@ -16,6 +16,7 @@ import ManageStaffStateReducer, {
 } from './State/ManageStaffStateReducer';
 import ManageStaffStateActions from './State/ManageStaffStateActions';
 import { toast } from 'react-hot-toast';
+import { Auth } from 'aws-amplify';
 
 /**
  * Staff management page
@@ -154,15 +155,27 @@ export default function ManageStaff() {
     }
   };
 
+  const isCurrentUser = async () => {
+    const currentUser = await Auth.currentUserInfo();
+    if (currentUser) {
+      return currentUser.username === state.username;
+    }
+    return true;
+  };
+
   const formDelete = async () => {
     if (!state.isNew) {
-      dispatch({ type: ManageStaffStateActions.Delete });
-      await toast.promise(deleteStaffMember(state.username), {
-        error: 'Error Deleting Staff Member',
-        loading: 'Deleting Staff Member',
-        success: 'Staff Member Deleted',
-      });
-      dispatch({ type: ManageStaffStateActions.StaffMemberDeleted });
+      if (await isCurrentUser()) {
+        toast.error('You cannot delete yourself');
+      } else {
+        dispatch({ type: ManageStaffStateActions.Delete });
+        await toast.promise(deleteStaffMember(state.username), {
+          error: 'Error Deleting Staff Member',
+          loading: 'Deleting Staff Member',
+          success: 'Staff Member Deleted',
+        });
+        dispatch({ type: ManageStaffStateActions.StaffMemberDeleted });
+      }
     } else {
       dispatch({ type: ManageStaffStateActions.SetupNewStaff });
     }

@@ -48,7 +48,7 @@ export default function Login() {
 
   return (
     <>
-      <Toaster position="top-right" />
+      <Toaster position="top-center" />
       <BrandHeader />
       <div className="grid grid-cols-5">
         <form
