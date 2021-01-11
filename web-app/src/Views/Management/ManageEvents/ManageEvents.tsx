@@ -152,8 +152,8 @@ export default function ManageEvents() {
   };
 
   const formDelete = async () => {
-    dispatch({ type: ManageEventsStateActions.Delete });
     if (state.id) {
+      dispatch({ type: ManageEventsStateActions.Delete });
       try {
         await toast.promise(deleteEvent(state.id), {
           error: 'Error Deleting Event',
@@ -171,6 +171,8 @@ export default function ManageEvents() {
           parameters: { error },
         });
       }
+    } else {
+      dispatch({ type: ManageEventsStateActions.SetupNewEvent });
     }
   };
 

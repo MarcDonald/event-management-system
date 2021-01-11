@@ -157,8 +157,8 @@ export default function ManageVenues() {
   };
 
   const formDelete = async () => {
-    dispatch({ type: ManageVenuesStateActions.DeleteVenue });
     if (id) {
+      dispatch({ type: ManageVenuesStateActions.DeleteVenue });
       try {
         await toast.promise(deleteVenue(id), {
           error: 'Error Deleting Venue',
@@ -177,6 +177,8 @@ export default function ManageVenues() {
           parameters: { error: e },
         });
       }
+    } else {
+      dispatch({ type: ManageVenuesStateActions.SetupNewVenue });
     }
   };
 

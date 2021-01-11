@@ -155,13 +155,17 @@ export default function ManageStaff() {
   };
 
   const formDelete = async () => {
-    dispatch({ type: ManageStaffStateActions.Delete });
-    await toast.promise(deleteStaffMember(state.username), {
-      error: 'Error Deleting Staff Member',
-      loading: 'Deleting Staff Member',
-      success: 'Staff Member Deleted',
-    });
-    dispatch({ type: ManageStaffStateActions.StaffMemberDeleted });
+    if (!state.isNew) {
+      dispatch({ type: ManageStaffStateActions.Delete });
+      await toast.promise(deleteStaffMember(state.username), {
+        error: 'Error Deleting Staff Member',
+        loading: 'Deleting Staff Member',
+        success: 'Staff Member Deleted',
+      });
+      dispatch({ type: ManageStaffStateActions.StaffMemberDeleted });
+    } else {
+      dispatch({ type: ManageStaffStateActions.SetupNewStaff });
+    }
   };
 
   const convertDropdownRoleToUserRole = (
