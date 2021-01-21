@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:id="@+id/main_navigation"
+  app:startDestination="@id/startupFragment">
+
+  <fragment
+    android:id="@+id/loginFragment"
+    android:name="com.marcdonald.ems.ui.login.LoginFragment"
+    android:label="LoginFragment" >
+    <action
+      android:id="@+id/loginSuccess"
+      app:destination="@id/assistanceRequestFragment" />
+  </fragment>
+  <fragment
+    android:id="@+id/assistanceRequestFragment"
+    android:name="com.marcdonald.ems.ui.assistancerequest.AssistanceRequestFragment"
+    android:label="AssistanceRequestFragment" >
+    <action
+      android:id="@+id/signout"
+      app:destination="@id/loginFragment" />
+  </fragment>
+  <fragment
+    android:id="@+id/startupFragment"
+    android:name="com.marcdonald.ems.ui.startup.StartupFragment"
+    android:label="StartupFragment" >
+    <action
+      android:id="@+id/isLoggedIn"
+      app:destination="@id/assistanceRequestFragment" />
+    <action
+      android:id="@+id/promptLogin"
+      app:destination="@id/loginFragment" />
+  </fragment>
+</navigation>

@@ -22,6 +22,7 @@ export default class CognitoResources {
   public readonly userPool: UserPool;
   public readonly webDashboardUserPoolClient: UserPoolClient;
   public readonly apiUserPoolClient: UserPoolClient;
+  public readonly androidUserPoolClient: UserPoolClient;
   public readonly webDashboardIdentityPool: CfnIdentityPool;
   public readonly defaultUnauthenticatedRole: Role;
   public readonly defaultAuthenticatedRole: Role;
@@ -33,9 +34,14 @@ export default class CognitoResources {
       this.userPool
     );
     this.apiUserPoolClient = this.createApiClient(this.userPool);
+    this.androidUserPoolClient = this.createAndroidClient(this.userPool);
     this.webDashboardIdentityPool = this.createIdentityPool(scope, [
       {
         clientId: this.webDashboardUserPoolClient.userPoolClientId,
+        providerName: this.userPool.userPoolProviderName,
+      },
+      {
+        clientId: this.androidUserPoolClient.userPoolClientId,
         providerName: this.userPool.userPoolProviderName,
       },
     ]);
@@ -105,6 +111,17 @@ export default class CognitoResources {
       authFlows: {
         adminUserPassword: true,
       },
+      supportedIdentityProviders: [UserPoolClientIdentityProvider.COGNITO],
+    });
+
+  private createAndroidClient = (userPool: UserPool): UserPoolClient =>
+    userPool.addClient('AndroidApp', {
+      userPoolClientName: 'AndroidApp',
+      preventUserExistenceErrors: true,
+      authFlows: {
+        userSrp: true,
+      },
+      disableOAuth: true,
       supportedIdentityProviders: [UserPoolClientIdentityProvider.COGNITO],
     });
 
