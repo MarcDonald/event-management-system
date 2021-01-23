@@ -2,15 +2,19 @@ package com.marcdonald.ems.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val brandLight = Color(0xFFF57C00)
-val brandLightVariant = Color(0xFFF57C00)
-val brandDark = Color(0xFFFF9700)
-val brandDarkVariant = Color(0xFFFF9700)
+val darkGray900 = Color(0xFF212121)
+val darkGray800 = Color(0xFF424242)
+val darkGray700 = Color(0xFF616161)
 
-val backgroundDark = Color(0xFF212121)
-val surfaceDark = Color(0xFF303030)
+val red400 = Color(0xFFEF5350)
+val red500 = Color(0xFFF44336)
+val red600 = Color(0xFFE53935)
+val red700 = Color(0xFFD32F2F)
 
-val errorDark = Color(0xFFF44336)
-val errorLight = Color(0xFFF44336)
+val orange500 = Color(0xFFFF9700)
+val orange600 = Color(0xFFFB8D00)
+val orange700 = Color(0xFFF57D00)
+val orange800 = Color(0xFFEF6D00)
 
-val teal200 = Color(0xFF03DAC5)
+val blue700 = Color(0xFF0079FF)
+val blue800 = Color(0xFF0066FF)

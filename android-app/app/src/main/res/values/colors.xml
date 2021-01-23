@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <color name="brandLight">#F57C00</color>
-  <color name="brandLightVariant">#F57C00</color>
-  <color name="brandDark">#FF9700</color>
-  <color name="brandDarkVariant">#FF9700</color>
-  <color name="backgroundDark">#212121</color>
-  <color name="surfaceDark">#303030</color>
+  <color name="darkGray900">#212121</color>
+  <color name="darkGray800">#424242</color>
+  <color name="darkGray700">#616161</color>
 
-  <color name="errorDark">#F44336</color>
-  <color name="errorLight">#F44336</color>
-  <color name="teal_200">#03DAC5</color>
+  <color name="red400">#EF5350</color>
+  <color name="red500">#F44336</color>
+  <color name="red600">#E53935</color>
+  <color name="red700">#D32F2F</color>
+
+  <color name="orange500">#FF9700</color>
+  <color name="orange600">#FB8D00</color>
+  <color name="orange700">#F57D00</color>
+  <color name="orange800">#EF6D00</color>
+
+  <color name="blue700">#0079FF</color>
+  <color name="blue800">#0066FF</color>
+  <color name="blue900">#2341E0</color>
 </resources>

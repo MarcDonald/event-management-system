@@ -1,10 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
   <style name="Theme.EMS" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-    <item name="colorPrimary">@color/brandLight</item>
-    <item name="colorPrimaryVariant">@color/brandLightVariant</item>
+    <item name="colorPrimary">@color/orange500</item>
+    <item name="colorPrimaryVariant">@color/orange600</item>
     <item name="colorOnPrimary">@android:color/white</item>
-    <item name="colorSecondary">@color/teal_200</item>
-    <item name="colorSecondaryVariant">@color/teal_200</item>
+    <item name="colorSecondary">@color/blue700</item>
+    <item name="colorSecondaryVariant">@color/blue800</item>
     <item name="colorOnSecondary">@android:color/black</item>
     <item name="android:statusBarColor" tools:targetApi="l">@android:color/white</item>
   </style>

@@ -1,6 +1,9 @@
 package com.marcdonald.ems.ui.login.components
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -13,8 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.marcdonald.ems.ui.login.state.LoginFormValidationState
 
 @Composable
 fun LoginForm(
@@ -23,7 +27,8 @@ fun LoginForm(
 	password: String,
 	onPasswordChanged: (String) -> Unit,
 	login: () -> Unit,
-	isLoading: Boolean
+	isLoading: Boolean,
+	validationState: LoginFormValidationState
 ) =
 	Surface(
 		color = MaterialTheme.colors.background,
@@ -43,7 +48,13 @@ fun LoginForm(
 					},
 					leadingIcon = {
 						Icon(Icons.Default.Person)
-					}
+					},
+					isErrorValue = validationState.usernameTouched.value && !validationState.usernameValid.value,
+				)
+				Text("${username.length}/1+",
+					modifier = Modifier.fillMaxWidth(),
+					color = if(!validationState.usernameValid.value) MaterialTheme.colors.error else MaterialTheme.colors.primary,
+					textAlign = TextAlign.End
 				)
 				OutlinedTextField(
 					value = password,
@@ -68,12 +79,19 @@ fun LoginForm(
 							imeKeyboard?.hideSoftwareKeyboard()
 						}
 					},
-					visualTransformation = PasswordVisualTransformation()
+					visualTransformation = PasswordVisualTransformation(),
+					isErrorValue = validationState.passwordTouched.value && !validationState.passwordValid.value,
+				)
+				Text("${password.length}/8+",
+					modifier = Modifier.fillMaxWidth(),
+					color = if(!validationState.passwordValid.value) MaterialTheme.colors.error else MaterialTheme.colors.primary,
+					textAlign = TextAlign.End
 				)
 				Button(
 					onClick = {
 						login()
 					},
+					enabled = validationState.passwordValid.value && validationState.usernameValid.value,
 					modifier = Modifier
 						.padding(vertical = 16.dp)
 						.fillMaxWidth(),
@@ -88,5 +106,13 @@ fun LoginForm(
 					CircularProgressIndicator()
 				}
 			}
+			validationState.rejectedReason.value?.let { errorReason ->
+				Column(modifier = Modifier
+					.padding(vertical = 16.dp)
+					.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+					Text(text = errorReason, color = MaterialTheme.colors.error, textAlign = TextAlign.Center)
+				}
+			}
 		}
 	}
+

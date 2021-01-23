@@ -58,7 +58,8 @@ class LoginScreen : Fragment() {
 									viewModel.password.value,
 									viewModel::onPasswordChanged,
 									viewModel::login,
-									viewModel.isLoading.value
+									viewModel.isLoading.value,
+									viewModel.validationState
 								)
 							}
 						}

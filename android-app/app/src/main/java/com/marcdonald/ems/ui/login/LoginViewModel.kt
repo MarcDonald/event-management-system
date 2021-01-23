@@ -11,6 +11,7 @@ import com.amplifyframework.core.Amplify
 import com.amplifyframework.core.InitializationStatus
 import com.amplifyframework.hub.HubChannel
 import com.amplifyframework.hub.HubEvent
+import com.marcdonald.ems.ui.login.state.LoginFormValidationState
 import timber.log.Timber
 
 class LoginViewModel @ViewModelInject constructor() : ViewModel() {
@@ -20,6 +21,7 @@ class LoginViewModel @ViewModelInject constructor() : ViewModel() {
 
 	val username = mutableStateOf("")
 	val password = mutableStateOf("")
+	val validationState = LoginFormValidationState()
 	val isLoading = mutableStateOf(false)
 
 	init {
@@ -40,10 +42,16 @@ class LoginViewModel @ViewModelInject constructor() : ViewModel() {
 
 	fun onUsernameChanged(newValue: String) {
 		username.value = newValue
+		validationState.usernameValid.value = newValue.isNotEmpty()
+		if(!validationState.usernameTouched.value) validationState.usernameTouched.value = true
+		if(validationState.rejectedReason.value != null) validationState.rejectedReason.value = null
 	}
 
 	fun onPasswordChanged(newValue: String) {
 		password.value = newValue
+		validationState.passwordValid.value = newValue.length > 7
+		if(!validationState.passwordTouched.value) validationState.passwordTouched.value = true
+		if(validationState.rejectedReason.value != null) validationState.rejectedReason.value = null
 	}
 
 	fun login() {
@@ -57,9 +65,11 @@ class LoginViewModel @ViewModelInject constructor() : ViewModel() {
 			{ error ->
 				Timber.e("Log: login: $error")
 				if(error.cause is NotAuthorizedException) {
-					// TODO show error
-					password.value = ""
+					validationState.rejectedReason.value = "Invalid username or password"
+				} else {
+					validationState.rejectedReason.value = "Unknown Error"
 				}
+				onPasswordChanged("")
 				isLoading.value = false
 			}
 		)
