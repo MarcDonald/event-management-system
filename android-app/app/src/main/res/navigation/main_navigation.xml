@@ -2,33 +2,33 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:id="@+id/main_navigation"
-  app:startDestination="@id/startupFragment">
+  app:startDestination="@id/startupScreen">
 
   <fragment
-    android:id="@+id/loginFragment"
-    android:name="com.marcdonald.ems.ui.login.LoginFragment"
-    android:label="LoginFragment" >
+    android:id="@+id/loginScreen"
+    android:name="com.marcdonald.ems.ui.login.LoginScreen"
+    android:label="LoginScreen">
     <action
       android:id="@+id/loginSuccess"
-      app:destination="@id/assistanceRequestFragment" />
+      app:destination="@id/assistanceRequestScreen" />
   </fragment>
   <fragment
-    android:id="@+id/assistanceRequestFragment"
-    android:name="com.marcdonald.ems.ui.assistancerequest.AssistanceRequestFragment"
-    android:label="AssistanceRequestFragment" >
+    android:id="@+id/assistanceRequestScreen"
+    android:name="com.marcdonald.ems.ui.assistancerequest.AssistanceRequestScreen"
+    android:label="AssistanceRequestScreen">
     <action
       android:id="@+id/signout"
-      app:destination="@id/loginFragment" />
+      app:destination="@id/loginScreen" />
   </fragment>
   <fragment
-    android:id="@+id/startupFragment"
-    android:name="com.marcdonald.ems.ui.startup.StartupFragment"
-    android:label="StartupFragment" >
+    android:id="@+id/startupScreen"
+    android:name="com.marcdonald.ems.ui.startup.StartupScreen"
+    android:label="StartupScreen">
     <action
       android:id="@+id/isLoggedIn"
-      app:destination="@id/assistanceRequestFragment" />
+      app:destination="@id/assistanceRequestScreen" />
     <action
       android:id="@+id/promptLogin"
-      app:destination="@id/loginFragment" />
+      app:destination="@id/loginScreen" />
   </fragment>
 </navigation>
