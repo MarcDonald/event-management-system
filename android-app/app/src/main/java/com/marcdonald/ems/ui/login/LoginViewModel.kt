@@ -69,7 +69,8 @@ class LoginViewModel @ViewModelInject constructor() : ViewModel() {
 				} else {
 					validationState.rejectedReason.value = "Unknown Error"
 				}
-				onPasswordChanged("")
+				password.value = ""
+				validationState.passwordValid.value = false
 				isLoading.value = false
 			}
 		)

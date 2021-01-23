@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,18 +19,28 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.amazonaws.mobile.client.AWSMobileClient
 import com.marcdonald.ems.MainActivity
 import com.marcdonald.ems.R
 import com.marcdonald.ems.ui.theme.EMSTheme
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class AssistanceRequestScreen : Fragment() {
 
 	private val viewModel: AssistanceRequestViewModel by viewModels()
 
+	private val backPressedHandler = object : OnBackPressedCallback(true) {
+		override fun handleOnBackPressed() {
+			requireActivity().finish()
+		}
+	}
+
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+		requireActivity().onBackPressedDispatcher.addCallback(backPressedHandler)
+
 		return ComposeView(requireContext()).apply {
 			setContent {
 				EMSTheme(darkTheme = isSystemInDarkTheme()) {

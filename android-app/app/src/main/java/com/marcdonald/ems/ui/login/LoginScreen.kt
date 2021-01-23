@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,7 +29,15 @@ class LoginScreen : Fragment() {
 
 	private val viewModel: LoginViewModel by viewModels()
 
+	private val backPressedHandler = object : OnBackPressedCallback(true) {
+		override fun handleOnBackPressed() {
+			requireActivity().finish()
+		}
+	}
+
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+		requireActivity().onBackPressedDispatcher.addCallback(backPressedHandler)
+
 		return ComposeView(requireContext()).apply {
 			setContent {
 				EMSTheme(darkTheme = isSystemInDarkTheme()) {
