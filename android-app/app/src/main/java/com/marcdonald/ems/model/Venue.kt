@@ -1,6 +1,6 @@
 package com.marcdonald.ems.model
 
-data class Position(
-	val positionId: String,
+data class Venue(
+	val venueId: String,
 	val name: String,
 )

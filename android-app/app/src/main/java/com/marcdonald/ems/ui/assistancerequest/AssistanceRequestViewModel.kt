@@ -20,11 +20,17 @@ class AssistanceRequestViewModel @ViewModelInject constructor() : ViewModel() {
 	private val _signedOut: MutableLiveData<Boolean> = MutableLiveData(false)
 	val signedOut = _signedOut as LiveData<Boolean>
 
-	fun retrieveEventData() {
+	fun retrieveEventData(eventId: String?) {
 		// TODO
-		venueStatus.value = VenueStatus.Low()
-		position.value = Position("abc-123", "Door 18")
-		isLoading.value = false
+		eventId?.let {
+			if(eventId == "abc-123") {
+				venueStatus.value = VenueStatus.Low()
+			} else {
+				venueStatus.value = VenueStatus.High()
+			}
+			position.value = Position("abc-123", "Door 18")
+			isLoading.value = false
+		}
 	}
 
 	fun requestAssistance(type: AssistanceRequestType) {

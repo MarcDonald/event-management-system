@@ -10,14 +10,14 @@
     android:label="LoginScreen">
     <action
       android:id="@+id/loginSuccess"
-      app:destination="@id/assistanceRequestScreen" />
+      app:destination="@id/eventListScreen" />
   </fragment>
   <fragment
     android:id="@+id/assistanceRequestScreen"
     android:name="com.marcdonald.ems.ui.assistancerequest.AssistanceRequestScreen"
     android:label="AssistanceRequestScreen">
     <action
-      android:id="@+id/signout"
+      android:id="@+id/signoutFromAssistanceRequest"
       app:destination="@id/loginScreen" />
   </fragment>
   <fragment
@@ -26,9 +26,20 @@
     android:label="StartupScreen">
     <action
       android:id="@+id/isLoggedIn"
-      app:destination="@id/assistanceRequestScreen" />
+      app:destination="@id/eventListScreen" />
     <action
       android:id="@+id/promptLogin"
+      app:destination="@id/loginScreen" />
+  </fragment>
+  <fragment
+    android:id="@+id/eventListScreen"
+    android:name="com.marcdonald.ems.ui.eventlist.EventListScreen"
+    android:label="EventListScreen">
+    <action
+      android:id="@+id/eventSelected"
+      app:destination="@id/assistanceRequestScreen" />
+    <action
+      android:id="@+id/signoutFromEventList"
       app:destination="@id/loginScreen" />
   </fragment>
 </navigation>
