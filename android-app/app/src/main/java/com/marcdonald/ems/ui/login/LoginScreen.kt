@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -21,7 +20,6 @@ import com.marcdonald.ems.R
 import com.marcdonald.ems.ui.login.components.LoginForm
 import com.marcdonald.ems.ui.login.components.LoginHeader
 import com.marcdonald.ems.ui.theme.EMSTheme
-import com.marcdonald.ems.utils.SystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

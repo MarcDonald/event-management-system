@@ -1,28 +1,23 @@
 package com.marcdonald.ems.ui.theme
 
 import androidx.compose.material.Typography
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.font
+import androidx.compose.ui.text.font.fontFamily
+import com.marcdonald.ems.R
 
-// Set of Material typography styles to start with
+private val Montserrat = fontFamily(
+	font(R.font.montserrat_thin, FontWeight.W100),
+	font(R.font.montserrat_extralight, FontWeight.W200),
+	font(R.font.montserrat_light, FontWeight.W300),
+	font(R.font.montserrat_regular, FontWeight.W400),
+	font(R.font.montserrat_medium, FontWeight.W500),
+	font(R.font.montserrat_semibold, FontWeight.W600),
+	font(R.font.montserrat_bold, FontWeight.W700),
+	font(R.font.montserrat_extrabold, FontWeight.W800),
+	font(R.font.montserrat_black, FontWeight.W900),
+)
+
 val typography = Typography(
-	body1 = TextStyle(
-		fontFamily = FontFamily.Default,
-		fontWeight = FontWeight.Normal,
-		fontSize = 16.sp
-	)
-	/* Other default text styles to override
-    button = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.W500,
-        fontSize = 14.sp
-    ),
-    caption = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp
-    )
-    */
+	defaultFontFamily = Montserrat
 )

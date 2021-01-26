@@ -6,26 +6,26 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import com.amazonaws.mobile.client.AWSMobileClient
 import com.marcdonald.ems.MainActivity
 import com.marcdonald.ems.R
+import com.marcdonald.ems.ui.assistancerequest.components.AssistanceRequestActions
+import com.marcdonald.ems.ui.assistancerequest.components.StatusHeader
 import com.marcdonald.ems.ui.theme.EMSTheme
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
 @AndroidEntryPoint
 class AssistanceRequestScreen : Fragment() {
@@ -44,22 +44,86 @@ class AssistanceRequestScreen : Fragment() {
 		return ComposeView(requireContext()).apply {
 			setContent {
 				EMSTheme(darkTheme = isSystemInDarkTheme()) {
-					(requireActivity() as MainActivity).systemUi.setSystemBarsColor(MaterialTheme.colors.background)
+					(requireActivity() as MainActivity).systemUi.setSystemBarsColor(viewModel.venueStatus.value.color)
 
-					Surface(color = MaterialTheme.colors.background) {
-						Column(modifier = Modifier.padding(16.dp)) {
-							Text("Assistance Request")
-							Spacer(modifier = Modifier.padding(16.dp))
-							Button(onClick = {
-								AWSMobileClient.getInstance().signOut()
-								findNavController().navigate(R.id.signout)
-							}) {
-								Text(text = "Logout")
+					Surface(color = viewModel.venueStatus.value.color) {
+						// Container Column
+						Column(
+							modifier = Modifier
+								.fillMaxWidth()
+						) {
+							// Header Column
+							Column(
+								modifier = Modifier
+									.fillMaxWidth()
+									.weight(1f),
+							) {
+								StatusHeader(viewModel.venueStatus.value)
+							}
+							// Body
+							Surface(
+								modifier = Modifier
+									.fillMaxSize()
+									.weight(4f),
+								shape = RoundedCornerShape(topLeft = 16.dp, topRight = 16.dp),
+								color = MaterialTheme.colors.background,
+							) {
+								Column(
+									modifier = Modifier
+										.fillMaxSize()
+										.padding(top = 64.dp),
+									verticalArrangement = Arrangement.SpaceBetween
+								) {
+									Column {
+										Text(
+											text = "You are assigned to ${viewModel.position.value.name}",
+											modifier = Modifier.fillMaxWidth(),
+											textAlign = TextAlign.Center,
+											style = MaterialTheme.typography.body1,
+										)
+										Text(
+											text = "Request Assistance",
+											modifier = Modifier
+												.fillMaxWidth()
+												.padding(vertical = 16.dp),
+											textAlign = TextAlign.Center,
+											style = MaterialTheme.typography.h4,
+											fontWeight = FontWeight.Bold
+										)
+									}
+									// Assistance Requests
+									AssistanceRequestActions(viewModel::requestAssistance)
+									Row(
+										horizontalArrangement = Arrangement.SpaceBetween,
+										modifier = Modifier
+											.fillMaxWidth()
+											.padding(8.dp)
+									) {
+										IconButton(onClick = {
+											viewModel.logout()
+										}) {
+											Icon(Icons.Default.Settings)
+										}
+										IconButton(onClick = { /*TODO*/ }) {
+											Icon(Icons.Default.Menu)
+										}
+									}
+								}
 							}
 						}
 					}
 				}
 			}
 		}
+	}
+
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		super.onViewCreated(view, savedInstanceState)
+		viewModel.retrieveEventData()
+		viewModel.signedOut.observe(viewLifecycleOwner, { isSignedOut ->
+			if(isSignedOut) {
+				findNavController().navigate(R.id.signout)
+			}
+		})
 	}
 }
