@@ -36,6 +36,11 @@ export default class HttpApiResources {
    */
   public readonly controlRoomAuthorizer: CfnAuthorizer;
 
+  /**
+   * Authorizer that checks if the user making the request is the same as the user from the username path parameter
+   */
+  public readonly sameUsernameAuthorizer: CfnAuthorizer;
+
   constructor(
     private scope: cdk.Construct,
     private cognitoResources: CognitoResources,
@@ -45,6 +50,7 @@ export default class HttpApiResources {
     this.jwtAuthorizer = this.createJwtAuthorizer();
     this.adminJwtAuthorizer = this.createAdminJwtAuthorizer();
     this.controlRoomAuthorizer = this.createControlRoomAuthorizer();
+    this.sameUsernameAuthorizer = this.createSameUsernameAuthorizer();
   }
 
   private createApi = (): HttpApi => {
@@ -184,6 +190,48 @@ export default class HttpApiResources {
     });
   };
 
+  private createSameUsernameAuthorizer = (): CfnAuthorizer => {
+    const authorizerFunc = new Function(
+      this.scope,
+      'SameUsernameAuthorizerFunction',
+      {
+        runtime: Runtime.NODEJS_12_X,
+        handler: 'index.handler',
+        functionName: 'EmsSameUsernameAuthorizer',
+        code: Code.fromAsset('./lambdas/authorizers/sameUsernameAuthorizer'),
+        environment: {
+          USER_POOL_ID: this.cognitoResources.userPool.userPoolId,
+          REGION: this.region,
+        },
+      }
+    );
+
+    const sameUsernameRole = new Role(this.scope, 'SameUsernameRole', {
+      roleName: 'EmsSameUsernameAuthorizerRole',
+      assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
+    });
+
+    sameUsernameRole.addToPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['lambda:InvokeFunction'],
+        resources: [authorizerFunc.functionArn],
+      })
+    );
+
+    return new CfnAuthorizer(this.scope, 'EmsSameUsernameAuthorizer', {
+      apiId: this.api.httpApiId,
+      authorizerType: 'REQUEST',
+      identitySource: ['$request.header.Authorization'],
+      authorizerResultTtlInSeconds: 0,
+      name: 'SameUsernameAuthorizer',
+      enableSimpleResponses: true,
+      authorizerCredentialsArn: sameUsernameRole.roleArn,
+      authorizerPayloadFormatVersion: '2.0',
+      authorizerUri: `arn:aws:apigateway:${this.region}:lambda:path/2015-03-31/functions/${authorizerFunc.functionArn}/invocations`,
+    });
+  };
+
   public addJwtAuthorizerToRoutes(routes: HttpRoute[]) {
     routes.forEach((route: HttpRoute) => {
       const routeCfn = route.node.defaultChild as CfnRoute;
@@ -204,6 +252,14 @@ export default class HttpApiResources {
     routes.forEach((route: HttpRoute) => {
       const routeCfn = route.node.defaultChild as CfnRoute;
       routeCfn.authorizerId = this.controlRoomAuthorizer.ref;
+      routeCfn.authorizationType = 'CUSTOM';
+    });
+  }
+
+  public addSameUsernameAuthorizerToRoutes(routes: HttpRoute[]) {
+    routes.forEach((route: HttpRoute) => {
+      const routeCfn = route.node.defaultChild as CfnRoute;
+      routeCfn.authorizerId = this.sameUsernameAuthorizer.ref;
       routeCfn.authorizationType = 'CUSTOM';
     });
   }

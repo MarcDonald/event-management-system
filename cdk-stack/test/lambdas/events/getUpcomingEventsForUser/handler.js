@@ -18,6 +18,7 @@ const {
 } = venueUtils.testValues;
 const {
   validUsername,
+  invalidUsername,
   validSub,
   validRole,
   validGivenName,
@@ -47,10 +48,10 @@ const validVenue = {
   ],
 };
 
-const validSupervisors = [
+const validSupervisorsWithUser = [
   {
     staffMember: {
-      username: validUsername + '1',
+      username: validUsername,
       sub: validSub + '1',
       role: validRole + '1',
       givenName: validGivenName + '1',
@@ -60,10 +61,39 @@ const validSupervisors = [
   },
 ];
 
-const validStaff = [
+const validSupervisorsWithoutUser = [
   {
     staffMember: {
-      username: validUsername + '2',
+      username: invalidUsername,
+      sub: validSub + '1',
+      role: validRole + '1',
+      givenName: validGivenName + '1',
+      familyName: validFamilyName + '1',
+    },
+    areaOfSupervision: validAreaOfSupervision,
+  },
+];
+
+const validStaffWithUser = [
+  {
+    staffMember: {
+      username: validUsername,
+      sub: validSub + '2',
+      role: validRole + '2',
+      givenName: validGivenName + '2',
+      familyName: validFamilyName + '2',
+    },
+    position: {
+      positionId: validPositionId + '1',
+      name: validPositionName + '1',
+    },
+  },
+];
+
+const validStaffWithoutUser = [
+  {
+    staffMember: {
+      username: invalidUsername,
       sub: validSub + '2',
       role: validRole + '2',
       givenName: validGivenName + '2',
@@ -90,15 +120,19 @@ beforeEach(() => {
     getCurrentDayMidnight: getCurrentDayMidnightMock,
   };
 
-  handler = require('../../../../lambdas/events/getUpcomingEvents/handler')(
+  handler = require('../../../../lambdas/events/getUpcomingEventsForUser/handler')(
     dependencies
   );
 });
 
 afterEach(jest.resetAllMocks);
 
-test('Should return a formatted list of upcoming events with default count', async () => {
-  const event = {};
+test('Should return a formatted list of upcoming events with default count when user is a supervisor in an event', async () => {
+  const event = {
+    pathParameters: {
+      username: validUsername,
+    },
+  };
 
   queryMock.mockReturnValue({
     promise: () => {
@@ -109,8 +143,17 @@ test('Should return a formatted list of upcoming events with default count', asy
           venue: validVenue,
           start: validStart,
           end: validEnd,
-          supervisors: validSupervisors,
-          staff: validStaff,
+          supervisors: validSupervisorsWithUser,
+          staff: validStaffWithoutUser,
+        },
+        {
+          id: 'uuid2',
+          metadata: 'event',
+          venue: validVenue,
+          start: validStart,
+          end: validEnd,
+          supervisors: validSupervisorsWithoutUser,
+          staff: validStaffWithoutUser,
         },
       ]);
     },
@@ -126,8 +169,146 @@ test('Should return a formatted list of upcoming events with default count', asy
         venue: validVenue,
         start: validStart,
         end: validEnd,
-        supervisors: validSupervisors,
-        staff: validStaff,
+        supervisors: validSupervisorsWithUser,
+        staff: validStaffWithoutUser,
+      },
+    ])
+  );
+  expect(queryMock).toBeCalledWith({
+    TableName: validTableName,
+    IndexName: validMetadataIndexName,
+    KeyConditionExpression: 'metadata = :metadata',
+    FilterExpression: '#start >= :now or :now between #start and #end',
+    ExpressionAttributeNames: {
+      '#start': 'start',
+      '#end': 'end',
+    },
+    ExpressionAttributeValues: {
+      ':metadata': 'event',
+      ':now': mockCurrentTime,
+    },
+    Limit: 5,
+  });
+  expect(queryMock).toBeCalledTimes(1);
+});
+
+test('Should return a formatted list of upcoming events with default count when user is a staff member in an event', async () => {
+  const event = {
+    pathParameters: {
+      username: validUsername,
+    },
+  };
+
+  queryMock.mockReturnValue({
+    promise: () => {
+      return dynamoQueryResponseBuilder([
+        {
+          id: 'uuid',
+          metadata: 'event',
+          venue: validVenue,
+          start: validStart,
+          end: validEnd,
+          supervisors: validSupervisorsWithoutUser,
+          staff: validStaffWithoutUser,
+        },
+        {
+          id: 'uuid2',
+          metadata: 'event',
+          venue: validVenue,
+          start: validStart,
+          end: validEnd,
+          supervisors: validSupervisorsWithoutUser,
+          staff: validStaffWithUser,
+        },
+      ]);
+    },
+  });
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(200);
+  expect(body).toBe(
+    JSON.stringify([
+      {
+        eventId: 'uuid2',
+        venue: validVenue,
+        start: validStart,
+        end: validEnd,
+        supervisors: validSupervisorsWithoutUser,
+        staff: validStaffWithUser,
+      },
+    ])
+  );
+  expect(queryMock).toBeCalledWith({
+    TableName: validTableName,
+    IndexName: validMetadataIndexName,
+    KeyConditionExpression: 'metadata = :metadata',
+    FilterExpression: '#start >= :now or :now between #start and #end',
+    ExpressionAttributeNames: {
+      '#start': 'start',
+      '#end': 'end',
+    },
+    ExpressionAttributeValues: {
+      ':metadata': 'event',
+      ':now': mockCurrentTime,
+    },
+    Limit: 5,
+  });
+  expect(queryMock).toBeCalledTimes(1);
+});
+
+test('Should return a formatted list of upcoming events with default count when user is a staff member in an event and supervisor is another', async () => {
+  const event = {
+    pathParameters: {
+      username: validUsername,
+    },
+  };
+
+  queryMock.mockReturnValue({
+    promise: () => {
+      return dynamoQueryResponseBuilder([
+        {
+          id: 'uuid',
+          metadata: 'event',
+          venue: validVenue,
+          start: validStart,
+          end: validEnd,
+          supervisors: validSupervisorsWithoutUser,
+          staff: validStaffWithUser,
+        },
+        {
+          id: 'uuid2',
+          metadata: 'event',
+          venue: validVenue,
+          start: validStart,
+          end: validEnd,
+          supervisors: validSupervisorsWithUser,
+          staff: validStaffWithoutUser,
+        },
+      ]);
+    },
+  });
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(200);
+  expect(body).toBe(
+    JSON.stringify([
+      {
+        eventId: 'uuid',
+        venue: validVenue,
+        start: validStart,
+        end: validEnd,
+        supervisors: validSupervisorsWithoutUser,
+        staff: validStaffWithUser,
+      },
+      {
+        eventId: 'uuid2',
+        venue: validVenue,
+        start: validStart,
+        end: validEnd,
+        supervisors: validSupervisorsWithUser,
+        staff: validStaffWithoutUser,
       },
     ])
   );
@@ -151,6 +332,9 @@ test('Should return a formatted list of upcoming events with default count', asy
 
 test('Should return a formatted list of upcoming events with valid custom count', async () => {
   const event = {
+    pathParameters: {
+      username: validUsername,
+    },
     query: {
       count: 7,
     },
@@ -165,8 +349,8 @@ test('Should return a formatted list of upcoming events with valid custom count'
           venue: validVenue,
           start: validStart,
           end: validEnd,
-          supervisors: validSupervisors,
-          staff: validStaff,
+          supervisors: validSupervisorsWithUser,
+          staff: validStaffWithUser,
         },
       ]);
     },
@@ -182,8 +366,8 @@ test('Should return a formatted list of upcoming events with valid custom count'
         venue: validVenue,
         start: validStart,
         end: validEnd,
-        supervisors: validSupervisors,
-        staff: validStaff,
+        supervisors: validSupervisorsWithUser,
+        staff: validStaffWithUser,
       },
     ])
   );
@@ -207,6 +391,9 @@ test('Should return a formatted list of upcoming events with valid custom count'
 
 test('Should return a formatted list of upcoming events with invalid custom count - string', async () => {
   const event = {
+    pathParameters: {
+      username: validUsername,
+    },
     query: {
       count: 'something',
     },
@@ -226,6 +413,9 @@ test('Should return a formatted list of upcoming events with invalid custom coun
 
 test('Should return a formatted list of upcoming events with invalid custom count - greater than 10', async () => {
   const event = {
+    pathParameters: {
+      username: validUsername,
+    },
     query: {
       count: 11,
     },
@@ -245,6 +435,9 @@ test('Should return a formatted list of upcoming events with invalid custom coun
 
 test('Should return a formatted list of upcoming events with invalid custom count - less than 0', async () => {
   const event = {
+    pathParameters: {
+      username: validUsername,
+    },
     query: {
       count: -1,
     },
@@ -264,6 +457,9 @@ test('Should return a formatted list of upcoming events with invalid custom coun
 
 test('Should return an empty list if no events', async () => {
   const event = {
+    pathParameters: {
+      username: validUsername,
+    },
     query: {},
   };
 
@@ -296,6 +492,9 @@ test('Should return an empty list if no events', async () => {
 
 test('Should return 500 if an error is thrown', async () => {
   const event = {
+    pathParameters: {
+      username: validUsername,
+    },
     query: {},
   };
 

@@ -88,6 +88,16 @@ export default class VenueHttpEndpoints {
       integration: this.createGetAssistanceRequestsHandler(),
     });
 
+    const getUpcomingEventsForUserRoutes = api.addRoutes({
+      path: '/events/upcoming/{username}',
+      methods: [HttpMethod.GET],
+      integration: this.createGetUpcomingEventsForUserHandler(),
+    });
+
+    httpApiResources.addSameUsernameAuthorizerToRoutes(
+      Array<HttpRoute>().concat(...[getUpcomingEventsForUserRoutes])
+    );
+
     httpApiResources.addAdminJwtAuthorizerToRoutes(
       Array<HttpRoute>().concat(
         ...[
@@ -225,6 +235,16 @@ export default class VenueHttpEndpoints {
       'GetAssistanceRequestsFunction',
       'EmsGetAssistanceRequests',
       'getAssistanceRequests',
+      ['dynamodb:Query'],
+      true
+    );
+  }
+
+  private createGetUpcomingEventsForUserHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'GetUpcomingEventsForUserFunction',
+      'EmsGetUpcomingEventsForUser',
+      'getUpcomingEventsForUser',
       ['dynamodb:Query'],
       true
     );
