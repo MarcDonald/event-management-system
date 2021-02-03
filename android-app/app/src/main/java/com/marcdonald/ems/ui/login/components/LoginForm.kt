@@ -47,7 +47,7 @@ fun LoginForm(
 						Text(text = "Username")
 					},
 					leadingIcon = {
-						Icon(Icons.Default.Person)
+						Icon(Icons.Default.Person, contentDescription = "Username")
 					},
 					isErrorValue = validationState.usernameTouched.value && !validationState.usernameValid.value,
 				)
@@ -71,7 +71,7 @@ fun LoginForm(
 						imeAction = ImeAction.Done
 					),
 					leadingIcon = {
-						Icon(Icons.Default.Lock)
+						Icon(Icons.Default.Lock, contentDescription = "Password")
 					},
 					onImeActionPerformed = { action, imeKeyboard ->
 						if(action == ImeAction.Done) {

@@ -9,10 +9,11 @@ import androidx.lifecycle.ViewModel
 import com.amplifyframework.core.Amplify
 import com.marcdonald.ems.model.AssistanceRequestType
 import com.marcdonald.ems.model.Position
+import com.marcdonald.ems.network.AuthService
 import com.marcdonald.ems.utils.VenueStatus
 import timber.log.Timber
 
-class AssistanceRequestViewModel @ViewModelInject constructor() : ViewModel() {
+class AssistanceRequestViewModel @ViewModelInject constructor(private val authService: AuthService) : ViewModel() {
 
 	val isLoading = mutableStateOf(true)
 	val venueStatus: MutableState<VenueStatus> = mutableStateOf(VenueStatus.Low())
@@ -39,6 +40,7 @@ class AssistanceRequestViewModel @ViewModelInject constructor() : ViewModel() {
 	}
 
 	fun logout() {
+		authService.clearDetails()
 		Amplify.Auth.signOut(
 			{ _signedOut.postValue(true) },
 			{ error -> Timber.e("Log: logout: $error") }

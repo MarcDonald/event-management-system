@@ -2,7 +2,6 @@ package com.marcdonald.ems.ui.eventlist.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Card
@@ -39,20 +38,26 @@ fun EventCard(
 		Column(modifier = Modifier.padding(horizontal = 16.dp)) {
 			Text(
 				text = event.name,
-				modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
+				modifier = Modifier
+					.padding(top = 8.dp)
+					.fillMaxWidth(),
 				textAlign = TextAlign.Center,
 				style = MaterialTheme.typography.h5,
 				fontWeight = FontWeight.Bold
 			)
 			Text(
 				text = event.venue.name,
-				modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
+				modifier = Modifier
+					.padding(horizontal = 16.dp)
+					.fillMaxWidth(),
 				textAlign = TextAlign.Center,
 				style = MaterialTheme.typography.body1,
 			)
 			Text(
 				text = dateRange,
-				modifier = Modifier.padding(bottom = 8.dp).fillMaxWidth(),
+				modifier = Modifier
+					.padding(bottom = 8.dp)
+					.fillMaxWidth(),
 				textAlign = TextAlign.Center,
 				style = MaterialTheme.typography.body1,
 			)

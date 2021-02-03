@@ -128,10 +128,10 @@ class AssistanceRequestScreen : Fragment() {
 			IconButton(onClick = {
 				viewModel.logout()
 			}) {
-				Icon(Icons.Default.Settings)
+				Icon(Icons.Default.Settings, contentDescription = "Settings")
 			}
 			IconButton(onClick = { /*TODO*/ }) {
-				Icon(Icons.Default.Menu)
+				Icon(Icons.Default.Menu, contentDescription = "Menu")
 			}
 		}
 }

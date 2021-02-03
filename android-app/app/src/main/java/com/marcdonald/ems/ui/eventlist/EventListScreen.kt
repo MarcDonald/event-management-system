@@ -8,11 +8,13 @@ import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
@@ -87,17 +89,21 @@ class EventListScreen : Fragment() {
 											style = MaterialTheme.typography.h4,
 											fontWeight = FontWeight.Bold
 										)
-										LazyColumn {
-											itemsIndexed(viewModel.events.value) { index, event ->
-												EventCard(event) { eventId ->
-													Timber.i("Log: cardClick: $eventId")
-													val args = Bundle().apply {
-														putString("eventId", eventId)
+										if(viewModel.showLoading.value) {
+											Column(modifier = Modifier.fillMaxWidth()) {
+												CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+											}
+										} else {
+											LazyColumn {
+												itemsIndexed(viewModel.events.value) { index, event ->
+													EventCard(event) { eventId ->
+														Timber.i("Log: cardClick: $eventId")
+														val args = Bundle().apply {
+															putString("eventId", eventId)
+														}
+														findNavController().navigate(R.id.eventSelected, args)
 													}
-													findNavController().navigate(R.id.eventSelected, args)
-												}
-												if(index != viewModel.events.value.size - 1) {
-													Spacer(modifier = Modifier.padding(top = 8.dp))
+													Spacer(modifier = Modifier.padding(8.dp))
 												}
 											}
 										}
@@ -132,7 +138,7 @@ class EventListScreen : Fragment() {
 			IconButton(onClick = {
 				viewModel.logout()
 			}) {
-				Icon(Icons.Default.Settings)
+				Icon(Icons.Default.Settings, contentDescription = "Settings")
 			}
 		}
 }

@@ -7,14 +7,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.amazonaws.services.cognitoidentityprovider.model.NotAuthorizedException
 import com.amplifyframework.auth.AuthChannelEventName
+import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
 import com.amplifyframework.core.Amplify
 import com.amplifyframework.core.InitializationStatus
 import com.amplifyframework.hub.HubChannel
 import com.amplifyframework.hub.HubEvent
+import com.marcdonald.ems.network.AuthService
 import com.marcdonald.ems.ui.login.state.LoginFormValidationState
 import timber.log.Timber
 
-class LoginViewModel @ViewModelInject constructor() : ViewModel() {
+class LoginViewModel @ViewModelInject constructor(private val authService: AuthService) : ViewModel() {
 
 	private val _signedIn = MutableLiveData(false)
 	val signedIn = _signedIn as LiveData<Boolean>
@@ -31,7 +33,7 @@ class LoginViewModel @ViewModelInject constructor() : ViewModel() {
 				InitializationStatus.FAILED.toString() -> Timber.e("Log: onViewCreated: Auth failed")
 				else                                      -> {
 					when(AuthChannelEventName.valueOf(hubEvent.name)) {
-						AuthChannelEventName.SIGNED_IN -> _signedIn.postValue(true)
+						AuthChannelEventName.SIGNED_IN -> initAuthService()
 						AuthChannelEventName.SIGNED_OUT -> _signedIn.postValue(false)
 						AuthChannelEventName.SESSION_EXPIRED -> _signedIn.postValue(false)
 					}
@@ -73,6 +75,17 @@ class LoginViewModel @ViewModelInject constructor() : ViewModel() {
 				validationState.passwordValid.value = false
 				isLoading.value = false
 			}
+		)
+	}
+
+	private fun initAuthService() {
+		Amplify.Auth.fetchAuthSession(
+			{ result ->
+				val cognitoAuthSession = result as AWSCognitoAuthSession
+				authService.setDetails(cognitoAuthSession)
+				_signedIn.postValue(true)
+			},
+			{ error -> Timber.e("Log: onViewCreated: $error") }
 		)
 	}
 }

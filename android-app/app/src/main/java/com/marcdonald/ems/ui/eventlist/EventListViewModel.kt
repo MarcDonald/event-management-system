@@ -6,17 +6,20 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.amplifyframework.core.Amplify
 import com.marcdonald.ems.model.Event
-import com.marcdonald.ems.model.Venue
-import com.marcdonald.ems.ui.eventlist.components.EventCard
+import com.marcdonald.ems.network.AuthService
+import com.marcdonald.ems.repository.EventsRepository
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class EventListViewModel @ViewModelInject constructor() : ViewModel() {
+class EventListViewModel @ViewModelInject constructor(private val repository: EventsRepository, private val authService: AuthService) : ViewModel() {
 
 	val loggedInUserName: MutableState<String> = mutableStateOf("...")
 	val loggedInRole: MutableState<String> = mutableStateOf("...")
 	val events: MutableState<List<Event>> = mutableStateOf(listOf())
+	val showLoading: MutableState<Boolean> = mutableStateOf(true)
 	private val _signedOut: MutableLiveData<Boolean> = MutableLiveData(false)
 	val signedOut = _signedOut as LiveData<Boolean>
 
@@ -34,35 +37,16 @@ class EventListViewModel @ViewModelInject constructor() : ViewModel() {
 	}
 
 	fun loadEvents() {
-		events.value = listOf(
-			Event(
-				"abc-123",
-				"A cool event",
-				listOf(),
-				Venue("def-456", "A cool venue"),
-				1611685797,
-				1611885797
-			),
-			Event(
-				"abc-124",
-				"A cool event 2",
-				listOf(),
-				Venue("def-456", "A cool venue"),
-				1611685797,
-				1611885797
-			),
-			Event(
-				"abc-125",
-				"Another cool event",
-				listOf(),
-				Venue("def-456", "A cool venue"),
-				1611685797,
-				1611885797
-			),
-		)
+		viewModelScope.launch {
+			showLoading.value = true
+			val response = repository.getUpcoming()
+			events.value = response
+			showLoading.value = false
+		}
 	}
 
 	fun logout() {
+		authService.clearDetails()
 		Amplify.Auth.signOut(
 			{ _signedOut.postValue(true) },
 			{ error -> Timber.e("Log: logout: $error") }
