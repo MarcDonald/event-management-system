@@ -9,12 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amplifyframework.core.Amplify
 import com.marcdonald.ems.model.Event
+import com.marcdonald.ems.model.Position
 import com.marcdonald.ems.network.AuthService
 import com.marcdonald.ems.repository.EventsRepository
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class EventListViewModel @ViewModelInject constructor(private val repository: EventsRepository, private val authService: AuthService) : ViewModel() {
+class EventListViewModel @ViewModelInject constructor(private val repository: EventsRepository, private val authService: AuthService) :
+		ViewModel() {
 
 	val loggedInUserName: MutableState<String> = mutableStateOf("...")
 	val loggedInRole: MutableState<String> = mutableStateOf("...")
@@ -51,5 +53,17 @@ class EventListViewModel @ViewModelInject constructor(private val repository: Ev
 			{ _signedOut.postValue(true) },
 			{ error -> Timber.e("Log: logout: $error") }
 		)
+	}
+
+	fun determinePositionAtEvent(eventId: String): Position {
+		if(authService.username == null) throw Exception("Username in authService is null")
+		events.value.find { event ->
+			event.eventId == eventId
+		}?.let { event ->
+			event.staff.find { staff -> staff.staffMember.username == authService.username }?.let { staff ->
+				return staff.position
+			}
+		}
+		throw Exception("Could not find user as a steward on this event")
 	}
 }

@@ -98,6 +98,7 @@ export default class HttpApiResources {
         issuer: `https://cognito-idp.eu-west-1.amazonaws.com/${this.cognitoResources.userPool.userPoolId}`,
         audience: [
           this.cognitoResources.webDashboardUserPoolClient.userPoolClientId,
+          this.cognitoResources.androidUserPoolClient.userPoolClientId,
         ],
       },
     });

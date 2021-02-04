@@ -89,7 +89,9 @@ class AssistanceRequestScreen : Fragment() {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
-		viewModel.retrieveEventData(requireArguments().getString("eventId"))
+		arguments?.let { args ->
+			viewModel.passArguments(args.getString("positionName", ""), args.getString("positionId"), args.getString("eventId", ""))
+		}
 		viewModel.signedOut.observe(viewLifecycleOwner, { isSignedOut ->
 			if(isSignedOut) {
 				findNavController().navigate(R.id.signoutFromAssistanceRequest)
@@ -101,7 +103,7 @@ class AssistanceRequestScreen : Fragment() {
 	fun InfoBar() =
 		Column {
 			Text(
-				text = "You are assigned to ${viewModel.position.value.name}",
+				text = "You are assigned to ${viewModel.positionName.value}",
 				modifier = Modifier.fillMaxWidth(),
 				textAlign = TextAlign.Center,
 				style = MaterialTheme.typography.body1,

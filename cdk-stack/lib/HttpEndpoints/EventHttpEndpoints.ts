@@ -113,11 +113,7 @@ export default class VenueHttpEndpoints {
 
     httpApiResources.addJwtAuthorizerToRoutes(
       Array<HttpRoute>().concat(
-        ...[
-          getUpcomingEventsRoutes,
-          addAssistanceRequestRoutes,
-          getEventVenueStatus,
-        ]
+        ...[addAssistanceRequestRoutes, getEventVenueStatus]
       )
     );
 
@@ -127,6 +123,7 @@ export default class VenueHttpEndpoints {
           getAssistanceRequestRoutes,
           getEventInformation,
           updateEventVenueStatus,
+          getUpcomingEventsRoutes,
         ]
       )
     );

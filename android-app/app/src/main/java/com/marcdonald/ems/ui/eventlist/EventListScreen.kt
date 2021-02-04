@@ -8,6 +8,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -22,7 +23,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.marcdonald.ems.MainActivity
 import com.marcdonald.ems.R
@@ -95,13 +95,9 @@ class EventListScreen : Fragment() {
 											}
 										} else {
 											LazyColumn {
-												itemsIndexed(viewModel.events.value) { index, event ->
+												items(viewModel.events.value) { event ->
 													EventCard(event) { eventId ->
-														Timber.i("Log: cardClick: $eventId")
-														val args = Bundle().apply {
-															putString("eventId", eventId)
-														}
-														findNavController().navigate(R.id.eventSelected, args)
+														onCardClick(eventId)
 													}
 													Spacer(modifier = Modifier.padding(8.dp))
 												}
@@ -129,7 +125,7 @@ class EventListScreen : Fragment() {
 	}
 
 	@Composable
-	fun BottomBar() =
+	private fun BottomBar() =
 		Row(
 			modifier = Modifier
 				.fillMaxWidth()
@@ -141,4 +137,19 @@ class EventListScreen : Fragment() {
 				Icon(Icons.Default.Settings, contentDescription = "Settings")
 			}
 		}
+
+	private fun onCardClick(eventId: String) {
+		try {
+			val position = viewModel.determinePositionAtEvent(eventId)
+			Timber.i("Log: onCardClick: $position")
+			val args = Bundle().apply {
+				putString("positionName", position.name)
+				putString("positionId", position.positionId)
+				putString("eventId", eventId)
+			}
+			findNavController().navigate(R.id.eventSelected, args)
+		} catch(e: Exception) {
+			Timber.e("Log: onCardClick: $e")
+		}
+	}
 }
