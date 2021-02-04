@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
 import Dropdown, { DropdownItem } from '../../../../Components/Dropdown';
 
 interface NewSupervisorAssignmentEntryPropTypes {
@@ -50,7 +50,7 @@ export default function NewSupervisorAssignmentEntry(
         type="submit"
         className="text-center disabled:cursor-not-allowed focus:outline-none bg-positive hover:bg-positive-light focus:bg-positive-light rounded-md p-1 text-white w-10 h-10"
       >
-        <FontAwesomeIcon icon={faCheck} className={`text-2xl align-middle`} />
+        <FontAwesomeIcon icon={faPlus} className={`text-2xl align-middle`} />
       </button>
     </form>
   );
