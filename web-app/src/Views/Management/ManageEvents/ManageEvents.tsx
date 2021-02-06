@@ -88,9 +88,9 @@ export default function ManageEvents() {
       name: state.name,
       // This is a safe non-null assertion because the form has already been validated
       venue: state.venue!,
-      // Have to divide by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
-      start: state.start.getTime() / 1000,
-      end: state.end.getTime() / 1000,
+      // Have to divide by 1000 and round it down because JavaScript uses milliseconds instead of seconds to store epoch time
+      start: Math.floor(state.start.getTime() / 1000),
+      end: Math.floor(state.end.getTime() / 1000),
       supervisors: state.supervisors,
       staff: state.staff,
     });
@@ -105,8 +105,8 @@ export default function ManageEvents() {
       const updatedInformation = {
         name: state.name,
         // Have to divide by 1000 because JavaScript uses milliseconds instead of seconds to store epoch time
-        start: state.start.getTime() / 1000,
-        end: state.end.getTime() / 1000,
+        start: Math.floor(state.start.getTime() / 1000),
+        end: Math.floor(state.end.getTime() / 1000),
       };
       await updateEventInformation(state.id, updatedInformation);
       const updatedSupervisors = state.supervisors;

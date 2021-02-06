@@ -7,7 +7,7 @@ const Dynamo = new aws.DynamoDB.DocumentClient({
 const getCurrentDayMidnight = () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  return Math.round(today.getTime() / 1000);
+  return Math.floor(today.getTime() / 1000);
 };
 
 exports.handler = require('./handler')({

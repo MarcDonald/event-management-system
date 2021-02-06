@@ -143,6 +143,55 @@ test('Should add event when provided with a valid event', async () => {
   );
 });
 
+test('Should add event and round down time when provided with a valid event with decimal points in the time', async () => {
+  const eventBody = JSON.stringify({
+    name: validEventName,
+    venue: validVenue,
+    start: Number.parseFloat(validStart + '.1234'),
+    end: Number.parseFloat(validEnd + '.1234'),
+    supervisors: validSupervisors,
+    staff: validStaff,
+  });
+  const event = { body: eventBody };
+
+  generateUUIDMock.mockReturnValue('uuid');
+
+  putMock.mockReturnValue({
+    promise: () => {},
+  });
+
+  const { statusCode, body } = await handler(event);
+
+  expect(generateUUIDMock).toBeCalledTimes(1);
+  expect(putMock).toBeCalledWith({
+    TableName: validTableName,
+    Item: {
+      id: 'uuid',
+      metadata: 'event',
+      name: validEventName,
+      venue: validVenue,
+      start: validStart,
+      end: validEnd,
+      supervisors: validSupervisors,
+      staff: validStaff,
+    },
+  });
+  expect(putMock).toBeCalledTimes(1);
+
+  expect(statusCode).toBe(201);
+  expect(body).toBe(
+    JSON.stringify({
+      eventId: 'uuid',
+      name: validEventName,
+      venue: validVenue,
+      start: validStart,
+      end: validEnd,
+      supervisors: validSupervisors,
+      staff: validStaff,
+    })
+  );
+});
+
 test('Should return 400 when called with an event with no body', async () => {
   const event = {};
 

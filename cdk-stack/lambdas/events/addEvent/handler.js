@@ -18,15 +18,25 @@ module.exports = (dependencies) => async (event) => {
     return badBodyResponse;
   }
 
-  const { name, venue, start, end, supervisors, staff } = JSON.parse(
-    event.body
-  );
+  const parsedBody = JSON.parse(event.body);
+  const { name, venue, supervisors, staff } = parsedBody;
 
   // TODO trim name and position names
   // TODO verify all positions and staff have IDs
-  if (!name || !venue || !start || !end || !supervisors || !staff) {
+  if (
+    !name ||
+    !venue ||
+    !parsedBody.start ||
+    !parsedBody.end ||
+    !supervisors ||
+    !staff
+  ) {
     return badBodyResponse;
   }
+
+  // Rounding the time down in case there's a decimal point
+  const start = Math.floor(parsedBody.start);
+  const end = Math.floor(parsedBody.end);
 
   if (supervisors.length === 0) {
     return {

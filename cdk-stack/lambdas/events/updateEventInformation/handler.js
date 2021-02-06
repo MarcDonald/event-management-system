@@ -73,11 +73,15 @@ module.exports = (dependencies) => async (event) => {
     return badBodyResponse;
   }
 
-  const { name, start, end } = JSON.parse(event.body);
+  const parsedBody = JSON.parse(event.body);
+  const { name } = parsedBody;
 
-  if (!name && !start && !end) {
+  if (!name && !parsedBody.start && !parsedBody.end) {
     return badBodyResponse;
   }
+
+  const start = Math.floor(parsedBody.start);
+  const end = Math.floor(parsedBody.end);
 
   // TODO trim name
   try {

@@ -83,6 +83,57 @@ test('Should update event name, start, and end when all are given', async () => 
   );
 });
 
+test('Should update event name, start, and end when all are given but times have decimals', async () => {
+  const eventBody = JSON.stringify({
+    name: validEventName,
+    start: Number.parseFloat(validStart + '.123'),
+    end: Number.parseFloat(validEnd + '.123'),
+  });
+  const event = {
+    pathParameters: {
+      eventId: validEventId,
+    },
+    body: eventBody,
+  };
+
+  updateMock.mockReturnValue({
+    promise: () => {
+      return {};
+    },
+  });
+
+  const { statusCode, body } = await handler(event);
+
+  expect(queryMock).toBeCalledTimes(0);
+  expect(updateMock).toBeCalledWith({
+    TableName: validTableName,
+    Key: {
+      id: validEventId,
+      metadata: 'event',
+    },
+    UpdateExpression: 'set #name = :name, #start = :start, #end = :end',
+    ConditionExpression: 'id = :id and metadata = :metadata',
+    ExpressionAttributeNames: {
+      '#end': 'end',
+      '#name': 'name',
+      '#start': 'start',
+    },
+    ExpressionAttributeValues: {
+      ':end': validEnd,
+      ':id': validEventId,
+      ':name': validEventName,
+      ':start': validStart,
+      ':metadata': 'event',
+    },
+  });
+  expect(updateMock).toBeCalledTimes(1);
+
+  expect(statusCode).toBe(200);
+  expect(body).toBe(
+    JSON.stringify({ message: `Successfully updated ${validEventId}` })
+  );
+});
+
 test('Should only update event name when only it is given', async () => {
   const eventBody = JSON.stringify({
     name: validEventName,

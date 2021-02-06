@@ -9,5 +9,5 @@ exports.handler = require('./handler')({
   Dynamo,
   generateUUID: uuid.v4,
   tableName: process.env.TABLE_NAME,
-  getCurrentTime: () => Math.round(new Date().getTime() / 1000),
+  getCurrentTime: () => Math.floor(new Date().getTime() / 1000),
 });
