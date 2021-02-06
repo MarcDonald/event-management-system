@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.toArgb
  * From https://github.com/android/compose-samples/blob/7da64ff119990df23bd5a026be8c2757ebbd2a82/Jetsnack/app/src/main/java/com/example/jetsnack/ui/utils/SystemUi.kt
  */
 interface SystemUiController {
+
 	/**
 	 * Set the status bar color.
 	 *
@@ -69,6 +70,7 @@ fun SystemUiController(window: Window): SystemUiController {
  * degrading behavior based upon API level.
  */
 private class SystemUiControllerImpl(private val window: Window) : SystemUiController {
+
 	override fun setStatusBarColor(
 		color: Color,
 		darkIcons: Boolean,
@@ -76,13 +78,13 @@ private class SystemUiControllerImpl(private val window: Window) : SystemUiContr
 	) {
 		val statusBarColor = when {
 			darkIcons && Build.VERSION.SDK_INT < 23 -> transformColorForLightContent(color)
-			else -> color
+			else                                    -> color
 		}
 		window.statusBarColor = statusBarColor.toArgb()
 
-		if (Build.VERSION.SDK_INT >= 23) {
+		if(Build.VERSION.SDK_INT >= 23) {
 			@Suppress("DEPRECATION")
-			if (darkIcons) {
+			if(darkIcons) {
 				window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or
 						View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 			} else {
@@ -98,15 +100,15 @@ private class SystemUiControllerImpl(private val window: Window) : SystemUiContr
 		transformColorForLightContent: (Color) -> Color
 	) {
 		val navBarColor = when {
-			Build.VERSION.SDK_INT >= 29 -> Color.Transparent // For gesture nav
+			Build.VERSION.SDK_INT >= 29             -> Color.Transparent // For gesture nav
 			darkIcons && Build.VERSION.SDK_INT < 26 -> transformColorForLightContent(color)
-			else -> color
+			else                                    -> color
 		}
 		window.navigationBarColor = navBarColor.toArgb()
 
-		if (Build.VERSION.SDK_INT >= 26) {
+		if(Build.VERSION.SDK_INT >= 26) {
 			@Suppress("DEPRECATION")
-			if (darkIcons) {
+			if(darkIcons) {
 				window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or
 						View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
 			} else {
@@ -143,6 +145,7 @@ private val BlackScrimmed: (Color) -> Color = { original ->
  * A fake implementation, useful as a default or used in Previews.
  */
 private object FakeSystemUiController : SystemUiController {
+
 	override fun setStatusBarColor(
 		color: Color,
 		darkIcons: Boolean,

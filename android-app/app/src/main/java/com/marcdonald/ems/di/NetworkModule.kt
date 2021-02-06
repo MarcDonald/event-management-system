@@ -41,7 +41,6 @@ object NetworkModule {
 		}.build()
 	}
 
-
 	@Singleton
 	@Provides
 	fun provideUpcomingEventsService(application: EMS, moshi: Moshi, client: OkHttpClient): EventsService {

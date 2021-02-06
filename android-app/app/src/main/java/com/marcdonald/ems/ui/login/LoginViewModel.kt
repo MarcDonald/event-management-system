@@ -16,7 +16,8 @@ import com.marcdonald.ems.network.AuthService
 import com.marcdonald.ems.ui.login.state.LoginFormValidationState
 import timber.log.Timber
 
-class LoginViewModel @ViewModelInject constructor(private val authService: AuthService) : ViewModel() {
+class LoginViewModel @ViewModelInject constructor(private val authService: AuthService) :
+		ViewModel() {
 
 	private val _signedIn = MutableLiveData(false)
 	val signedIn = _signedIn as LiveData<Boolean>
@@ -30,11 +31,11 @@ class LoginViewModel @ViewModelInject constructor(private val authService: AuthS
 		Amplify.Hub.subscribe(HubChannel.AUTH) { hubEvent: HubEvent<*> ->
 			when(hubEvent.name) {
 				InitializationStatus.SUCCEEDED.toString() -> Timber.i("Log: onViewCreated: Auth initialized")
-				InitializationStatus.FAILED.toString() -> Timber.e("Log: onViewCreated: Auth failed")
+				InitializationStatus.FAILED.toString()    -> Timber.e("Log: onViewCreated: Auth failed")
 				else                                      -> {
 					when(AuthChannelEventName.valueOf(hubEvent.name)) {
-						AuthChannelEventName.SIGNED_IN -> initAuthService()
-						AuthChannelEventName.SIGNED_OUT -> _signedIn.postValue(false)
+						AuthChannelEventName.SIGNED_IN       -> initAuthService()
+						AuthChannelEventName.SIGNED_OUT      -> _signedIn.postValue(false)
 						AuthChannelEventName.SESSION_EXPIRED -> _signedIn.postValue(false)
 					}
 				}

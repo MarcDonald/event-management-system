@@ -1,12 +1,9 @@
 package com.marcdonald.ems
 
 import android.app.Application
-import com.amazonaws.mobile.auth.core.IdentityManager
-import com.amazonaws.mobile.config.AWSConfiguration
 import com.amplifyframework.AmplifyException
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
 import com.amplifyframework.core.Amplify
-import com.amplifyframework.core.category.CategoryConfiguration
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 

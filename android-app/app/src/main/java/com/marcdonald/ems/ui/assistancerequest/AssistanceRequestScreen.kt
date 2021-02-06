@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,7 +25,6 @@ import androidx.navigation.fragment.findNavController
 import com.marcdonald.ems.MainActivity
 import com.marcdonald.ems.R
 import com.marcdonald.ems.ui.assistancerequest.components.AssistanceRequestActions
-import com.marcdonald.ems.ui.assistancerequest.components.StatusHeader
 import com.marcdonald.ems.ui.theme.EMSTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -59,7 +59,7 @@ class AssistanceRequestScreen : Fragment() {
 									.fillMaxWidth()
 									.weight(1f),
 							) {
-								StatusHeader(viewModel.venueStatus.value)
+								StatusHeader()
 							}
 							// Body
 							Surface(
@@ -90,7 +90,7 @@ class AssistanceRequestScreen : Fragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 		arguments?.let { args ->
-			viewModel.passArguments(args.getString("positionName", ""), args.getString("positionId"), args.getString("eventId", ""))
+			viewModel.passArguments(args.getString("positionName", ""), args.getString("positionId", ""), args.getString("eventId", ""))
 		}
 		viewModel.signedOut.observe(viewLifecycleOwner, { isSignedOut ->
 			if(isSignedOut) {
@@ -100,10 +100,38 @@ class AssistanceRequestScreen : Fragment() {
 	}
 
 	@Composable
+	fun StatusHeader() =
+		Column(
+			modifier = Modifier
+				.fillMaxSize()
+		) {
+			Text(
+				text = "Venue Alert Status Is",
+				modifier = Modifier.fillMaxWidth(),
+				style = MaterialTheme.typography.h5,
+				textAlign = TextAlign.Center,
+				color = Color.White,
+				fontWeight = FontWeight.Light
+			)
+			Text(
+				text = viewModel.venueStatus.value.name,
+				modifier = Modifier.fillMaxWidth(),
+				style = MaterialTheme.typography.h2,
+				textAlign = TextAlign.Center,
+				color = Color.White,
+				fontWeight = FontWeight.Bold
+			)
+		}
+
+	@Composable
 	fun InfoBar() =
 		Column {
+			var assignmentText = "Loading Assignment..."
+			if(viewModel.position.value != null) {
+				assignmentText = "You are assigned to ${viewModel.position.value?.name}"
+			}
 			Text(
-				text = "You are assigned to ${viewModel.positionName.value}",
+				text = assignmentText,
 				modifier = Modifier.fillMaxWidth(),
 				textAlign = TextAlign.Center,
 				style = MaterialTheme.typography.body1,
@@ -132,7 +160,7 @@ class AssistanceRequestScreen : Fragment() {
 			}) {
 				Icon(Icons.Default.Settings, contentDescription = "Settings")
 			}
-			IconButton(onClick = { /*TODO*/ }) {
+			IconButton(onClick = { viewModel.refresh() }) {
 				Icon(Icons.Default.Menu, contentDescription = "Menu")
 			}
 		}

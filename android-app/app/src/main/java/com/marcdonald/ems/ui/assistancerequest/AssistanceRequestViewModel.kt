@@ -11,7 +11,6 @@ import com.amplifyframework.core.Amplify
 import com.marcdonald.ems.model.AssistanceRequestType
 import com.marcdonald.ems.model.Position
 import com.marcdonald.ems.network.AuthService
-import com.marcdonald.ems.network.EventsService
 import com.marcdonald.ems.repository.EventsRepository
 import com.marcdonald.ems.utils.VenueStatus
 import kotlinx.coroutines.launch
@@ -22,33 +21,49 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 
 	val isLoading = mutableStateOf(true)
 	val venueStatus: MutableState<VenueStatus> = mutableStateOf(VenueStatus.Low())
-	val positionName: MutableState<String> = mutableStateOf("")
+	val position: MutableState<Position?> = mutableStateOf(null)
 	private val _signedOut: MutableLiveData<Boolean> = MutableLiveData(false)
 	val signedOut = _signedOut as LiveData<Boolean>
 
-	private var positionId: String? = null
 	private var eventId: String? = null
 
-	fun passArguments(positionName: String, positionId: String?, eventId: String) {
+	fun passArguments(positionName: String, positionId: String, eventId: String) {
 		viewModelScope.launch { ->
 			isLoading.value = true
 			try {
-				authService.idToken?.let { idToken ->
-					val status = eventsRepository.getStatus(eventId)
-					venueStatus.value = status
-					this@AssistanceRequestViewModel.positionName.value = positionName
-					this@AssistanceRequestViewModel.positionId = positionId
-					this@AssistanceRequestViewModel.eventId = eventId
-				}
-			} catch (e: Exception) {
+				this@AssistanceRequestViewModel.position.value = Position(positionId, positionName)
+				this@AssistanceRequestViewModel.eventId = eventId
+				refresh()
+			} catch(e: Exception) {
 				Timber.e("Log: passArguments: $e")
 			}
 			isLoading.value = false
 		}
 	}
 
+	fun refresh() {
+		viewModelScope.launch {
+			isLoading.value = true
+			try {
+				eventId?.let { venueStatus.value = eventsRepository.getStatus(it) }
+			} catch(e: Exception) {
+				Timber.e("Log: refresh: $e")
+			}
+		}
+	}
+
 	fun requestAssistance(type: AssistanceRequestType) {
-		// TODO
+		viewModelScope.launch {
+			try {
+				eventId?.let { eventId ->
+					position.value?.let { pos ->
+						eventsRepository.sendAssistanceRequest(eventId, pos, type)
+					}
+				}
+			} catch(e: Exception) {
+				Timber.e("Log: requestAssistance: $e")
+			}
+		}
 		Timber.i("Log: requestAssistance: ${type.name}")
 	}
 

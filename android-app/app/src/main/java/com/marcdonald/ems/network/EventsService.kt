@@ -1,9 +1,7 @@
 package com.marcdonald.ems.network
 
 import com.marcdonald.ems.model.Event
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface EventsService {
 
@@ -12,4 +10,11 @@ interface EventsService {
 
 	@GET("/production/events/{eventId}/status")
 	suspend fun getStatus(@Header("Authorization") idToken: String, @Path("eventId") eventId: String): EventStatusResponse
+
+	@POST("/production/events/{eventId}/assistance")
+	suspend fun sendAssistanceRequest(
+		@Header("Authorization") idToken: String,
+		@Path("eventId") eventId: String,
+		@Body assistanceRequestBody: AssistanceRequestBody
+	): AssistanceRequestResponse
 }

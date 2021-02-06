@@ -21,7 +21,7 @@ val blue800 = Color(0xFF0066FF)
 
 val lowStatus = Color(0xFF059669)
 val highStatus = Color(0xFFD97706)
-val evacuateStatus =Color(0xFFDC2626)
+val evacuateStatus = Color(0xFFDC2626)
 
 val supervisorColor = Color(0xFFD39C2F)
 val cleanerColor = Color(0xFF3D8AF7)
