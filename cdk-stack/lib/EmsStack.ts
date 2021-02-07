@@ -5,6 +5,7 @@ import StaffHttpEndpoints from './HttpEndpoints/StaffHttpEndpoints';
 import DynamoDbResources from './DynamoDbResources';
 import VenueHttpEndpoints from './HttpEndpoints/VenueHttpEndpoints';
 import EventHttpEndpoints from './HttpEndpoints/EventHttpEndpoints';
+import WebsocketResources from './WebsocketResources';
 
 /**
  * Main Stack
@@ -35,5 +36,6 @@ export default class EmsStack extends cdk.Stack {
       httpApiResources,
       dynamoDbResources
     );
+    const websocket = new WebsocketResources(this);
   }
 }
