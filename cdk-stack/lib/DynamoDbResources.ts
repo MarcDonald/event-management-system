@@ -2,11 +2,6 @@ import * as cdk from '@aws-cdk/core';
 import { RemovalPolicy } from '@aws-cdk/core';
 import { AttributeType, BillingMode, Table } from '@aws-cdk/aws-dynamodb';
 
-interface GSI {
-  indexName: string;
-  arn: string;
-}
-
 /**
  * DynamoDB Table and Global Secondary Index
  */
@@ -18,23 +13,30 @@ export default class DynamoDbResources {
 
   constructor(private scope: cdk.Construct) {
     this.table = this.createTable();
-    this.metadataIndex = {
-      indexName: this.metadataIndexName,
-      arn: `${this.table.tableArn}/index/${this.metadataIndexName}`,
-    };
+    this.metadataIndex = this.createMetadataIndex();
+    this.addIndexToTable(this.metadataIndex);
   }
 
   private createTable = (): Table => {
-    const table = new Table(this.scope, 'MainTable', {
+    return new Table(this.scope, 'MainTable', {
       tableName: 'EventManagementSystem',
       partitionKey: { name: 'id', type: AttributeType.STRING },
       sortKey: { name: 'metadata', type: AttributeType.STRING },
       removalPolicy: RemovalPolicy.DESTROY,
       billingMode: BillingMode.PAY_PER_REQUEST,
     });
+  };
 
-    table.addGlobalSecondaryIndex({
+  private createMetadataIndex(): GSI {
+    return {
       indexName: this.metadataIndexName,
+      arn: `${this.table.tableArn}/index/${this.metadataIndexName}`,
+    };
+  }
+
+  private addIndexToTable(index: GSI) {
+    this.table.addGlobalSecondaryIndex({
+      indexName: index.indexName,
       partitionKey: {
         name: 'metadata',
         type: AttributeType.STRING,
@@ -44,7 +46,5 @@ export default class DynamoDbResources {
         type: AttributeType.STRING,
       },
     });
-
-    return table;
-  };
+  }
 }

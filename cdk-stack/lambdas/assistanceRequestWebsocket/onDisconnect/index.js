@@ -6,4 +6,5 @@ const Dynamo = new aws.DynamoDB.DocumentClient({
 
 exports.handler = require('./handler')({
   Dynamo,
+  connectionTableName: process.env.CONNECTION_TABLE_NAME,
 });
