@@ -192,7 +192,7 @@ export default class VenueHttpEndpoints {
       'UpdateEventVenueStatusFunction',
       'EmsUpdateEventVenueStatusFunction',
       'updateEventVenueStatus',
-      ['dynamodb:PutItem', 'dynamodb:DeleteItem', 'dynamodb:Query'],
+      ['dynamodb:PutItem'],
       false,
       true
     );
@@ -231,7 +231,10 @@ export default class VenueHttpEndpoints {
       'AddAssistanceRequestFunction',
       'EmsAddAssistanceRequest',
       'addAssistanceRequest',
-      ['dynamodb:PutItem']
+      ['dynamodb:PutItem'],
+      false,
+      false,
+      true
     );
   }
 
@@ -260,7 +263,7 @@ export default class VenueHttpEndpoints {
     functionName: string,
     codeDir: string,
     actions: string[],
-    usesIndex: boolean = false,
+    usesMetadataIndex: boolean = false,
     usesVenueStatusWebsocket: boolean = false,
     usesAssistanceRequestWebsocket: boolean = false
   ): LambdaProxyIntegration {
@@ -269,7 +272,7 @@ export default class VenueHttpEndpoints {
 
     let environment: { [key: string]: string } = { TABLE_NAME: tableName };
     let resources = [tableArn];
-    if (usesIndex) {
+    if (usesMetadataIndex) {
       environment = { ...environment, METADATA_INDEX_NAME: indexName };
       resources = [...resources, indexArn];
     }
@@ -278,13 +281,13 @@ export default class VenueHttpEndpoints {
         ...environment,
         WEBSOCKET_CONNECTION_TABLE_NAME: this.websocketConnectionTable.table
           .tableName,
-        WEBSOCKET_CONNECTION_TABLE_INDEX: this.websocketConnectionTable
-          .websocketIndex.indexName,
       };
-      resources = [
-        ...resources,
-        this.websocketConnectionTable.table.tableArn,
-        this.websocketConnectionTable.websocketIndex.arn,
+      resources = [...resources, this.websocketConnectionTable.table.tableArn];
+      actions = [
+        ...actions,
+        'execute-api:ManageConnections',
+        'dynamodb:DeleteItem',
+        'dynamodb:Query',
       ];
 
       if (usesVenueStatusWebsocket) {
@@ -293,7 +296,6 @@ export default class VenueHttpEndpoints {
           VENUE_STATUS_WEBSOCKET_API_ID: this.websocketResources
             .venueStatusWebsocket.api.ref,
         };
-        actions = [...actions, 'execute-api:ManageConnections'];
         resources = [
           ...resources,
           `arn:aws:execute-api:${this.region}:${this.account}:${this.websocketResources.venueStatusWebsocket.api.ref}/*`,
@@ -305,7 +307,6 @@ export default class VenueHttpEndpoints {
           ASSISTANCE_REQUEST_WEBSOCKET_API_ID: this.websocketResources
             .assistanceRequestsWebsocket.api.ref,
         };
-        actions = [...actions, 'execute-api:ManageConnections'];
         resources = [
           ...resources,
           `arn:aws:execute-api:${this.region}:${this.account}:${this.websocketResources.assistanceRequestsWebsocket.api.ref}/*`,

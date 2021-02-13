@@ -1,19 +1,10 @@
 const { awsUtils, eventUtils, websocketUtils } = require('../../../testUtils');
-const { MockAWSError, dynamoQueryResponseBuilder } = awsUtils;
-const {
-  validEventId,
-  invalidEventId,
-  validEventName,
-  validStart,
-  validEnd,
-  invalidEnd,
-  validStatusUpdateTime,
-} = eventUtils.testValues;
+const { MockAWSError } = awsUtils;
+const { validEventId, validStatusUpdateTime } = eventUtils.testValues;
 const { validTableName } = awsUtils.testValues;
 const {
   validConnectionId,
   validConnectionTableName,
-  validConnectionTableIndexName,
 } = websocketUtils.testValues;
 
 let handler;
@@ -30,6 +21,7 @@ beforeEach(() => {
     query: queryMock,
     delete: deleteMock,
   };
+
   const ApiGatewayManagementApi = {
     postToConnection: postToConnectionMock,
   };
@@ -39,7 +31,6 @@ beforeEach(() => {
     ApiGatewayManagementApi,
     tableName: validTableName,
     connectionTableName: validConnectionTableName,
-    connectionTableIndexName: validConnectionTableIndexName,
     getCurrentTime: getCurrentTimeMock,
   };
 
@@ -66,6 +57,7 @@ test('Should insert statusUpdate to table and return the new status when provide
       return {};
     },
   });
+
   queryMock.mockReturnValue({
     promise: () => {
       return { Items: [] };
@@ -86,10 +78,11 @@ test('Should insert statusUpdate to table and return the new status when provide
 
   expect(queryMock).toBeCalledWith({
     TableName: validConnectionTableName,
-    IndexName: validConnectionTableIndexName,
     KeyConditionExpression: 'websocket = :websocket',
+    FilterExpression: 'eventId = :eventId',
     ExpressionAttributeValues: {
       ':websocket': 'venueStatus',
+      ':eventId': validEventId,
     },
   });
   expect(queryMock).toBeCalledTimes(1);
@@ -148,10 +141,11 @@ test('Should insert statusUpdate to table, post to websocket, and return the new
 
   expect(queryMock).toBeCalledWith({
     TableName: validConnectionTableName,
-    IndexName: validConnectionTableIndexName,
     KeyConditionExpression: 'websocket = :websocket',
+    FilterExpression: 'eventId = :eventId',
     ExpressionAttributeValues: {
       ':websocket': 'venueStatus',
+      ':eventId': validEventId,
     },
   });
   expect(queryMock).toBeCalledTimes(1);
@@ -159,17 +153,15 @@ test('Should insert statusUpdate to table, post to websocket, and return the new
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 1,
     Data: JSON.stringify({
-      id: validEventId,
-      time: validStatusUpdateTime,
       venueStatus: 'High',
+      time: validStatusUpdateTime,
     }),
   });
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 2,
     Data: JSON.stringify({
-      id: validEventId,
-      time: validStatusUpdateTime,
       venueStatus: 'High',
+      time: validStatusUpdateTime,
     }),
   });
   expect(postToConnectionMock).toBeCalledTimes(2);
@@ -234,10 +226,11 @@ test('Should insert statusUpdate to table, post to websocket, delete stale conne
 
   expect(queryMock).toBeCalledWith({
     TableName: validConnectionTableName,
-    IndexName: validConnectionTableIndexName,
     KeyConditionExpression: 'websocket = :websocket',
+    FilterExpression: 'eventId = :eventId',
     ExpressionAttributeValues: {
       ':websocket': 'venueStatus',
+      ':eventId': validEventId,
     },
   });
   expect(queryMock).toBeCalledTimes(1);
@@ -245,18 +238,16 @@ test('Should insert statusUpdate to table, post to websocket, delete stale conne
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 1,
     Data: JSON.stringify({
-      id: validEventId,
-      time: validStatusUpdateTime,
       venueStatus: 'High',
+      time: validStatusUpdateTime,
     }),
   });
 
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 2,
     Data: JSON.stringify({
-      id: validEventId,
-      time: validStatusUpdateTime,
       venueStatus: 'High',
+      time: validStatusUpdateTime,
     }),
   });
   expect(postToConnectionMock).toBeCalledTimes(2);
@@ -326,10 +317,11 @@ test('Should insert statusUpdate to table, post to websocket, and return error w
 
   expect(queryMock).toBeCalledWith({
     TableName: validConnectionTableName,
-    IndexName: validConnectionTableIndexName,
     KeyConditionExpression: 'websocket = :websocket',
+    FilterExpression: 'eventId = :eventId',
     ExpressionAttributeValues: {
       ':websocket': 'venueStatus',
+      ':eventId': validEventId,
     },
   });
   expect(queryMock).toBeCalledTimes(1);
@@ -337,18 +329,16 @@ test('Should insert statusUpdate to table, post to websocket, and return error w
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 1,
     Data: JSON.stringify({
-      id: validEventId,
-      time: validStatusUpdateTime,
       venueStatus: 'High',
+      time: validStatusUpdateTime,
     }),
   });
 
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 2,
     Data: JSON.stringify({
-      id: validEventId,
-      time: validStatusUpdateTime,
       venueStatus: 'High',
+      time: validStatusUpdateTime,
     }),
   });
   expect(postToConnectionMock).toBeCalledTimes(2);

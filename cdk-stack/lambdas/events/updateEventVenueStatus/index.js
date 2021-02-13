@@ -13,6 +13,5 @@ exports.handler = require('./handler')({
   ApiGatewayManagementApi,
   tableName: process.env.TABLE_NAME,
   connectionTableName: process.env.WEBSOCKET_CONNECTION_TABLE_NAME,
-  connectionTableIndexName: process.env.WEBSOCKET_CONNECTION_TABLE_INDEX,
   getCurrentTime: () => Math.floor(new Date().getTime() / 1000),
 });

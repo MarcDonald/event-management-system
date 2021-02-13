@@ -15,15 +15,17 @@ const postToWebsocket = async ({
   ApiGatewayManagementApi,
   Dynamo,
   connectionTableName,
-  connectionTableIndexName,
-  message,
+  eventId,
+  time,
+  venueStatus,
 }) => {
   const connections = await Dynamo.query({
     TableName: connectionTableName,
-    IndexName: connectionTableIndexName,
     KeyConditionExpression: 'websocket = :websocket',
+    FilterExpression: 'eventId = :eventId',
     ExpressionAttributeValues: {
       ':websocket': 'venueStatus',
+      ':eventId': eventId,
     },
   }).promise();
 
@@ -31,7 +33,7 @@ const postToWebsocket = async ({
     try {
       await ApiGatewayManagementApi.postToConnection({
         ConnectionId: connectionId,
-        Data: JSON.stringify(message),
+        Data: JSON.stringify({ venueStatus, time }),
       }).promise();
     } catch (e) {
       if (e.statusCode === 410) {
@@ -59,7 +61,6 @@ module.exports = (dependencies) => async (event) => {
     getCurrentTime,
     ApiGatewayManagementApi,
     connectionTableName,
-    connectionTableIndexName,
   } = dependencies;
 
   const { eventId } = event.pathParameters;
@@ -110,12 +111,9 @@ module.exports = (dependencies) => async (event) => {
       ApiGatewayManagementApi,
       Dynamo,
       connectionTableName,
-      connectionTableIndexName,
-      message: {
-        id: eventId,
-        time: time,
-        venueStatus: venueStatus,
-      },
+      eventId,
+      time,
+      venueStatus,
     });
 
     return {
