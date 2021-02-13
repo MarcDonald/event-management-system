@@ -49,10 +49,12 @@ const cognitoUserBuilder = (
 
 class MockAWSError extends Error {
   code;
+  statusCode;
 
-  constructor(message, code) {
+  constructor(message, code, statusCode = 500) {
     super(message);
     this.code = code;
+    this.statusCode = statusCode;
   }
 }
 

@@ -4,6 +4,8 @@ import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import HttpApiResources from '../HttpApiResources';
 import DynamoDbResources from '../DynamoDbResources';
 import { createBaseHandler } from '../Utils/LambdaUtils';
+import WebsocketConnectionTable from '../Websocket/WebsocketConnectionTable';
+import WebsocketResources from '../Websocket/WebsocketResources';
 
 /**
  * /venues/ endpoints for the HttpApi
@@ -12,7 +14,11 @@ export default class VenueHttpEndpoints {
   constructor(
     private scope: cdk.Construct,
     httpApiResources: HttpApiResources,
-    private dynamoResources: DynamoDbResources
+    private dynamoResources: DynamoDbResources,
+    private websocketConnectionTable: WebsocketConnectionTable,
+    private websocketResources: WebsocketResources,
+    private region: string,
+    private account: string
   ) {
     const { api } = httpApiResources;
 
@@ -186,7 +192,9 @@ export default class VenueHttpEndpoints {
       'UpdateEventVenueStatusFunction',
       'EmsUpdateEventVenueStatusFunction',
       'updateEventVenueStatus',
-      ['dynamodb:PutItem']
+      ['dynamodb:PutItem', 'dynamodb:DeleteItem', 'dynamodb:Query'],
+      false,
+      true
     );
   }
 
@@ -252,7 +260,9 @@ export default class VenueHttpEndpoints {
     functionName: string,
     codeDir: string,
     actions: string[],
-    usesIndex: boolean = false
+    usesIndex: boolean = false,
+    usesVenueStatusWebsocket: boolean = false,
+    usesAssistanceRequestWebsocket: boolean = false
   ): LambdaProxyIntegration {
     const { tableName, tableArn } = this.dynamoResources.table;
     const { indexName, arn: indexArn } = this.dynamoResources.metadataIndex;
@@ -262,6 +272,45 @@ export default class VenueHttpEndpoints {
     if (usesIndex) {
       environment = { ...environment, METADATA_INDEX_NAME: indexName };
       resources = [...resources, indexArn];
+    }
+    if (usesVenueStatusWebsocket || usesAssistanceRequestWebsocket) {
+      environment = {
+        ...environment,
+        WEBSOCKET_CONNECTION_TABLE_NAME: this.websocketConnectionTable.table
+          .tableName,
+        WEBSOCKET_CONNECTION_TABLE_INDEX: this.websocketConnectionTable
+          .websocketIndex.indexName,
+      };
+      resources = [
+        ...resources,
+        this.websocketConnectionTable.table.tableArn,
+        this.websocketConnectionTable.websocketIndex.arn,
+      ];
+
+      if (usesVenueStatusWebsocket) {
+        environment = {
+          ...environment,
+          VENUE_STATUS_WEBSOCKET_API_ID: this.websocketResources
+            .venueStatusWebsocket.api.ref,
+        };
+        actions = [...actions, 'execute-api:ManageConnections'];
+        resources = [
+          ...resources,
+          `arn:aws:execute-api:${this.region}:${this.account}:${this.websocketResources.venueStatusWebsocket.api.ref}/*`,
+        ];
+      }
+      if (usesAssistanceRequestWebsocket) {
+        environment = {
+          ...environment,
+          ASSISTANCE_REQUEST_WEBSOCKET_API_ID: this.websocketResources
+            .assistanceRequestsWebsocket.api.ref,
+        };
+        actions = [...actions, 'execute-api:ManageConnections'];
+        resources = [
+          ...resources,
+          `arn:aws:execute-api:${this.region}:${this.account}:${this.websocketResources.assistanceRequestsWebsocket.api.ref}/*`,
+        ];
+      }
     }
 
     return createBaseHandler(

@@ -17,6 +17,13 @@ export default class EmsStack extends cdk.Stack {
 
     const cognitoResources = new CognitoResources(this);
     const dynamoDbResources = new DynamoDbResources(this);
+    const websocketConnectionTableResources = new WebsocketConnectionTable(
+      this
+    );
+    const websocketResources = new WebsocketResources(
+      this,
+      websocketConnectionTableResources
+    );
     const httpApiResources = new HttpApiResources(
       this,
       cognitoResources,
@@ -35,14 +42,11 @@ export default class EmsStack extends cdk.Stack {
     const eventsHttpEndpoints = new EventHttpEndpoints(
       this,
       httpApiResources,
-      dynamoDbResources
-    );
-    const websocketConnectionTableResources = new WebsocketConnectionTable(
-      this
-    );
-    const websocket = new WebsocketResources(
-      this,
-      websocketConnectionTableResources
+      dynamoDbResources,
+      websocketConnectionTableResources,
+      websocketResources,
+      this.region,
+      this.account
     );
   }
 }
