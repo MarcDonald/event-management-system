@@ -1,0 +1,13 @@
+{
+  "REGION": "",
+  "COGNITO": {
+    "USER_POOL_ID": "",
+    "APP_CLIENT_ID": "",
+    "IDENTITY_POOL_ID": ""
+  },
+  "API": {
+    "BASE_URL": "",
+    "ASSISTANCE_REQUEST_WEBSOCKET": "",
+    "VENUE_STATUS_WEBSOCKET": "",
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Event from '../../Models/Event';
 import AssistanceRequest from '../../Models/AssistanceRequest';
@@ -7,6 +7,8 @@ import StatusHeader from './StatusHeader';
 import EventDetailsDrawer from './EventDetailsDrawer';
 import AssistanceRequestsDrawer from './AssistanceRequestDrawer';
 import {
+  connectToVenueStatusWebsocket,
+  connectToAssistanceRequestWebsocket,
   getAssistanceRequests,
   getEventInformation,
   getEventVenueStatus,
@@ -15,60 +17,11 @@ import Loading from '../../Components/Loading';
 import DashboardHolder from './DashboardHolder';
 import usePageProtection from '../../Hooks/usePageProtection';
 import StaffRole from '../../Models/StaffRole';
-import StateAction from '../../Utils/StateAction';
-
-interface DashboardState {
-  isLoading: boolean;
-  eventInformation: Event | null;
-  assistanceRequests: AssistanceRequest[];
-  venueStatus: VenueStatus;
-}
-
-const initialState: DashboardState = {
-  isLoading: false,
-  eventInformation: null,
-  assistanceRequests: [],
-  venueStatus: VenueStatus.Low,
-};
-
-enum DashboardStateAction {
-  Refresh,
-  DataLoaded,
-  VenueStatusChange,
-}
-
-function stateReducer(
-  state: DashboardState,
-  action: StateAction<DashboardStateAction>
-): DashboardState {
-  const { type, parameters } = action;
-  switch (type) {
-    case DashboardStateAction.Refresh: {
-      return {
-        ...state,
-        isLoading: true,
-      };
-    }
-    case DashboardStateAction.DataLoaded: {
-      return {
-        ...state,
-        isLoading: false,
-        eventInformation: parameters?.eventInformation,
-        assistanceRequests: parameters?.assistanceRequests,
-        venueStatus: parameters?.venueStatus,
-      };
-    }
-    case DashboardStateAction.VenueStatusChange: {
-      return {
-        ...state,
-        venueStatus: parameters?.venueStatus,
-      };
-    }
-    default:
-      break;
-  }
-  return state;
-}
+import Sockette from 'sockette';
+import DashboardStateAction from './State/DashboardStateActions';
+import DashboardStateReducer, {
+  initialDashboardState,
+} from './State/DashboardStateReducer';
 
 /**
  * Main dashboards page
@@ -77,7 +30,10 @@ export default function Dashboard() {
   const { eventId } = useParams();
   const pageProtection = usePageProtection();
 
-  const [state, dispatch] = useReducer(stateReducer, initialState);
+  const [state, dispatch] = useReducer(
+    DashboardStateReducer,
+    initialDashboardState
+  );
   const {
     isLoading,
     eventInformation,
@@ -85,31 +41,75 @@ export default function Dashboard() {
     venueStatus,
   } = state;
 
+  const [
+    assistanceRequestSocket,
+    setAssistanceRequestSocket,
+  ] = useState<Sockette | null>(null);
+  const [venueStatusSocket, setVenueStatusSocket] = useState<Sockette | null>(
+    null
+  );
+
   const refresh = async () => {
     dispatch({ type: DashboardStateAction.Refresh });
+
+    if (assistanceRequestSocket) {
+      assistanceRequestSocket.close();
+    }
+    if (venueStatusSocket) {
+      venueStatusSocket.close();
+    }
 
     const dbEventInformation = getEventInformation(eventId);
     const dbAssistanceRequests = getAssistanceRequests(eventId);
     const dbVenueStatus = getEventVenueStatus(eventId);
 
-    Promise.all([dbEventInformation, dbAssistanceRequests, dbVenueStatus]).then(
-      (values) => {
+    Promise.all([dbEventInformation, dbAssistanceRequests, dbVenueStatus])
+      .then((values) => {
         dispatch({
-          type: DashboardStateAction.DataLoaded,
+          type: DashboardStateAction.InitialDataLoaded,
           parameters: {
             eventInformation: values[0],
             assistanceRequests: values[1],
             venueStatus: values[2],
           },
         });
-      }
+      })
+      .then(() => {
+        openAssistanceRequestWebsocketConnection();
+      })
+      .then(() => {
+        openVenueStatusWebsocketConnection();
+      });
+  };
+
+  const openAssistanceRequestWebsocketConnection = () => {
+    const socket = connectToAssistanceRequestWebsocket(eventId, (e) => {
+      dispatch({
+        type: DashboardStateAction.NewAssistanceRequest,
+        parameters: {
+          newAssistanceRequest: JSON.parse(e.data),
+        },
+      });
+    });
+    setAssistanceRequestSocket(socket);
+  };
+
+  const openVenueStatusWebsocketConnection = () => {
+    const socket = connectToVenueStatusWebsocket(eventId, (e) =>
+      dispatch({
+        type: DashboardStateAction.VenueStatusChange,
+        parameters: {
+          venueStatus: JSON.parse(e.data).venueStatus,
+        },
+      })
     );
+    setVenueStatusSocket(socket);
   };
 
   useEffect(() => {
     pageProtection
       .protectPage(StaffRole.ControlRoomOperator, StaffRole.Administrator)
-      .then(() => refresh().then());
+      .then(async () => await refresh());
   }, [eventId]);
 
   return (

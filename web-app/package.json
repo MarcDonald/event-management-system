@@ -29,7 +29,8 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "tailwindcss": "2.0.1",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.7",
+    "sockette": "^2.0.6"
   },
   "scripts": {
     "build:css": "tailwind build src/index.css -o src/tailwind.css",

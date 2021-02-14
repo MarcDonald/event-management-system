@@ -16,6 +16,7 @@ const postToWebsocket = async ({
   Dynamo,
   connectionTableName,
   eventId,
+  assistanceRequestId,
   time,
   position,
   message,
@@ -34,7 +35,7 @@ const postToWebsocket = async ({
     try {
       await ApiGatewayManagementApi.postToConnection({
         ConnectionId: connectionId,
-        Data: JSON.stringify({ time, position, message }),
+        Data: JSON.stringify({ assistanceRequestId, time, position, message }),
       }).promise();
     } catch (e) {
       if (e.statusCode === 410) {
@@ -106,6 +107,7 @@ module.exports = (dependencies) => async (event) => {
       Dynamo,
       connectionTableName,
       eventId,
+      assistanceRequestId,
       time,
       position,
       message,

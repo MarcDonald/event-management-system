@@ -6,6 +6,8 @@ import AssignedSupervisor from '../Models/AssignedSupervisor';
 import Venue from '../Models/Venue';
 import AssistanceRequest from '../Models/AssistanceRequest';
 import VenueStatus from '../Models/VenueStatus';
+import Sockette from 'sockette';
+import DashboardStateAction from '../Views/Dashboard/State/DashboardStateActions';
 
 const baseUrl = `${config.API.BASE_URL}/events`;
 
@@ -96,4 +98,50 @@ export async function updateEventStatus(
     venueStatus: venueStatus.toString(),
   });
   return result.data.venueStatus;
+}
+
+export function connectToVenueStatusWebsocket(
+  eventId: string,
+  onMessage: (e: MessageEvent) => void
+): Sockette {
+  return connectToWebsocket(
+    config.API.VENUE_STATUS_WEBSOCKET,
+    eventId,
+    'Venue Status Websocket',
+    onMessage
+  );
+}
+
+export function connectToAssistanceRequestWebsocket(
+  eventId: string,
+  onMessage: (e: MessageEvent) => void
+): Sockette {
+  return connectToWebsocket(
+    config.API.ASSISTANCE_REQUEST_WEBSOCKET,
+    eventId,
+    'Assistance Request Websocket',
+    onMessage
+  );
+}
+
+function connectToWebsocket(
+  url: string,
+  eventId: string,
+  name: string,
+  onMessage: (e: MessageEvent) => void
+): Sockette {
+  return new Sockette(`${url}?eventId=${eventId}`, {
+    timeout: 5e3,
+    maxAttempts: 1,
+    onmessage: (e) => onMessage(e),
+    onclose: (e) => {
+      console.log(`Closed: ${JSON.stringify(e)}`);
+    },
+    onerror: (e) => {
+      console.error(`Error: ${JSON.stringify(e)}`);
+    },
+    onopen: (e) => {
+      console.log(`Connected to ${name}: ${JSON.stringify(e)}`);
+    },
+  });
 }

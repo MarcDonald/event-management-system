@@ -198,6 +198,7 @@ test('Should add assistance request, post to websocket, and return information w
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 1,
     Data: JSON.stringify({
+      assistanceRequestId: 'uuid',
       time: validAssistanceRequestTime,
       position: {
         positionId: validPositionId,
@@ -209,6 +210,7 @@ test('Should add assistance request, post to websocket, and return information w
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 2,
     Data: JSON.stringify({
+      assistanceRequestId: 'uuid',
       time: validAssistanceRequestTime,
       position: {
         positionId: validPositionId,
@@ -312,6 +314,7 @@ test('Should add assistance request, post to websocket, delete stale connection,
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 1,
     Data: JSON.stringify({
+      assistanceRequestId: 'uuid',
       time: validAssistanceRequestTime,
       position: {
         positionId: validPositionId,
@@ -323,6 +326,7 @@ test('Should add assistance request, post to websocket, delete stale connection,
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 2,
     Data: JSON.stringify({
+      assistanceRequestId: 'uuid',
       time: validAssistanceRequestTime,
       position: {
         positionId: validPositionId,
@@ -431,6 +435,7 @@ test('Should add assistance request, post to websocket, and return error when a 
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 1,
     Data: JSON.stringify({
+      assistanceRequestId: 'uuid',
       time: validAssistanceRequestTime,
       position: {
         positionId: validPositionId,
@@ -442,6 +447,7 @@ test('Should add assistance request, post to websocket, and return error when a 
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 2,
     Data: JSON.stringify({
+      assistanceRequestId: 'uuid',
       time: validAssistanceRequestTime,
       position: {
         positionId: validPositionId,
