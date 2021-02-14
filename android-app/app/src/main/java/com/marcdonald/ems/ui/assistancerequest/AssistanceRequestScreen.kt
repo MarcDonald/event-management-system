@@ -99,6 +99,16 @@ class AssistanceRequestScreen : Fragment() {
 		})
 	}
 
+	override fun onPause() {
+		viewModel.closeVenueStatusWebsocketConnection()
+		super.onPause()
+	}
+
+	override fun onResume() {
+		viewModel.connectToVenueStatusWebsocket()
+		super.onResume()
+	}
+
 	@Composable
 	fun StatusHeader() =
 		Column(

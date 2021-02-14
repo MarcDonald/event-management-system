@@ -3,6 +3,8 @@ package com.marcdonald.ems.di
 import com.marcdonald.ems.EMS
 import com.marcdonald.ems.R
 import com.marcdonald.ems.network.EventsService
+import com.marcdonald.ems.network.EventsWebsocketService
+import com.marcdonald.ems.network.VenueStatusWebsocketMessage
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -43,7 +45,7 @@ object NetworkModule {
 
 	@Singleton
 	@Provides
-	fun provideUpcomingEventsService(application: EMS, moshi: Moshi, client: OkHttpClient): EventsService {
+	fun provideEventsService(application: EMS, moshi: Moshi, client: OkHttpClient): EventsService {
 		val baseUrl = application.resources.getString(R.string.baseApiRoute)
 		return Retrofit.Builder()
 			.baseUrl(baseUrl)
@@ -51,5 +53,12 @@ object NetworkModule {
 			.client(client)
 			.build()
 			.create(EventsService::class.java)
+	}
+
+	@Singleton
+	@Provides
+	fun provideEventsWebsocketService(application: EMS, moshi: Moshi, client: OkHttpClient): EventsWebsocketService {
+		val venueStatusWebsocketUrl = application.resources.getString(R.string.venueStatusWebsocketUrl)
+		return EventsWebsocketService(client, moshi.adapter(VenueStatusWebsocketMessage::class.java), venueStatusWebsocketUrl)
 	}
 }

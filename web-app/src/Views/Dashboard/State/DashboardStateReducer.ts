@@ -41,7 +41,6 @@ export default function DashboardStateReducer(
     }
     case DashboardStateAction.VenueStatusChange: {
       if (parameters?.venueStatus !== state.venueStatus) {
-        console.log('called');
         return {
           ...state,
           venueStatus: parameters?.venueStatus,

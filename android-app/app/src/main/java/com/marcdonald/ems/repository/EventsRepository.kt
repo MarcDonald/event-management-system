@@ -3,17 +3,15 @@ package com.marcdonald.ems.repository
 import com.marcdonald.ems.model.AssistanceRequestType
 import com.marcdonald.ems.model.Event
 import com.marcdonald.ems.model.Position
-import com.marcdonald.ems.network.AssistanceRequestBody
-import com.marcdonald.ems.network.AssistanceRequestResponse
-import com.marcdonald.ems.network.AuthService
-import com.marcdonald.ems.network.EventsService
+import com.marcdonald.ems.network.*
 import com.marcdonald.ems.utils.VenueStatus
+import okhttp3.WebSocket
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class EventsRepository @Inject constructor(private val authService: AuthService, private val eventsService: EventsService) {
+class EventsRepository @Inject constructor(private val authService: AuthService, private val eventsService: EventsService, private val eventsWebsocketService: EventsWebsocketService) {
 
 	suspend fun getUpcoming(): List<Event> {
 		try {
@@ -56,6 +54,22 @@ class EventsRepository @Inject constructor(private val authService: AuthService,
 			)
 		} catch(e: Exception) {
 			Timber.e("Log: sendAssistanceRequest: $e")
+		}
+		return null
+	}
+
+	fun connectToVenueStatusWebsocket(eventId: String, onMessage: (VenueStatus) -> Unit): WebSocket? {
+		try {
+			return eventsWebsocketService.connectToVenueStatusWebsocket(eventId) { message ->
+				when(message.venueStatus) {
+					"Low"      -> onMessage(VenueStatus.Low())
+					"High"     -> onMessage(VenueStatus.High())
+					"Evacuate" -> onMessage(VenueStatus.Evacuate())
+					else       -> onMessage(VenueStatus.Low())
+				}
+			}
+		} catch(e: Exception) {
+			Timber.e("Log: connectToVenueStatusWebsocket: $e")
 		}
 		return null
 	}

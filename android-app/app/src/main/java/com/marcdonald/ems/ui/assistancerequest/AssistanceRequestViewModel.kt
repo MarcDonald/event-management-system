@@ -14,6 +14,7 @@ import com.marcdonald.ems.network.AuthService
 import com.marcdonald.ems.repository.EventsRepository
 import com.marcdonald.ems.utils.VenueStatus
 import kotlinx.coroutines.launch
+import okhttp3.*
 import timber.log.Timber
 
 class AssistanceRequestViewModel @ViewModelInject constructor(private val authService: AuthService, private val eventsRepository: EventsRepository) :
@@ -24,6 +25,7 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 	val position: MutableState<Position?> = mutableStateOf(null)
 	private val _signedOut: MutableLiveData<Boolean> = MutableLiveData(false)
 	val signedOut = _signedOut as LiveData<Boolean>
+	var venueStatusWebsocket: WebSocket? = null
 
 	private var eventId: String? = null
 
@@ -34,6 +36,7 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 				this@AssistanceRequestViewModel.position.value = Position(positionId, positionName)
 				this@AssistanceRequestViewModel.eventId = eventId
 				refresh()
+				connectToVenueStatusWebsocket()
 			} catch(e: Exception) {
 				Timber.e("Log: passArguments: $e")
 			}
@@ -73,5 +76,24 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 			{ _signedOut.postValue(true) },
 			{ error -> Timber.e("Log: logout: $error") }
 		)
+	}
+
+	fun connectToVenueStatusWebsocket() {
+		Timber.i("Log: connectToVenueStatusWebsocket: Start")
+		if(eventId != null && venueStatusWebsocket == null) {
+			Timber.i("Log: connectToVenueStatusWebsocket: Has eventId")
+			venueStatusWebsocket = eventsRepository.connectToVenueStatusWebsocket(eventId!!) { newVenueStatus ->
+				venueStatus.value = newVenueStatus
+			}
+		}
+	}
+
+	fun closeVenueStatusWebsocketConnection() {
+		Timber.i("Log: closeVenueStatusWebsocketConnection: Start")
+		venueStatusWebsocket?.let {
+			Timber.i("Log: closeVenueStatusWebsocketConnection: Exists, closing")
+			it.close(1001, "Closing")
+			venueStatusWebsocket = null
+		}
 	}
 }
