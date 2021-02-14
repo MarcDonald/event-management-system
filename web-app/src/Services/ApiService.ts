@@ -1,6 +1,7 @@
 import { Auth } from 'aws-amplify';
 import axios from 'axios';
 import { AxiosRequestConfig } from 'axios';
+import Sockette from 'sockette';
 
 const getIdToken = async () => {
   const session = await Auth.currentSession();
@@ -45,4 +46,27 @@ export async function delet(url: string, data?: object): Promise<any> {
   if (data) config.data = data;
 
   return axios.delete(url, config);
+}
+
+export async function connectToWebsocket(
+  url: string,
+  eventId: string,
+  name: string,
+  onMessage: (e: MessageEvent) => void
+): Promise<Sockette> {
+  const token = await getIdToken();
+  return new Sockette(`${url}?eventId=${eventId}&Authorization=${token}`, {
+    timeout: 5e3,
+    maxAttempts: 1,
+    onmessage: (e) => onMessage(e),
+    onclose: (e) => {
+      console.log(`Closed${name} : ${JSON.stringify(e)}`);
+    },
+    onerror: (e) => {
+      console.error(`Error to ${name}: ${JSON.stringify(e)}`);
+    },
+    onopen: (e) => {
+      console.log(`Connected to ${name}: ${JSON.stringify(e)}`);
+    },
+  });
 }

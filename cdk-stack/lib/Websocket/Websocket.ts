@@ -3,9 +3,11 @@ import { ConcreteDependable, Duration } from '@aws-cdk/core';
 import WebsocketConnectionTable from './WebsocketConnectionTable';
 import {
   CfnApi,
+  CfnAuthorizer,
   CfnDeployment,
   CfnIntegration,
   CfnRoute,
+  CfnRouteProps,
   CfnStage,
 } from '@aws-cdk/aws-apigatewayv2';
 import {
@@ -15,7 +17,8 @@ import {
   Role,
   ServicePrincipal,
 } from '@aws-cdk/aws-iam';
-import { AssetCode, Function, Runtime } from '@aws-cdk/aws-lambda';
+import { AssetCode, Code, Function, Runtime } from '@aws-cdk/aws-lambda';
+import CognitoResources from '../CognitoResources';
 
 interface WebsocketRoute {
   name: string;
@@ -31,6 +34,8 @@ export default class Websocket {
     private connectionTable: WebsocketConnectionTable,
     private id: string,
     private baseCodeRoute: string,
+    private cognitoResources: CognitoResources,
+    private region: string,
     additionalRoutes: WebsocketRoute[] = []
   ) {
     this.api = this.createWebsocketApi(additionalRoutes);
@@ -53,7 +58,9 @@ export default class Websocket {
       stageName: 'production',
     });
 
-    this.addRoutes(api, deployment, additionalRoutes);
+    const authorizer = this.createAuthorizer(api);
+
+    this.addRoutes(api, deployment, authorizer, additionalRoutes);
 
     return api;
   }
@@ -61,15 +68,20 @@ export default class Websocket {
   private addRoutes(
     api: CfnApi,
     deployment: CfnDeployment,
+    authorizer: CfnAuthorizer,
     additionalRoutes: WebsocketRoute[]
   ) {
     const dependencies = new ConcreteDependable();
     dependencies.add(
-      this.createRoute(api, {
-        name: 'Connect',
-        actions: ['dynamodb:PutItem'],
-        codePath: 'onConnect',
-      })
+      this.createRoute(
+        api,
+        {
+          name: 'Connect',
+          actions: ['dynamodb:PutItem'],
+          codePath: 'onConnect',
+        },
+        authorizer
+      )
     );
     dependencies.add(
       this.createRoute(api, {
@@ -80,7 +92,7 @@ export default class Websocket {
     );
 
     additionalRoutes.forEach((route) =>
-      dependencies.add(this.createRoute(api, route))
+      dependencies.add(this.createRoute(api, route, authorizer))
     );
 
     deployment.node.addDependency(dependencies);
@@ -88,7 +100,8 @@ export default class Websocket {
 
   private createRoute(
     api: CfnApi,
-    { name, actions, codePath }: WebsocketRoute
+    { name, actions, codePath }: WebsocketRoute,
+    authorizer?: CfnAuthorizer
   ) {
     const lambdaRole = this.createLambdaRole(
       `${this.id}${name}LambdaRole`,
@@ -113,12 +126,27 @@ export default class Websocket {
       integrationRole.roleArn,
       api.ref
     );
-    return new CfnRoute(this.scope, `Ems${this.id}Websocket${name}Route`, {
+
+    let routeOptions: CfnRouteProps = {
       apiId: api.ref,
       routeKey: `$${name.toLowerCase()}`,
-      authorizationType: 'NONE',
       target: 'integrations/' + integration.ref,
-    });
+    };
+
+    if (authorizer) {
+      routeOptions = {
+        ...routeOptions,
+        authorizationType: 'CUSTOM',
+        authorizerId: authorizer.ref,
+      };
+    } else {
+      routeOptions = {
+        ...routeOptions,
+        authorizationType: 'NONE',
+      };
+    }
+
+    return new CfnRoute(this.scope, `Ems${this.id}${name}Route`, routeOptions);
   }
 
   private createLambdaRole(
@@ -186,6 +214,49 @@ export default class Websocket {
         functionArn +
         '/invocations',
       credentialsArn: integrationRoleArn,
+    });
+  }
+
+  private createAuthorizer(api: CfnApi): CfnAuthorizer {
+    const authorizerFunc = new Function(
+      this.scope,
+      `${this.id}ConnectionAuthorizerFunction`,
+      {
+        runtime: Runtime.NODEJS_12_X,
+        handler: 'index.handler',
+        functionName: `Ems${this.id}ConnectionAuthorizer`,
+        code: Code.fromAsset(`${this.baseCodeRoute}/connectionAuthorizer`),
+        environment: {
+          USER_POOL_ID: this.cognitoResources.userPool.userPoolId,
+          REGION: this.region,
+        },
+      }
+    );
+
+    const authorizerRole = new Role(
+      this.scope,
+      `${this.id}ConnectionAuthorizerRole`,
+      {
+        roleName: `Ems${this.id}ConnectionAuthorizerRole`,
+        assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
+      }
+    );
+
+    authorizerRole.addToPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['lambda:InvokeFunction'],
+        resources: [authorizerFunc.functionArn],
+      })
+    );
+
+    return new CfnAuthorizer(this.scope, `Ems${this.id}ConnectionAuthorizer`, {
+      apiId: api.ref,
+      authorizerType: 'REQUEST',
+      identitySource: ['route.request.querystring.Authorization'],
+      name: `${this.id}ConnectionAuthorizer`,
+      authorizerCredentialsArn: authorizerRole.roleArn,
+      authorizerUri: `arn:aws:apigateway:${this.region}:lambda:path/2015-03-31/functions/${authorizerFunc.functionArn}/invocations`,
     });
   }
 }

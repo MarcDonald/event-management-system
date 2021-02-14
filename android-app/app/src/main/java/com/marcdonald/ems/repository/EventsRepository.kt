@@ -60,7 +60,9 @@ class EventsRepository @Inject constructor(private val authService: AuthService,
 
 	fun connectToVenueStatusWebsocket(eventId: String, onMessage: (VenueStatus) -> Unit): WebSocket? {
 		try {
-			return eventsWebsocketService.connectToVenueStatusWebsocket(eventId) { message ->
+			if(authService.idToken == null) throw Exception("No ID Token")
+
+			return eventsWebsocketService.connectToVenueStatusWebsocket(authService.idToken!!, eventId) { message ->
 				when(message.venueStatus) {
 					"Low"      -> onMessage(VenueStatus.Low())
 					"High"     -> onMessage(VenueStatus.High())

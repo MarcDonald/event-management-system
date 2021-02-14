@@ -1,6 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import WebsocketConnectionTable from './WebsocketConnectionTable';
 import Websocket from './Websocket';
+import CognitoResources from '../CognitoResources';
 
 export default class WebsocketResources {
   readonly assistanceRequestsWebsocket: Websocket;
@@ -8,19 +9,25 @@ export default class WebsocketResources {
 
   constructor(
     private scope: cdk.Construct,
-    private connectionTable: WebsocketConnectionTable
+    private connectionTable: WebsocketConnectionTable,
+    private cognitoResources: CognitoResources,
+    private region: string
   ) {
     this.assistanceRequestsWebsocket = new Websocket(
       scope,
       connectionTable,
       'AssistanceRequestWebsocket',
-      './lambdas/assistanceRequestWebsocket'
+      './lambdas/assistanceRequestWebsocket',
+      cognitoResources,
+      region
     );
     this.venueStatusWebsocket = new Websocket(
       scope,
       connectionTable,
       'VenueStatusWebsocket',
-      './lambdas/venueStatusWebsocket'
+      './lambdas/venueStatusWebsocket',
+      cognitoResources,
+      region
     );
   }
 }

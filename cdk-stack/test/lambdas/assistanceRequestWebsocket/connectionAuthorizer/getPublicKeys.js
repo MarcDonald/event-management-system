@@ -16,7 +16,7 @@ beforeEach(() => {
     jwkToPem: jwkToPemMock,
   };
 
-  getPublicKeys = require('../../../../lambdas/authorizers/adminAuthorizer/getPublicKeys')(
+  getPublicKeys = require('../../../../lambdas/assistanceRequestWebsocket/connectionAuthorizer/getPublicKeys')(
     dependencies
   );
 });

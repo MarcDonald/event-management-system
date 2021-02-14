@@ -22,7 +22,9 @@ export default class EmsStack extends cdk.Stack {
     );
     const websocketResources = new WebsocketResources(
       this,
-      websocketConnectionTableResources
+      websocketConnectionTableResources,
+      cognitoResources,
+      this.region
     );
     const httpApiResources = new HttpApiResources(
       this,

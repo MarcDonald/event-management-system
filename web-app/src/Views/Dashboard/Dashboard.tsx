@@ -1,14 +1,11 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import Event from '../../Models/Event';
-import AssistanceRequest from '../../Models/AssistanceRequest';
-import VenueStatus from '../../Models/VenueStatus';
 import StatusHeader from './StatusHeader';
 import EventDetailsDrawer from './EventDetailsDrawer';
 import AssistanceRequestsDrawer from './AssistanceRequestDrawer';
 import {
-  connectToVenueStatusWebsocket,
   connectToAssistanceRequestWebsocket,
+  connectToVenueStatusWebsocket,
   getAssistanceRequests,
   getEventInformation,
   getEventVenueStatus,
@@ -74,16 +71,16 @@ export default function Dashboard() {
           },
         });
       })
-      .then(() => {
-        openAssistanceRequestWebsocketConnection();
+      .then(async () => {
+        await openAssistanceRequestWebsocketConnection();
       })
-      .then(() => {
-        openVenueStatusWebsocketConnection();
+      .then(async () => {
+        await openVenueStatusWebsocketConnection();
       });
   };
 
-  const openAssistanceRequestWebsocketConnection = () => {
-    const socket = connectToAssistanceRequestWebsocket(eventId, (e) => {
+  const openAssistanceRequestWebsocketConnection = async () => {
+    const socket = await connectToAssistanceRequestWebsocket(eventId, (e) => {
       dispatch({
         type: DashboardStateAction.NewAssistanceRequest,
         parameters: {
@@ -94,8 +91,8 @@ export default function Dashboard() {
     setAssistanceRequestSocket(socket);
   };
 
-  const openVenueStatusWebsocketConnection = () => {
-    const socket = connectToVenueStatusWebsocket(eventId, (e) =>
+  const openVenueStatusWebsocketConnection = async () => {
+    const socket = await connectToVenueStatusWebsocket(eventId, (e) =>
       dispatch({
         type: DashboardStateAction.VenueStatusChange,
         parameters: {
@@ -110,6 +107,10 @@ export default function Dashboard() {
     pageProtection
       .protectPage(StaffRole.ControlRoomOperator, StaffRole.Administrator)
       .then(async () => await refresh());
+    return () => {
+      venueStatusSocket?.close(1001);
+      assistanceRequestSocket?.close(1001);
+    };
   }, [eventId]);
 
   return (

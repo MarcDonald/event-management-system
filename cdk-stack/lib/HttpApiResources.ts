@@ -111,7 +111,7 @@ export default class HttpApiResources {
         runtime: Runtime.NODEJS_12_X,
         handler: 'index.handler',
         functionName: 'EmsAdminAuthorizer',
-        code: Code.fromAsset('./lambdas/authorizers/adminAuthorizer'),
+        code: Code.fromAsset('./lambdas/restAuthorizers/adminAuthorizer'),
         environment: {
           USER_POOL_ID: this.cognitoResources.userPool.userPoolId,
           REGION: this.region,
@@ -153,7 +153,7 @@ export default class HttpApiResources {
         runtime: Runtime.NODEJS_12_X,
         handler: 'index.handler',
         functionName: 'EmsControlRoomAuthorizer',
-        code: Code.fromAsset('./lambdas/authorizers/controlRoomAuthorizer'),
+        code: Code.fromAsset('./lambdas/restAuthorizers/controlRoomAuthorizer'),
         environment: {
           USER_POOL_ID: this.cognitoResources.userPool.userPoolId,
           REGION: this.region,
@@ -199,7 +199,9 @@ export default class HttpApiResources {
         runtime: Runtime.NODEJS_12_X,
         handler: 'index.handler',
         functionName: 'EmsSameUsernameAuthorizer',
-        code: Code.fromAsset('./lambdas/authorizers/sameUsernameAuthorizer'),
+        code: Code.fromAsset(
+          './lambdas/restAuthorizers/sameUsernameAuthorizer'
+        ),
         environment: {
           USER_POOL_ID: this.cognitoResources.userPool.userPoolId,
           REGION: this.region,

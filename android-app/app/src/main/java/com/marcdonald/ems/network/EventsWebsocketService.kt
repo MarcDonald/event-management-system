@@ -11,8 +11,8 @@ class EventsWebsocketService @Inject constructor(
 	private val venueStatusWebsocketAdapter: JsonAdapter<VenueStatusWebsocketMessage>,
 	private val venueStatusWebsocketUrl: String
 	) {
-	fun connectToVenueStatusWebsocket(eventId: String, onMessage: (VenueStatusWebsocketMessage) -> Unit): WebSocket {
-		val request = Request.Builder().url("$venueStatusWebsocketUrl?eventId=$eventId").build()
+	fun connectToVenueStatusWebsocket(idToken: String, eventId: String, onMessage: (VenueStatusWebsocketMessage) -> Unit): WebSocket {
+		val request = Request.Builder().url("${venueStatusWebsocketUrl}?eventId=${eventId}&Authorization=${idToken}").build()
 		return client.newWebSocket(request, object : WebSocketListener() {
 			override fun onOpen(webSocket: WebSocket, response: Response) {
 				Timber.i("Log: onOpen: Open")

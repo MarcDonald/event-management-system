@@ -11,7 +11,7 @@ beforeEach(() => {
     verify: verifyMock,
     getPublicKeys: getPublicKeysMock,
   };
-  handler = require('../../../../lambdas/authorizers/adminAuthorizer/handler')(
+  handler = require('../../../../lambdas/restAuthorizers/adminAuthorizer/handler')(
     dependencies
   );
 });

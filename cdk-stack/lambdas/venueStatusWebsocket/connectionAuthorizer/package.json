@@ -1,0 +1,11 @@
+{
+  "name": "websocket-connection-authorizer",
+  "version": "1.0.0",
+  "description": "Authorizer for Websocket APIs",
+  "author": "Marc Donald",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "jsonwebtoken": "8.5.1",
+    "jwk-to-pem": "2.0.4"
+  }
+}
