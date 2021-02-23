@@ -77,6 +77,16 @@ export async function getAssistanceRequests(
   return result.data;
 }
 
+export async function handleAssistanceRequest(
+  eventId: string,
+  assistanceRequestId: string
+): Promise<void> {
+  return await put(
+    `${baseUrl}/${eventId}/assistance/${assistanceRequestId}/handle`,
+    {}
+  );
+}
+
 export async function getEventInformation(eventId: string): Promise<Event> {
   const result = await get(`${baseUrl}/${eventId}/information`);
   return result.data;

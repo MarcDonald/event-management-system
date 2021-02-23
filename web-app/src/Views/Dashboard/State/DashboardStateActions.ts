@@ -3,6 +3,7 @@ enum DashboardStateAction {
   InitialDataLoaded,
   VenueStatusChange,
   NewAssistanceRequest,
+  HandleAssistanceRequest,
 }
 
 export default DashboardStateAction;

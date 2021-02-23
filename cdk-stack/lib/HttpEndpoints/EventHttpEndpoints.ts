@@ -94,6 +94,12 @@ export default class VenueHttpEndpoints {
       integration: this.createGetAssistanceRequestsHandler(),
     });
 
+    const handleAssistanceRequestRoutes = api.addRoutes({
+      path: '/events/{eventId}/assistance/{assistanceRequestId}/handle',
+      methods: [HttpMethod.PUT],
+      integration: this.createHandleAssistanceRequestHandler(),
+    });
+
     const getUpcomingEventsForUserRoutes = api.addRoutes({
       path: '/events/upcoming/{username}',
       methods: [HttpMethod.GET],
@@ -130,6 +136,7 @@ export default class VenueHttpEndpoints {
           getEventInformation,
           updateEventVenueStatus,
           getUpcomingEventsRoutes,
+          handleAssistanceRequestRoutes,
         ]
       )
     );
@@ -245,6 +252,15 @@ export default class VenueHttpEndpoints {
       'getAssistanceRequests',
       ['dynamodb:Query'],
       true
+    );
+  }
+
+  private createHandleAssistanceRequestHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'HandleAssistanceRequestFunction',
+      'EmsHandleAssistanceRequest',
+      'handleAssistanceRequest',
+      ['dynamodb:UpdateItem']
     );
   }
 

@@ -45,9 +45,8 @@ export default function DashboardStateReducer(
           ...state,
           venueStatus: parameters?.venueStatus,
         };
-      } else {
-        return state;
       }
+      return state;
     }
     case DashboardStateAction.NewAssistanceRequest: {
       if (parameters?.newAssistanceRequest) {
@@ -64,15 +63,28 @@ export default function DashboardStateReducer(
                 positionId: newRequest.position.positionId,
               },
               time: newRequest.time,
+              handled: newRequest.handled,
             },
           ].reverse(),
         };
-      } else {
-        console.error(
-          'Dispatched NewAssistanceRequest action but no newAssistanceRequest was provided in parameters'
-        );
-        return state;
       }
+      console.error(
+        'Dispatched NewAssistanceRequest action but no newAssistanceRequest was provided in parameters'
+      );
+      return state;
+    }
+    case DashboardStateAction.HandleAssistanceRequest: {
+      if (parameters?.id) {
+        return {
+          ...state,
+          assistanceRequests: [
+            ...state.assistanceRequests.filter(
+              (request) => request.assistanceRequestId !== parameters.id
+            ),
+          ],
+        };
+      }
+      return state;
     }
     default:
       break;

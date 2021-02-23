@@ -35,7 +35,13 @@ const postToWebsocket = async ({
     try {
       await ApiGatewayManagementApi.postToConnection({
         ConnectionId: connectionId,
-        Data: JSON.stringify({ assistanceRequestId, time, position, message }),
+        Data: JSON.stringify({
+          assistanceRequestId,
+          time,
+          position,
+          message,
+          handled: false,
+        }),
       }).promise();
     } catch (e) {
       if (e.statusCode === 410) {
@@ -93,6 +99,7 @@ module.exports = (dependencies) => async (event) => {
       position,
       message,
       time,
+      handled: false,
     };
 
     const putParams = {

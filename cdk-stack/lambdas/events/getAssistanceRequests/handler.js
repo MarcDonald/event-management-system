@@ -35,6 +35,7 @@ module.exports = (dependencies) => async (event) => {
         position: dbItem.position,
         message: dbItem.message,
         time: dbItem.time,
+        handled: dbItem.handled,
       };
     });
 

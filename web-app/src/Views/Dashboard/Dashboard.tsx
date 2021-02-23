@@ -9,6 +9,7 @@ import {
   getAssistanceRequests,
   getEventInformation,
   getEventVenueStatus,
+  handleAssistanceRequest,
 } from '../../Services/EventService';
 import Loading from '../../Components/Loading';
 import DashboardHolder from './DashboardHolder';
@@ -19,6 +20,9 @@ import DashboardStateAction from './State/DashboardStateActions';
 import DashboardStateReducer, {
   initialDashboardState,
 } from './State/DashboardStateReducer';
+import { toast, Toaster } from 'react-hot-toast';
+import { toastErrorStyle } from '../../Utils/ToastStyles';
+import { createNewStaffMember } from '../../Services/StaffService';
 
 /**
  * Main dashboards page
@@ -113,8 +117,32 @@ export default function Dashboard() {
     };
   }, [eventId]);
 
+  const onHandleAssistanceRequest = async (assistanceRequestId: string) => {
+    await toast.promise(handleAssistanceRequest(eventId, assistanceRequestId), {
+      error: (e) => {
+        console.log(e);
+        return 'Error Handling Request';
+      },
+      loading: 'Handling Request',
+      success: () => {
+        dispatch({
+          type: DashboardStateAction.HandleAssistanceRequest,
+          parameters: { id: assistanceRequestId },
+        });
+        return 'Request Handled';
+      },
+    });
+  };
+
   return (
     <>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          error: toastErrorStyle,
+          duration: 1500,
+        }}
+      />
       {isLoading && (
         <Loading containerClassName="mt-16" spinnerClassName="text-4xl" />
       )}
@@ -155,6 +183,7 @@ export default function Dashboard() {
                   refresh={refresh}
                   isLoading={isLoading}
                   assistanceRequests={assistanceRequests}
+                  onHandleAssistanceRequest={onHandleAssistanceRequest}
                 />
               </>
             )}

@@ -96,6 +96,7 @@ test('Should add assistance request and return information when provided with a 
       },
       time: validAssistanceRequestTime,
       message: validAssistanceRequestMessage,
+      handled: false,
     },
   });
   expect(putMock).toBeCalledTimes(1);
@@ -180,6 +181,7 @@ test('Should add assistance request, post to websocket, and return information w
       },
       time: validAssistanceRequestTime,
       message: validAssistanceRequestMessage,
+      handled: false,
     },
   });
   expect(putMock).toBeCalledTimes(1);
@@ -205,6 +207,7 @@ test('Should add assistance request, post to websocket, and return information w
         name: validPositionName,
       },
       message: validAssistanceRequestMessage,
+      handled: false,
     }),
   });
   expect(postToConnectionMock).toBeCalledWith({
@@ -217,6 +220,7 @@ test('Should add assistance request, post to websocket, and return information w
         name: validPositionName,
       },
       message: validAssistanceRequestMessage,
+      handled: false,
     }),
   });
   expect(postToConnectionMock).toBeCalledTimes(2);
@@ -296,6 +300,7 @@ test('Should add assistance request, post to websocket, delete stale connection,
       },
       time: validAssistanceRequestTime,
       message: validAssistanceRequestMessage,
+      handled: false,
     },
   });
   expect(putMock).toBeCalledTimes(1);
@@ -321,6 +326,7 @@ test('Should add assistance request, post to websocket, delete stale connection,
         name: validPositionName,
       },
       message: validAssistanceRequestMessage,
+      handled: false,
     }),
   });
   expect(postToConnectionMock).toBeCalledWith({
@@ -333,6 +339,7 @@ test('Should add assistance request, post to websocket, delete stale connection,
         name: validPositionName,
       },
       message: validAssistanceRequestMessage,
+      handled: false,
     }),
   });
   expect(postToConnectionMock).toBeCalledTimes(2);
@@ -417,6 +424,7 @@ test('Should add assistance request, post to websocket, and return error when a 
       },
       time: validAssistanceRequestTime,
       message: validAssistanceRequestMessage,
+      handled: false,
     },
   });
   expect(putMock).toBeCalledTimes(1);
@@ -442,6 +450,7 @@ test('Should add assistance request, post to websocket, and return error when a 
         name: validPositionName,
       },
       message: validAssistanceRequestMessage,
+      handled: false,
     }),
   });
   expect(postToConnectionMock).toBeCalledWith({
@@ -454,6 +463,7 @@ test('Should add assistance request, post to websocket, and return error when a 
         name: validPositionName,
       },
       message: validAssistanceRequestMessage,
+      handled: false,
     }),
   });
   expect(postToConnectionMock).toBeCalledTimes(2);
@@ -618,6 +628,7 @@ test('Should return 500 when another error is thrown', async () => {
       },
       time: validAssistanceRequestTime,
       message: validAssistanceRequestMessage,
+      handled: false,
     },
   });
   expect(putMock).toBeCalledTimes(1);

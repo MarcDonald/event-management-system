@@ -60,7 +60,7 @@ export async function connectToWebsocket(
     maxAttempts: 1,
     onmessage: (e) => onMessage(e),
     onclose: (e) => {
-      console.log(`Closed${name} : ${JSON.stringify(e)}`);
+      console.log(`Closed ${name} : ${JSON.stringify(e)}`);
     },
     onerror: (e) => {
       console.error(`Error to ${name}: ${JSON.stringify(e)}`);

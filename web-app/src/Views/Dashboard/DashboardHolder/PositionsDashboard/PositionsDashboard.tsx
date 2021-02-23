@@ -7,6 +7,7 @@ import {
   faExclamationTriangle,
   faCheckCircle,
 } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-hot-toast';
 
 interface PositionsDashboardPropTypes {
   positions: Position[];
@@ -30,7 +31,10 @@ export default function PositionsDashboard(props: PositionsDashboardPropTypes) {
   const positionDisplayList = () => {
     return props.positions.map((position, index) => {
       const hasAssistanceRequest = props.assistanceRequests.find((request) => {
-        if (request.position.positionId === position.positionId) {
+        if (
+          request.position.positionId === position.positionId &&
+          !request.handled
+        ) {
           return true;
         }
       });
@@ -62,11 +66,26 @@ export default function PositionsDashboard(props: PositionsDashboardPropTypes) {
             )}
           </div>
           <div>
-            <button className="btn">View Requests</button>
+            <button
+              className="btn"
+              onClick={() =>
+                onViewRequestsForPositionClick(position.positionId)
+              }
+            >
+              View Requests
+            </button>
           </div>
         </div>
       );
     });
+  };
+
+  const onViewRequestsForPositionClick = (positionId: string) => {
+    props.assistanceRequests
+      .filter((request) => request.position.positionId === positionId)
+      .map((request) =>
+        toast(`${request.message} - Handled: ${request.handled}`)
+      );
   };
 
   return (

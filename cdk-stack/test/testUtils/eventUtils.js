@@ -10,6 +10,7 @@ const testValues = {
   validAssistanceRequestTime: 1606240678,
   validAssistanceRequestMessage: 'validAssistanceRequestMessage',
   validAssistanceRequestId: 'zxc-123-zxc-456',
+  invalidAssistanceRequestId: 'hop-321-zlc-458',
 };
 
 const validStatuses = {

@@ -44,6 +44,7 @@ test('Should return formatted assistance requests for event when provided with a
           },
           time: validAssistanceRequestTime + 1,
           message: validAssistanceRequestMessage + '1',
+          handled: false,
         },
         {
           id: validEventId,
@@ -54,6 +55,7 @@ test('Should return formatted assistance requests for event when provided with a
           },
           time: validAssistanceRequestTime,
           message: validAssistanceRequestMessage,
+          handled: true,
         },
       ]);
     },
@@ -88,6 +90,7 @@ test('Should return formatted assistance requests for event when provided with a
         },
         message: validAssistanceRequestMessage + '1',
         time: validAssistanceRequestTime + 1,
+        handled: false,
       },
       {
         assistanceRequestId: validAssistanceRequestId,
@@ -97,6 +100,7 @@ test('Should return formatted assistance requests for event when provided with a
         },
         message: validAssistanceRequestMessage,
         time: validAssistanceRequestTime,
+        handled: true,
       },
     ])
   );

@@ -5,4 +5,5 @@ export default interface AssistanceRequest {
   position: Position;
   message: string;
   time: number;
+  handled: boolean;
 }

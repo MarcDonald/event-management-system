@@ -8,26 +8,42 @@ interface AssistanceRequestsDrawerPropTypes {
   refresh: () => void;
   isLoading: boolean;
   assistanceRequests: AssistanceRequest[];
+  onHandleAssistanceRequest: (id: string) => void;
 }
 
 /**
  * Displays a list of Assistance Requests in a side drawer
  */
-export default function AssistanceRequestsDrawer(
-  props: AssistanceRequestsDrawerPropTypes
-) {
+export default function AssistanceRequestsDrawer({
+  refresh,
+  isLoading,
+  assistanceRequests,
+  onHandleAssistanceRequest,
+}: AssistanceRequestsDrawerPropTypes) {
   const assistanceRequestListDisplay = () => {
-    if (props.isLoading) {
+    if (isLoading) {
       return <Loading containerClassName="mt-4" />;
     } else {
-      return props.assistanceRequests.map((assistanceRequest) => {
-        return (
-          <AssistanceRequestCard
-            assistanceRequest={assistanceRequest}
-            key={assistanceRequest.assistanceRequestId}
-          />
-        );
-      });
+      return assistanceRequests
+        .sort((request1, request2) => {
+          if (request1.time > request2.time) {
+            return -1;
+          } else if (request1.time < request2.time) {
+            return 1;
+          } else {
+            return 0;
+          }
+        })
+        .filter((request) => !request.handled)
+        .map((assistanceRequest) => {
+          return (
+            <AssistanceRequestCard
+              assistanceRequest={assistanceRequest}
+              key={assistanceRequest.assistanceRequestId}
+              onHandledClick={onHandleAssistanceRequest}
+            />
+          );
+        });
     }
   };
 
@@ -38,12 +54,12 @@ export default function AssistanceRequestsDrawer(
         {assistanceRequestListDisplay()}
       </section>
       <section className="self-end m-2 text-center">
-        {!props.isLoading && (
+        {!isLoading && (
           <AsyncButton
             className="btn w-11/12"
-            onClick={props.refresh}
+            onClick={refresh}
             text="Refresh"
-            isLoading={props.isLoading}
+            isLoading={isLoading}
           />
         )}
       </section>
