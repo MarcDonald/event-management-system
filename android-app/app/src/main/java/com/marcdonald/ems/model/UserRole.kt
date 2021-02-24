@@ -2,6 +2,7 @@ package com.marcdonald.ems.model
 
 enum class UserRole {
 	Steward,
-	Supervisor,
+	Administrator,
+	// TODO should have spaces
 	ControlRoomOperator
 }

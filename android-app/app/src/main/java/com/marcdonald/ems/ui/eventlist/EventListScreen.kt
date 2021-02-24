@@ -140,11 +140,13 @@ class EventListScreen : Fragment() {
 	private fun onCardClick(eventId: String) {
 		try {
 			val position = viewModel.determinePositionAtEvent(eventId)
+			val supervisors = viewModel.getSupervisorsOfEvent(eventId)
 			Timber.i("Log: onCardClick: $position")
 			val args = Bundle().apply {
 				putString("positionName", position.name)
 				putString("positionId", position.positionId)
 				putString("eventId", eventId)
+				putParcelableArray("supervisors", supervisors)
 			}
 			findNavController().navigate(R.id.eventSelected, args)
 		} catch(e: Exception) {

@@ -7,9 +7,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.amplifyframework.auth.AuthChannelEventName
 import com.amplifyframework.core.Amplify
+import com.amplifyframework.core.InitializationStatus
+import com.amplifyframework.hub.HubChannel
+import com.amplifyframework.hub.HubEvent
 import com.marcdonald.ems.model.AssistanceRequestType
 import com.marcdonald.ems.model.Position
+import com.marcdonald.ems.model.Supervisor
 import com.marcdonald.ems.network.AuthService
 import com.marcdonald.ems.repository.EventsRepository
 import com.marcdonald.ems.utils.VenueStatus
@@ -23,35 +28,51 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 	val isLoading = mutableStateOf(true)
 	val venueStatus: MutableState<VenueStatus> = mutableStateOf(VenueStatus.Low())
 	val position: MutableState<Position?> = mutableStateOf(null)
+	var supervisors: Array<Supervisor> = emptyArray()
+		private set;
 	private val _signedOut: MutableLiveData<Boolean> = MutableLiveData(false)
 	val signedOut = _signedOut as LiveData<Boolean>
-	var venueStatusWebsocket: WebSocket? = null
+	private var venueStatusWebsocket: WebSocket? = null
 
 	private var eventId: String? = null
 
-	fun passArguments(positionName: String, positionId: String, eventId: String) {
+	init {
+		Amplify.Hub.subscribe(HubChannel.AUTH) { hubEvent: HubEvent<*> ->
+			when(hubEvent.name) {
+				InitializationStatus.SUCCEEDED.toString() -> Timber.i("Log: assistanceRequestViewModel: Auth Hub initialized")
+				InitializationStatus.FAILED.toString() -> Timber.e("Log: assistanceRequestViewModel: Auth Hub failed")
+				else                                      -> {
+					when(AuthChannelEventName.valueOf(hubEvent.name)) {
+						AuthChannelEventName.SIGNED_OUT -> {
+							authService.clearDetails()
+							_signedOut.postValue(true)
+						}
+						AuthChannelEventName.SESSION_EXPIRED -> {
+							authService.clearDetails()
+							_signedOut.postValue(true)
+						}
+						else                                 -> {
+							_signedOut.postValue(false)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	fun passArguments(positionName: String, positionId: String, eventId: String, supervisors: Array<Supervisor>) {
 		viewModelScope.launch { ->
 			isLoading.value = true
 			try {
 				this@AssistanceRequestViewModel.position.value = Position(positionId, positionName)
 				this@AssistanceRequestViewModel.eventId = eventId
-				refresh()
+				this@AssistanceRequestViewModel.supervisors = supervisors
+				eventId.let { venueStatus.value = eventsRepository.getStatus(it) }
 				connectToVenueStatusWebsocket()
 			} catch(e: Exception) {
 				Timber.e("Log: passArguments: $e")
 			}
 			isLoading.value = false
-		}
-	}
-
-	fun refresh() {
-		viewModelScope.launch {
-			isLoading.value = true
-			try {
-				eventId?.let { venueStatus.value = eventsRepository.getStatus(it) }
-			} catch(e: Exception) {
-				Timber.e("Log: refresh: $e")
-			}
 		}
 	}
 
@@ -70,18 +91,8 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 		Timber.i("Log: requestAssistance: ${type.name}")
 	}
 
-	fun logout() {
-		authService.clearDetails()
-		Amplify.Auth.signOut(
-			{ _signedOut.postValue(true) },
-			{ error -> Timber.e("Log: logout: $error") }
-		)
-	}
-
 	fun connectToVenueStatusWebsocket() {
-		Timber.i("Log: connectToVenueStatusWebsocket: Start")
 		if(eventId != null && venueStatusWebsocket == null) {
-			Timber.i("Log: connectToVenueStatusWebsocket: Has eventId")
 			venueStatusWebsocket = eventsRepository.connectToVenueStatusWebsocket(eventId!!) { newVenueStatus ->
 				venueStatus.value = newVenueStatus
 			}
@@ -89,9 +100,7 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 	}
 
 	fun closeVenueStatusWebsocketConnection() {
-		Timber.i("Log: closeVenueStatusWebsocketConnection: Start")
 		venueStatusWebsocket?.let {
-			Timber.i("Log: closeVenueStatusWebsocketConnection: Exists, closing")
 			it.close(1001, "Closing")
 			venueStatusWebsocket = null
 		}

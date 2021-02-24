@@ -4,14 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,7 +26,11 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.marcdonald.ems.MainActivity
 import com.marcdonald.ems.R
+import com.marcdonald.ems.model.Supervisor
 import com.marcdonald.ems.ui.assistancerequest.components.AssistanceRequestActions
+import com.marcdonald.ems.ui.assistancerequest.components.MenuDialogSheet
+import com.marcdonald.ems.ui.assistancerequest.components.supervisorsdialog.SupervisorsDialogSheet
+import com.marcdonald.ems.ui.assistancerequest.components.requestsdialog.RequestsDialogSheet
 import com.marcdonald.ems.ui.theme.EMSTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -45,39 +51,48 @@ class AssistanceRequestScreen : Fragment() {
 		return ComposeView(requireContext()).apply {
 			setContent {
 				EMSTheme(darkTheme = isSystemInDarkTheme()) {
-					(requireActivity() as MainActivity).systemUi.setSystemBarsColor(viewModel.venueStatus.value.color)
-
-					Surface(color = viewModel.venueStatus.value.color) {
-						// Container Column
-						Column(
-							modifier = Modifier
-								.fillMaxWidth()
-						) {
-							// Header Column
+					if(viewModel.isLoading.value) {
+						(requireActivity() as MainActivity).systemUi.setSystemBarsColor(MaterialTheme.colors.background)
+						CircularProgressIndicator(modifier = Modifier
+							.fillMaxSize()
+							.size(64.dp))
+					} else {
+						(requireActivity() as MainActivity).systemUi.setSystemBarsColor(viewModel.venueStatus.value.color)
+						Surface(color = viewModel.venueStatus.value.color) {
+							// Container Column
 							Column(
 								modifier = Modifier
 									.fillMaxWidth()
-									.weight(1f),
 							) {
-								StatusHeader()
-							}
-							// Body
-							Surface(
-								modifier = Modifier
-									.fillMaxSize()
-									.weight(4f),
-								shape = RoundedCornerShape(topLeft = 16.dp, topRight = 16.dp),
-								color = MaterialTheme.colors.background,
-							) {
+								// Header Column
 								Column(
 									modifier = Modifier
-										.fillMaxSize()
-										.padding(top = 64.dp),
-									verticalArrangement = Arrangement.SpaceBetween
+										.fillMaxWidth()
+										.weight(1f),
 								) {
-									InfoBar()
-									AssistanceRequestActions(viewModel::requestAssistance)
-									BottomBar()
+									StatusHeader()
+								}
+								// Body
+								Surface(
+									modifier = Modifier
+										.fillMaxSize()
+										.weight(4f),
+									shape = RoundedCornerShape(topLeft = 16.dp, topRight = 16.dp),
+									color = MaterialTheme.colors.background,
+								) {
+									Column(
+										modifier = Modifier
+											.fillMaxSize()
+											.padding(top = 64.dp),
+										verticalArrangement = Arrangement.SpaceBetween
+									) {
+										InfoBar()
+										AssistanceRequestActions { type ->
+											viewModel.requestAssistance(type)
+											Toast.makeText(requireContext(), "Requesting $type", Toast.LENGTH_LONG).show()
+										}
+										BottomNav()
+									}
 								}
 							}
 						}
@@ -90,7 +105,12 @@ class AssistanceRequestScreen : Fragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 		arguments?.let { args ->
-			viewModel.passArguments(args.getString("positionName", ""), args.getString("positionId", ""), args.getString("eventId", ""))
+			viewModel.passArguments(
+				args.getString("positionName", ""),
+				args.getString("positionId", ""),
+				args.getString("eventId", ""),
+				args.getParcelableArray("supervisors") as Array<Supervisor>
+			)
 		}
 		viewModel.signedOut.observe(viewLifecycleOwner, { isSignedOut ->
 			if(isSignedOut) {
@@ -158,20 +178,34 @@ class AssistanceRequestScreen : Fragment() {
 		}
 
 	@Composable
-	fun BottomBar() =
+	fun BottomNav() =
 		Row(
 			horizontalArrangement = Arrangement.SpaceBetween,
 			modifier = Modifier
 				.fillMaxWidth()
-				.padding(8.dp)
 		) {
-			IconButton(onClick = {
-				viewModel.logout()
-			}) {
-				Icon(Icons.Default.Settings, contentDescription = "Settings")
-			}
-			IconButton(onClick = { viewModel.refresh() }) {
-				Icon(Icons.Default.Menu, contentDescription = "Menu")
+			BottomNavigation(backgroundColor = MaterialTheme.colors.surface) {
+				BottomNavigationItem(
+					label = { Text("Supervisors") },
+					alwaysShowLabels = true,
+					icon = { Icon(Icons.Default.Person, contentDescription = "Supervisors") }, selected = false, onClick = {
+						val args = Bundle().apply {
+							putParcelableArray("supervisors", viewModel.supervisors)
+						}
+						SupervisorsDialogSheet().apply {
+							arguments = args
+						}.show(parentFragmentManager, "SupervisorsSheet")
+					})
+				BottomNavigationItem(
+					label = { Text("Requests") },
+					alwaysShowLabels = true, icon = { Icon(Icons.Default.Email, contentDescription = "Requests") }, selected = false, onClick = {
+						RequestsDialogSheet().show(parentFragmentManager, "RequestsSheet")
+					})
+				BottomNavigationItem(
+					label = { Text("Menu") },
+					alwaysShowLabels = true, icon = { Icon(Icons.Default.Menu, contentDescription = "Menu") }, selected = false, onClick = {
+						MenuDialogSheet().show(parentFragmentManager, "MenuSheet")
+					})
 			}
 		}
 }

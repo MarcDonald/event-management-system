@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.amplifyframework.core.Amplify
 import com.marcdonald.ems.model.Event
 import com.marcdonald.ems.model.Position
+import com.marcdonald.ems.model.Supervisor
 import com.marcdonald.ems.network.AuthService
 import com.marcdonald.ems.repository.EventsRepository
 import kotlinx.coroutines.launch
@@ -65,5 +66,14 @@ class EventListViewModel @ViewModelInject constructor(private val repository: Ev
 			}
 		}
 		throw Exception("Could not find user as a steward on this event")
+	}
+
+	fun getSupervisorsOfEvent(eventId: String): Array<Supervisor> {
+		events.value.find { event ->
+			event.eventId == eventId
+		}?.let { event ->
+			return event.supervisors.toTypedArray()
+		}
+		return emptyArray()
 	}
 }
