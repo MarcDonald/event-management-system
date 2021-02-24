@@ -3,8 +3,58 @@ const response = {
   statusCode: 500,
 };
 
+const postToWebsocket = async ({
+  ApiGatewayManagementApi,
+  Dynamo,
+  connectionTableName,
+  eventId,
+  assistanceRequestId,
+}) => {
+  const connections = await Dynamo.query({
+    TableName: connectionTableName,
+    KeyConditionExpression: 'websocket = :websocket',
+    FilterExpression: 'eventId = :eventId',
+    ExpressionAttributeValues: {
+      ':websocket': 'assistanceRequest',
+      ':eventId': eventId,
+    },
+  }).promise();
+
+  const postCalls = connections.Items.map(async ({ connectionId }) => {
+    try {
+      await ApiGatewayManagementApi.postToConnection({
+        ConnectionId: connectionId,
+        Data: JSON.stringify({
+          type: 'AssistanceRequestHandled',
+          assistanceRequestId,
+        }),
+      }).promise();
+    } catch (e) {
+      if (e.statusCode === 410) {
+        console.log(`Found stale connection, deleting ${connectionId}`);
+        await Dynamo.delete({
+          TableName: connectionTableName,
+          Key: {
+            connectionId: connectionId,
+            websocket: 'assistanceRequest',
+          },
+        }).promise();
+      } else {
+        throw e;
+      }
+    }
+  });
+
+  await Promise.all(postCalls);
+};
+
 module.exports = (dependencies) => async (event) => {
-  const { Dynamo, tableName } = dependencies;
+  const {
+    Dynamo,
+    tableName,
+    connectionTableName,
+    ApiGatewayManagementApi,
+  } = dependencies;
 
   const { eventId, assistanceRequestId } = event.pathParameters;
 
@@ -46,6 +96,14 @@ module.exports = (dependencies) => async (event) => {
     };
 
     await Dynamo.update(updateParams).promise();
+
+    await postToWebsocket({
+      ApiGatewayManagementApi,
+      Dynamo,
+      connectionTableName,
+      eventId,
+      assistanceRequestId,
+    });
   } catch (err) {
     console.error(err);
     if (

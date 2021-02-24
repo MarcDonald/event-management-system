@@ -1,4 +1,4 @@
-const { awsUtils, eventUtils } = require('../../../testUtils');
+const { awsUtils, eventUtils, websocketUtils } = require('../../../testUtils');
 const { validTableName } = awsUtils.testValues;
 const {
   validEventId,
@@ -6,20 +6,34 @@ const {
   validAssistanceRequestId,
   invalidAssistanceRequestId,
 } = eventUtils.testValues;
-const { MockAWSError } = awsUtils;
+const {
+  validConnectionTableName,
+  assistanceRequestHandledMessageType: websocketMessageType,
+  validConnectionId,
+} = websocketUtils.testValues;
+const { MockAWSError, dynamoQueryResponseBuilder } = awsUtils;
 
 let handler;
 
 const updateMock = jest.fn();
+const queryMock = jest.fn();
+const postToConnectionMock = jest.fn();
 
 beforeEach(() => {
   const Dynamo = {
     update: updateMock,
+    query: queryMock,
+  };
+
+  const ApiGatewayManagementApi = {
+    postToConnection: postToConnectionMock,
   };
 
   const dependencies = {
     Dynamo,
+    ApiGatewayManagementApi,
     tableName: validTableName,
+    connectionTableName: validConnectionTableName,
   };
 
   handler = require('../../../../lambdas/events/handleAssistanceRequest/handler')(
@@ -29,7 +43,7 @@ beforeEach(() => {
 
 afterEach(jest.resetAllMocks);
 
-test('Should update handled field when provided with a valid event', async () => {
+test('Should update handled field when provided with a valid event and no websocket connections', async () => {
   const event = {
     pathParameters: {
       eventId: validEventId,
@@ -39,6 +53,12 @@ test('Should update handled field when provided with a valid event', async () =>
 
   updateMock.mockReturnValue({
     promise: () => {},
+  });
+
+  queryMock.mockReturnValue({
+    promise: () => {
+      return dynamoQueryResponseBuilder([]);
+    },
   });
 
   const { statusCode, body } = await handler(event);
@@ -60,6 +80,90 @@ test('Should update handled field when provided with a valid event', async () =>
       ':handled': true,
     },
   });
+  expect(queryMock).toBeCalledTimes(1);
+  expect(queryMock).toBeCalledWith({
+    TableName: validConnectionTableName,
+    KeyConditionExpression: 'websocket = :websocket',
+    FilterExpression: 'eventId = :eventId',
+    ExpressionAttributeValues: {
+      ':websocket': 'assistanceRequest',
+      ':eventId': validEventId,
+    },
+  });
+  expect(postToConnectionMock).toBeCalledTimes(0);
+});
+
+test('Should update handled field when provided with a valid event and post to websocket connections', async () => {
+  const event = {
+    pathParameters: {
+      eventId: validEventId,
+      assistanceRequestId: validAssistanceRequestId,
+    },
+  };
+
+  updateMock.mockReturnValue({
+    promise: () => {},
+  });
+
+  queryMock.mockReturnValue({
+    promise: () => {
+      return dynamoQueryResponseBuilder([
+        { connectionId: validConnectionId + 1 },
+        { connectionId: validConnectionId + 2 },
+      ]);
+    },
+  });
+
+  postToConnectionMock.mockReturnValue({
+    promise: () => {
+      return {};
+    },
+  });
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(200);
+  expect(body).toBe(JSON.stringify({ message: 'Assistance Request Handled' }));
+  expect(updateMock).toBeCalledTimes(1);
+  expect(updateMock).toBeCalledWith({
+    TableName: validTableName,
+    Key: {
+      id: validEventId,
+      metadata: `assistanceRequest_${validAssistanceRequestId}`,
+    },
+    UpdateExpression: 'SET handled = :handled',
+    ConditionExpression: 'id = :id and metadata = :metadata',
+    ExpressionAttributeValues: {
+      ':id': validEventId,
+      ':metadata': `assistanceRequest_${validAssistanceRequestId}`,
+      ':handled': true,
+    },
+  });
+  expect(queryMock).toBeCalledTimes(1);
+  expect(queryMock).toBeCalledWith({
+    TableName: validConnectionTableName,
+    KeyConditionExpression: 'websocket = :websocket',
+    FilterExpression: 'eventId = :eventId',
+    ExpressionAttributeValues: {
+      ':websocket': 'assistanceRequest',
+      ':eventId': validEventId,
+    },
+  });
+  expect(postToConnectionMock).toBeCalledWith({
+    ConnectionId: validConnectionId + 1,
+    Data: JSON.stringify({
+      type: websocketMessageType,
+      assistanceRequestId: validAssistanceRequestId,
+    }),
+  });
+  expect(postToConnectionMock).toBeCalledWith({
+    ConnectionId: validConnectionId + 2,
+    Data: JSON.stringify({
+      type: websocketMessageType,
+      assistanceRequestId: validAssistanceRequestId,
+    }),
+  });
+  expect(postToConnectionMock).toBeCalledTimes(2);
 });
 
 test('Should return 400 when no eventId is provided', async () => {

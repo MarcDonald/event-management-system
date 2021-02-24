@@ -92,7 +92,7 @@ export default class Websocket {
     );
 
     additionalRoutes.forEach((route) =>
-      dependencies.add(this.createRoute(api, route, authorizer))
+      dependencies.add(this.createRoute(api, route))
     );
 
     deployment.node.addDependency(dependencies);
@@ -127,9 +127,19 @@ export default class Websocket {
       api.ref
     );
 
+    let routeKey;
+    if (
+      name.toLowerCase() === 'connect' ||
+      name.toLowerCase() === 'disconnect'
+    ) {
+      routeKey = `$${name.toLowerCase()}`;
+    } else {
+      routeKey = name.toLowerCase();
+    }
+
     let routeOptions: CfnRouteProps = {
       apiId: api.ref,
-      routeKey: `$${name.toLowerCase()}`,
+      routeKey,
       target: 'integrations/' + integration.ref,
     };
 

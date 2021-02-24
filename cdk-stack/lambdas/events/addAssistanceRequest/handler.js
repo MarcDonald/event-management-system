@@ -36,11 +36,14 @@ const postToWebsocket = async ({
       await ApiGatewayManagementApi.postToConnection({
         ConnectionId: connectionId,
         Data: JSON.stringify({
-          assistanceRequestId,
-          time,
-          position,
-          message,
-          handled: false,
+          type: 'NewAssistanceRequest',
+          assistanceRequest: {
+            assistanceRequestId,
+            time,
+            position,
+            message,
+            handled: false,
+          },
         }),
       }).promise();
     } catch (e) {

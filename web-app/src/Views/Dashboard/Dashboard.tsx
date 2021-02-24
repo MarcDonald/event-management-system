@@ -85,12 +85,23 @@ export default function Dashboard() {
 
   const openAssistanceRequestWebsocketConnection = async () => {
     const socket = await connectToAssistanceRequestWebsocket(eventId, (e) => {
-      dispatch({
-        type: DashboardStateAction.NewAssistanceRequest,
-        parameters: {
-          newAssistanceRequest: JSON.parse(e.data),
-        },
-      });
+      const event = JSON.parse(e.data);
+      if (event.type === 'NewAssistanceRequest') {
+        dispatch({
+          type: DashboardStateAction.NewAssistanceRequest,
+          parameters: {
+            newAssistanceRequest: event.assistanceRequest,
+          },
+        });
+      }
+      if (event.type === 'AssistanceRequestHandled') {
+        dispatch({
+          type: DashboardStateAction.HandleAssistanceRequest,
+          parameters: {
+            id: event.assistanceRequestId,
+          },
+        });
+      }
     });
     setAssistanceRequestSocket(socket);
   };

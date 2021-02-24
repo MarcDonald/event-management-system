@@ -260,7 +260,10 @@ export default class VenueHttpEndpoints {
       'HandleAssistanceRequestFunction',
       'EmsHandleAssistanceRequest',
       'handleAssistanceRequest',
-      ['dynamodb:UpdateItem']
+      ['dynamodb:UpdateItem'],
+      false,
+      false,
+      true
     );
   }
 

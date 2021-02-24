@@ -10,11 +10,12 @@ const {
   validAssistanceRequestMessage,
   validAssistanceRequestTime,
 } = eventUtils.testValues;
-const { MockAWSError } = awsUtils;
+const { MockAWSError, dynamoQueryResponseBuilder } = awsUtils;
 const { validTableName } = awsUtils.testValues;
 const {
   validConnectionId,
   validConnectionTableName,
+  newAssistanceRequestMessageType: websocketMessageType,
 } = websocketUtils.testValues;
 
 let handler;
@@ -76,7 +77,7 @@ test('Should add assistance request and return information when provided with a 
 
   queryMock.mockReturnValue({
     promise: () => {
-      return { Items: [] };
+      return dynamoQueryResponseBuilder([]);
     },
   });
 
@@ -150,12 +151,10 @@ test('Should add assistance request, post to websocket, and return information w
 
   queryMock.mockReturnValue({
     promise: () => {
-      return {
-        Items: [
-          { connectionId: validConnectionId + 1 },
-          { connectionId: validConnectionId + 2 },
-        ],
-      };
+      return dynamoQueryResponseBuilder([
+        { connectionId: validConnectionId + 1 },
+        { connectionId: validConnectionId + 2 },
+      ]);
     },
   });
 
@@ -200,27 +199,33 @@ test('Should add assistance request, post to websocket, and return information w
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 1,
     Data: JSON.stringify({
-      assistanceRequestId: 'uuid',
-      time: validAssistanceRequestTime,
-      position: {
-        positionId: validPositionId,
-        name: validPositionName,
+      type: websocketMessageType,
+      assistanceRequest: {
+        assistanceRequestId: 'uuid',
+        time: validAssistanceRequestTime,
+        position: {
+          positionId: validPositionId,
+          name: validPositionName,
+        },
+        message: validAssistanceRequestMessage,
+        handled: false,
       },
-      message: validAssistanceRequestMessage,
-      handled: false,
     }),
   });
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 2,
     Data: JSON.stringify({
-      assistanceRequestId: 'uuid',
-      time: validAssistanceRequestTime,
-      position: {
-        positionId: validPositionId,
-        name: validPositionName,
+      type: websocketMessageType,
+      assistanceRequest: {
+        assistanceRequestId: 'uuid',
+        time: validAssistanceRequestTime,
+        position: {
+          positionId: validPositionId,
+          name: validPositionName,
+        },
+        message: validAssistanceRequestMessage,
+        handled: false,
       },
-      message: validAssistanceRequestMessage,
-      handled: false,
     }),
   });
   expect(postToConnectionMock).toBeCalledTimes(2);
@@ -261,12 +266,10 @@ test('Should add assistance request, post to websocket, delete stale connection,
 
   queryMock.mockReturnValue({
     promise: () => {
-      return {
-        Items: [
-          { connectionId: validConnectionId + 1 },
-          { connectionId: validConnectionId + 2 },
-        ],
-      };
+      return dynamoQueryResponseBuilder([
+        { connectionId: validConnectionId + 1 },
+        { connectionId: validConnectionId + 2 },
+      ]);
     },
   });
 
@@ -319,27 +322,33 @@ test('Should add assistance request, post to websocket, delete stale connection,
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 1,
     Data: JSON.stringify({
-      assistanceRequestId: 'uuid',
-      time: validAssistanceRequestTime,
-      position: {
-        positionId: validPositionId,
-        name: validPositionName,
+      type: websocketMessageType,
+      assistanceRequest: {
+        assistanceRequestId: 'uuid',
+        time: validAssistanceRequestTime,
+        position: {
+          positionId: validPositionId,
+          name: validPositionName,
+        },
+        message: validAssistanceRequestMessage,
+        handled: false,
       },
-      message: validAssistanceRequestMessage,
-      handled: false,
     }),
   });
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 2,
     Data: JSON.stringify({
-      assistanceRequestId: 'uuid',
-      time: validAssistanceRequestTime,
-      position: {
-        positionId: validPositionId,
-        name: validPositionName,
+      type: websocketMessageType,
+      assistanceRequest: {
+        assistanceRequestId: 'uuid',
+        time: validAssistanceRequestTime,
+        position: {
+          positionId: validPositionId,
+          name: validPositionName,
+        },
+        message: validAssistanceRequestMessage,
+        handled: false,
       },
-      message: validAssistanceRequestMessage,
-      handled: false,
     }),
   });
   expect(postToConnectionMock).toBeCalledTimes(2);
@@ -389,12 +398,10 @@ test('Should add assistance request, post to websocket, and return error when a 
 
   queryMock.mockReturnValue({
     promise: () => {
-      return {
-        Items: [
-          { connectionId: validConnectionId + 1 },
-          { connectionId: validConnectionId + 2 },
-        ],
-      };
+      return dynamoQueryResponseBuilder([
+        { connectionId: validConnectionId + 1 },
+        { connectionId: validConnectionId + 2 },
+      ]);
     },
   });
 
@@ -443,27 +450,33 @@ test('Should add assistance request, post to websocket, and return error when a 
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 1,
     Data: JSON.stringify({
-      assistanceRequestId: 'uuid',
-      time: validAssistanceRequestTime,
-      position: {
-        positionId: validPositionId,
-        name: validPositionName,
+      type: websocketMessageType,
+      assistanceRequest: {
+        assistanceRequestId: 'uuid',
+        time: validAssistanceRequestTime,
+        position: {
+          positionId: validPositionId,
+          name: validPositionName,
+        },
+        message: validAssistanceRequestMessage,
+        handled: false,
       },
-      message: validAssistanceRequestMessage,
-      handled: false,
     }),
   });
   expect(postToConnectionMock).toBeCalledWith({
     ConnectionId: validConnectionId + 2,
     Data: JSON.stringify({
-      assistanceRequestId: 'uuid',
-      time: validAssistanceRequestTime,
-      position: {
-        positionId: validPositionId,
-        name: validPositionName,
+      type: websocketMessageType,
+      assistanceRequest: {
+        assistanceRequestId: 'uuid',
+        time: validAssistanceRequestTime,
+        position: {
+          positionId: validPositionId,
+          name: validPositionName,
+        },
+        message: validAssistanceRequestMessage,
+        handled: false,
       },
-      message: validAssistanceRequestMessage,
-      handled: false,
     }),
   });
   expect(postToConnectionMock).toBeCalledTimes(2);
