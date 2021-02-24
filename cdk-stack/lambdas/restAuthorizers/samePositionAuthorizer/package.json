@@ -1,7 +1,7 @@
 {
-  "name": "same-username-authorizer",
+  "name": "same-position-authorizer",
   "version": "1.0.0",
-  "description": "Same Username Authorizer for API routes",
+  "description": "Same Position Authorizer for API routes",
   "author": "Marc Donald",
   "dependencies": {
     "axios": "^0.21.1",

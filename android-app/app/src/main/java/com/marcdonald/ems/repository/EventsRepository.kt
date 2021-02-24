@@ -1,5 +1,6 @@
 package com.marcdonald.ems.repository
 
+import com.marcdonald.ems.model.AssistanceRequest
 import com.marcdonald.ems.model.AssistanceRequestType
 import com.marcdonald.ems.model.Event
 import com.marcdonald.ems.model.Position
@@ -29,8 +30,8 @@ class EventsRepository @Inject constructor(private val authService: AuthService,
 			if(authService.idToken == null) throw Exception("No ID Token")
 			val response = eventsService.getStatus(authService.idToken!!, eventId)
 			return when(response.venueStatus) {
-				"Low"      -> VenueStatus.Low()
-				"High"     -> VenueStatus.High()
+				"Low" -> VenueStatus.Low()
+				"High" -> VenueStatus.High()
 				"Evacuate" -> VenueStatus.Evacuate()
 				else       -> VenueStatus.Low()
 			}
@@ -58,14 +59,30 @@ class EventsRepository @Inject constructor(private val authService: AuthService,
 		return null
 	}
 
+	suspend fun getAssistanceRequestsForPosition(eventId: String, positionId: String): List<AssistanceRequest> {
+		try {
+			if(authService.idToken == null) throw Exception("No ID Token")
+
+			return eventsService.getAssistanceRequestsForPosition(
+				authService.idToken!!,
+				eventId,
+				positionId
+			)
+
+		} catch(e: Exception) {
+			Timber.e("Log: getAssistanceRequestsForPosition: $e")
+		}
+		return emptyList()
+	}
+
 	fun connectToVenueStatusWebsocket(eventId: String, onMessage: (VenueStatus) -> Unit): WebSocket? {
 		try {
 			if(authService.idToken == null) throw Exception("No ID Token")
 
 			return eventsWebsocketService.connectToVenueStatusWebsocket(authService.idToken!!, eventId) { message ->
 				when(message.venueStatus) {
-					"Low"      -> onMessage(VenueStatus.Low())
-					"High"     -> onMessage(VenueStatus.High())
+					"Low" -> onMessage(VenueStatus.Low())
+					"High" -> onMessage(VenueStatus.High())
 					"Evacuate" -> onMessage(VenueStatus.Evacuate())
 					else       -> onMessage(VenueStatus.Low())
 				}

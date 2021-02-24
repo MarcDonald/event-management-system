@@ -184,6 +184,7 @@ class AssistanceRequestScreen : Fragment() {
 			modifier = Modifier
 				.fillMaxWidth()
 		) {
+			// TODO the dialogs should probably be injected in via Dagger
 			BottomNavigation(backgroundColor = MaterialTheme.colors.surface) {
 				BottomNavigationItem(
 					label = { Text("Supervisors") },
@@ -199,7 +200,15 @@ class AssistanceRequestScreen : Fragment() {
 				BottomNavigationItem(
 					label = { Text("Requests") },
 					alwaysShowLabels = true, icon = { Icon(Icons.Default.Email, contentDescription = "Requests") }, selected = false, onClick = {
-						RequestsDialogSheet().show(parentFragmentManager, "RequestsSheet")
+						viewModel.position.value?.let { position ->
+							val args = Bundle().apply {
+								putString("eventId", viewModel.eventId)
+								putString("positionId", position.positionId)
+							}
+							RequestsDialogSheet().apply {
+								arguments = args
+							}.show(parentFragmentManager, "RequestsSheet")
+						}
 					})
 				BottomNavigationItem(
 					label = { Text("Menu") },

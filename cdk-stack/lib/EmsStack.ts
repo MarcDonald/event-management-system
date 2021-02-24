@@ -29,6 +29,7 @@ export default class EmsStack extends cdk.Stack {
     const httpApiResources = new HttpApiResources(
       this,
       cognitoResources,
+      dynamoDbResources,
       this.region
     );
     const staffHttpEndpoints = new StaffHttpEndpoints(

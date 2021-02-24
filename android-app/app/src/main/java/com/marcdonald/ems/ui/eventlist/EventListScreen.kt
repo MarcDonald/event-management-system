@@ -12,6 +12,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -130,10 +132,14 @@ class EventListScreen : Fragment() {
 				.fillMaxWidth()
 				.padding(8.dp)
 		) {
-			IconButton(onClick = {
-				viewModel.logout()
-			}) {
-				Icon(Icons.Default.Settings, contentDescription = "Settings")
+			Column(modifier = Modifier.fillMaxWidth()) {
+				IconButton(
+					modifier = Modifier.align(Alignment.End),
+					onClick = {
+						viewModel.logout()
+					}) {
+					Icon(Icons.Default.ExitToApp, contentDescription = "Log Out")
+				}
 			}
 		}
 

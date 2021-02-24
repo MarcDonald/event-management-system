@@ -17,12 +17,14 @@ let handler;
 
 const updateMock = jest.fn();
 const queryMock = jest.fn();
+const deleteMock = jest.fn();
 const postToConnectionMock = jest.fn();
 
 beforeEach(() => {
   const Dynamo = {
     update: updateMock,
     query: queryMock,
+    delete: deleteMock,
   };
 
   const ApiGatewayManagementApi = {
@@ -164,6 +166,177 @@ test('Should update handled field when provided with a valid event and post to w
     }),
   });
   expect(postToConnectionMock).toBeCalledTimes(2);
+});
+
+test('Should update handled field when provided with a valid event and post to websocket connections and delete stale connection', async () => {
+  const event = {
+    pathParameters: {
+      eventId: validEventId,
+      assistanceRequestId: validAssistanceRequestId,
+    },
+  };
+
+  updateMock.mockReturnValue({
+    promise: () => {},
+  });
+
+  queryMock.mockReturnValue({
+    promise: () => {
+      return dynamoQueryResponseBuilder([
+        { connectionId: validConnectionId + 1 },
+        { connectionId: validConnectionId + 2 },
+      ]);
+    },
+  });
+
+  postToConnectionMock
+    .mockReturnValueOnce({
+      promise: () => {
+        return {};
+      },
+    })
+    .mockImplementationOnce(() => {
+      throw new MockAWSError('Error message', 'UnknownException', 410);
+    });
+
+  deleteMock.mockReturnValue({
+    promise: () => {},
+  });
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(200);
+  expect(body).toBe(JSON.stringify({ message: 'Assistance Request Handled' }));
+  expect(updateMock).toBeCalledTimes(1);
+  expect(updateMock).toBeCalledWith({
+    TableName: validTableName,
+    Key: {
+      id: validEventId,
+      metadata: `assistanceRequest_${validAssistanceRequestId}`,
+    },
+    UpdateExpression: 'SET handled = :handled',
+    ConditionExpression: 'id = :id and metadata = :metadata',
+    ExpressionAttributeValues: {
+      ':id': validEventId,
+      ':metadata': `assistanceRequest_${validAssistanceRequestId}`,
+      ':handled': true,
+    },
+  });
+  expect(queryMock).toBeCalledTimes(1);
+  expect(queryMock).toBeCalledWith({
+    TableName: validConnectionTableName,
+    KeyConditionExpression: 'websocket = :websocket',
+    FilterExpression: 'eventId = :eventId',
+    ExpressionAttributeValues: {
+      ':websocket': 'assistanceRequest',
+      ':eventId': validEventId,
+    },
+  });
+  expect(postToConnectionMock).toBeCalledWith({
+    ConnectionId: validConnectionId + 1,
+    Data: JSON.stringify({
+      type: websocketMessageType,
+      assistanceRequestId: validAssistanceRequestId,
+    }),
+  });
+  expect(postToConnectionMock).toBeCalledWith({
+    ConnectionId: validConnectionId + 2,
+    Data: JSON.stringify({
+      type: websocketMessageType,
+      assistanceRequestId: validAssistanceRequestId,
+    }),
+  });
+  expect(postToConnectionMock).toBeCalledTimes(2);
+  expect(deleteMock).toBeCalledTimes(1);
+  expect(deleteMock).toBeCalledWith({
+    TableName: validConnectionTableName,
+    Key: {
+      connectionId: validConnectionId + '2',
+      websocket: 'assistanceRequest',
+    },
+  });
+});
+
+test('Should return 500 when an unknown error occurs posting to the websocket', async () => {
+  const event = {
+    pathParameters: {
+      eventId: validEventId,
+      assistanceRequestId: validAssistanceRequestId,
+    },
+  };
+
+  updateMock.mockReturnValue({
+    promise: () => {},
+  });
+
+  queryMock.mockReturnValue({
+    promise: () => {
+      return dynamoQueryResponseBuilder([
+        { connectionId: validConnectionId + 1 },
+        { connectionId: validConnectionId + 2 },
+      ]);
+    },
+  });
+
+  postToConnectionMock
+    .mockReturnValueOnce({
+      promise: () => {
+        return {};
+      },
+    })
+    .mockImplementationOnce(() => {
+      throw new MockAWSError('Error message', 'UnknownException', 401);
+    });
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(500);
+  expect(body).toBe(
+    JSON.stringify({
+      message: 'Error handling assistance request - Error message',
+    })
+  );
+  expect(updateMock).toBeCalledTimes(1);
+  expect(updateMock).toBeCalledWith({
+    TableName: validTableName,
+    Key: {
+      id: validEventId,
+      metadata: `assistanceRequest_${validAssistanceRequestId}`,
+    },
+    UpdateExpression: 'SET handled = :handled',
+    ConditionExpression: 'id = :id and metadata = :metadata',
+    ExpressionAttributeValues: {
+      ':id': validEventId,
+      ':metadata': `assistanceRequest_${validAssistanceRequestId}`,
+      ':handled': true,
+    },
+  });
+  expect(queryMock).toBeCalledTimes(1);
+  expect(queryMock).toBeCalledWith({
+    TableName: validConnectionTableName,
+    KeyConditionExpression: 'websocket = :websocket',
+    FilterExpression: 'eventId = :eventId',
+    ExpressionAttributeValues: {
+      ':websocket': 'assistanceRequest',
+      ':eventId': validEventId,
+    },
+  });
+  expect(postToConnectionMock).toBeCalledWith({
+    ConnectionId: validConnectionId + 1,
+    Data: JSON.stringify({
+      type: websocketMessageType,
+      assistanceRequestId: validAssistanceRequestId,
+    }),
+  });
+  expect(postToConnectionMock).toBeCalledWith({
+    ConnectionId: validConnectionId + 2,
+    Data: JSON.stringify({
+      type: websocketMessageType,
+      assistanceRequestId: validAssistanceRequestId,
+    }),
+  });
+  expect(postToConnectionMock).toBeCalledTimes(2);
+  expect(deleteMock).toBeCalledTimes(0);
 });
 
 test('Should return 400 when no eventId is provided', async () => {

@@ -49,7 +49,7 @@ module.exports = (dependencies) => async (event) => {
     const { positions } = dbVenue;
 
     // Loop through positions that have been sent to be updated
-    // Find the position the query result and update the name
+    // Find the position in the query result and update the name
     positionsToUpdate.forEach((positionToUpdate) => {
       if (positionToUpdate.name) {
         const dbPosition = positions.find((dbPosition) => {

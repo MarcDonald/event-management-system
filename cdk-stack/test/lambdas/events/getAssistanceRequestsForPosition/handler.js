@@ -24,14 +24,14 @@ beforeEach(() => {
     metadataIndexName: validMetadataIndexName,
   };
 
-  handler = require('../../../../lambdas/events/getAssistanceRequests/handler')(
+  handler = require('../../../../lambdas/events/getAssistanceRequestsForPosition/handler')(
     dependencies
   );
 });
 
 afterEach(jest.resetAllMocks);
 
-test('Should return formatted assistance requests for event when provided with a valid event ID', async () => {
+test('Should return formatted assistance requests for position when provided with a valid event ID', async () => {
   queryMock.mockReturnValue({
     promise: () => {
       return dynamoQueryResponseBuilder([
@@ -50,8 +50,8 @@ test('Should return formatted assistance requests for event when provided with a
           id: validEventId,
           metadata: `assistanceRequest_${validAssistanceRequestId}`,
           position: {
-            positionId: validPositionId,
-            name: validPositionName,
+            positionId: validPositionId + '1',
+            name: validPositionName + '1',
           },
           time: validAssistanceRequestTime,
           message: validAssistanceRequestMessage,
@@ -64,6 +64,7 @@ test('Should return formatted assistance requests for event when provided with a
   const event = {
     pathParameters: {
       eventId: validEventId,
+      positionId: validPositionId,
     },
   };
 
@@ -92,29 +93,37 @@ test('Should return formatted assistance requests for event when provided with a
         time: validAssistanceRequestTime + 1,
         handled: false,
       },
-      {
-        assistanceRequestId: validAssistanceRequestId,
-        position: {
-          positionId: validPositionId,
-          name: validPositionName,
-        },
-        message: validAssistanceRequestMessage,
-        time: validAssistanceRequestTime,
-        handled: true,
-      },
     ])
   );
 });
 
-test('Should return 400 if a event ID is not provided', async () => {
+test('Should return 400 if an event ID is not provided', async () => {
   const event = {
-    pathParameters: {},
+    pathParameters: {
+      positionId: validPositionId,
+    },
   };
 
   const { statusCode, body } = await handler(event);
 
   expect(statusCode).toBe(400);
-  expect(body).toBe(JSON.stringify({ message: 'Event ID must be provided' }));
+  expect(body).toBe(
+    JSON.stringify({ message: 'Event ID and Position ID must be provided' })
+  );
+  expect(queryMock).toBeCalledTimes(0);
+});
+
+test('Should return 400 if a position ID is not provided', async () => {
+  const event = {
+    pathParameters: { eventId: validEventId },
+  };
+
+  const { statusCode, body } = await handler(event);
+
+  expect(statusCode).toBe(400);
+  expect(body).toBe(
+    JSON.stringify({ message: 'Event ID and Position ID must be provided' })
+  );
   expect(queryMock).toBeCalledTimes(0);
 });
 
@@ -126,6 +135,7 @@ test('Should return 500 if another error is thrown', async () => {
   const event = {
     pathParameters: {
       eventId: invalidEventId,
+      positionId: validPositionId,
     },
   };
 
@@ -134,7 +144,7 @@ test('Should return 500 if another error is thrown', async () => {
   expect(statusCode).toBe(500);
   expect(body).toBe(
     JSON.stringify({
-      message: `Error getting assistance requests for event '${invalidEventId}' - The error message.`,
+      message: `Error getting assistance requests for position '${validPositionId}' on event '${invalidEventId}' - The error message.`,
     })
   );
 });

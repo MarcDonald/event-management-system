@@ -88,10 +88,16 @@ export default class VenueHttpEndpoints {
       integration: this.createAddAssistanceRequestHandler(),
     });
 
-    const getAssistanceRequestRoutes = api.addRoutes({
+    const getAssistanceRequestsRoutes = api.addRoutes({
       path: '/events/{eventId}/assistance',
       methods: [HttpMethod.GET],
       integration: this.createGetAssistanceRequestsHandler(),
+    });
+
+    const getAssistanceRequestsForPositionRoutes = api.addRoutes({
+      path: '/events/{eventId}/{positionId}/assistance',
+      methods: [HttpMethod.GET],
+      integration: this.createGetAssistanceRequestsForPositionHandler(),
     });
 
     const handleAssistanceRequestRoutes = api.addRoutes({
@@ -108,6 +114,10 @@ export default class VenueHttpEndpoints {
 
     httpApiResources.addSameUsernameAuthorizerToRoutes(
       Array<HttpRoute>().concat(...[getUpcomingEventsForUserRoutes])
+    );
+
+    httpApiResources.addSamePositionAuthorizerToRoutes(
+      Array<HttpRoute>().concat(...[getAssistanceRequestsForPositionRoutes])
     );
 
     httpApiResources.addAdminJwtAuthorizerToRoutes(
@@ -132,7 +142,7 @@ export default class VenueHttpEndpoints {
     httpApiResources.addControlRoomAuthorizerToRoutes(
       Array<HttpRoute>().concat(
         ...[
-          getAssistanceRequestRoutes,
+          getAssistanceRequestsRoutes,
           getEventInformation,
           updateEventVenueStatus,
           getUpcomingEventsRoutes,
@@ -250,6 +260,16 @@ export default class VenueHttpEndpoints {
       'GetAssistanceRequestsFunction',
       'EmsGetAssistanceRequests',
       'getAssistanceRequests',
+      ['dynamodb:Query'],
+      true
+    );
+  }
+
+  private createGetAssistanceRequestsForPositionHandler(): LambdaProxyIntegration {
+    return this.createHandler(
+      'GetAssistanceRequestsForPositionFunction',
+      'EmsGetAssistanceRequestsForPosition',
+      'getAssistanceRequestsForPosition',
       ['dynamodb:Query'],
       true
     );

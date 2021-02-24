@@ -33,8 +33,8 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 	private val _signedOut: MutableLiveData<Boolean> = MutableLiveData(false)
 	val signedOut = _signedOut as LiveData<Boolean>
 	private var venueStatusWebsocket: WebSocket? = null
-
-	private var eventId: String? = null
+	var eventId: String? = null
+		private set;
 
 	init {
 		Amplify.Hub.subscribe(HubChannel.AUTH) { hubEvent: HubEvent<*> ->

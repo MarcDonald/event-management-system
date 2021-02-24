@@ -26,7 +26,6 @@ const {
   validGivenName,
   validFamilyName,
 } = staffUtils;
-const { validMetadataIndexName } = awsUtils.testValues;
 
 let handler;
 const queryMock = jest.fn();

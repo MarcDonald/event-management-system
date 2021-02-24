@@ -1,5 +1,6 @@
 package com.marcdonald.ems.network
 
+import com.marcdonald.ems.model.AssistanceRequest
 import com.marcdonald.ems.model.Event
 import retrofit2.http.*
 
@@ -17,4 +18,11 @@ interface EventsService {
 		@Path("eventId") eventId: String,
 		@Body assistanceRequestBody: AssistanceRequestBody
 	): AssistanceRequestResponse
+
+	@GET("/production/events/{eventId}/{positionId}/assistance")
+	suspend fun getAssistanceRequestsForPosition(
+		@Header("Authorization") idToken: String,
+		@Path("eventId") eventId: String,
+		@Path("positionId") positionId: String
+	): List<AssistanceRequest>
 }
