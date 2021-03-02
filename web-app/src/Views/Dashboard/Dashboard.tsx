@@ -22,7 +22,6 @@ import DashboardStateReducer, {
 } from './State/DashboardStateReducer';
 import { toast, Toaster } from 'react-hot-toast';
 import { toastErrorStyle } from '../../Utils/ToastStyles';
-import { createNewStaffMember } from '../../Services/StaffService';
 
 /**
  * Main dashboards page

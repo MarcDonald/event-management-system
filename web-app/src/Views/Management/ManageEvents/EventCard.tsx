@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useState } from 'react';
+import React, { MouseEventHandler } from 'react';
 import Card from '../../../Components/Card';
 
 interface EventCardPropTypes {

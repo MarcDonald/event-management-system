@@ -31,12 +31,10 @@ export default function PositionsDashboard(props: PositionsDashboardPropTypes) {
   const positionDisplayList = () => {
     return props.positions.map((position, index) => {
       const hasAssistanceRequest = props.assistanceRequests.find((request) => {
-        if (
+        return (
           request.position.positionId === position.positionId &&
           !request.handled
-        ) {
-          return true;
-        }
+        );
       });
 
       let borderStyle = '';

@@ -25,7 +25,11 @@ export default function useLoggedInUserDetails(): LoggedInUserDetails {
         familyName: authUser.attributes['family_name'],
       };
     } catch (err) {
-      console.log(err);
+      if (err === 'No current user') {
+        console.debug(err);
+      } else {
+        console.log(err);
+      }
       return null;
     }
   };

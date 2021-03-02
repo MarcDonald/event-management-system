@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import Dropdown, { DropdownItem } from '../../../../Components/Dropdown';
 
 interface NewSupervisorAssignmentEntryPropTypes {

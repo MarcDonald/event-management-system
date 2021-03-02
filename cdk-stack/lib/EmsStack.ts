@@ -7,6 +7,7 @@ import VenueHttpEndpoints from './HttpEndpoints/VenueHttpEndpoints';
 import EventHttpEndpoints from './HttpEndpoints/EventHttpEndpoints';
 import WebsocketResources from './Websocket/WebsocketResources';
 import WebsocketConnectionTable from './Websocket/WebsocketConnectionTable';
+import WebAppResources from './WebAppResources';
 
 /**
  * Main Stack
@@ -51,5 +52,6 @@ export default class EmsStack extends cdk.Stack {
       this.region,
       this.account
     );
+    const webAppDeployment = new WebAppResources(this);
   }
 }

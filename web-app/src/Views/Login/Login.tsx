@@ -15,7 +15,7 @@ import { toast, Toaster } from 'react-hot-toast';
  */
 export default function Login() {
   const [state, dispatch] = useReducer(LoginStateReducer, loginInitialState);
-  const { isLoading, error, username, password } = state;
+  const { isLoading, username, password } = state;
   const pageProtection = usePageProtection();
   const history = useHistory();
 

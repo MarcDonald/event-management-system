@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { DrawerSearchBar } from '../../Components/DrawerSearchBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
