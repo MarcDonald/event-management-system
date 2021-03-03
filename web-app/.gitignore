@@ -24,7 +24,6 @@ yarn-error.log*
 
 .idea
 
-src/tailwind.css
 src/config.json
 
 .eslintcache

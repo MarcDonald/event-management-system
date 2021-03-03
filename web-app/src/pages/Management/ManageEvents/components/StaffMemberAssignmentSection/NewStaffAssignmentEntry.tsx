@@ -1,0 +1,79 @@
+import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import Dropdown, {
+  DropdownItem,
+} from '../../../../../shared/components/Dropdown';
+import styled from 'styled-components';
+import { Button, PositiveButton } from '../../../../../styles/GlobalStyles';
+import usePopperMarginModifiers from 'react-bootstrap/usePopperMarginModifiers';
+
+interface NewStaffAssignmentEntryProps {
+  onSave: (staffSelectedId: string, positionSelectedId: string) => any;
+  staffToShow: DropdownItem[];
+  positionsToShow: DropdownItem[];
+}
+
+const Form = styled.form`
+  width: 100%;
+  background-color: ${(props) => props.theme.surface};
+  padding: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 0.375rem;
+`;
+
+const DropdownContainer = styled.div`
+  width: 50%;
+`;
+
+const AddButtonIcon = styled(FontAwesomeIcon)`
+  font-size: 1.5rem;
+  vertical-align: middle;
+`;
+
+const DropdownWithTopGap = styled(Dropdown)`
+  margin-top: 0.5rem;
+`;
+
+/**
+ * Input area for assigning a new staff member to an event
+ */
+export default function NewStaffAssignmentEntry(
+  props: NewStaffAssignmentEntryProps
+) {
+  const [staffSelected, setStaffSelected] = useState<string>('');
+  const [positionSelected, setPositionSelected] = useState<string>('');
+
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (staffSelected && positionSelected) {
+      props.onSave(staffSelected, positionSelected);
+      setStaffSelected('');
+      setPositionSelected('');
+    }
+  };
+
+  return (
+    <Form onSubmit={submit}>
+      <DropdownContainer>
+        <Dropdown
+          title="Select Staff Member"
+          list={props.staffToShow}
+          currentlySelectedKey={staffSelected}
+          onSelected={setStaffSelected}
+        />
+        <DropdownWithTopGap
+          title="Select Position"
+          list={props.positionsToShow}
+          currentlySelectedKey={positionSelected}
+          onSelected={setPositionSelected}
+        />
+      </DropdownContainer>
+      <PositiveButton type="submit">
+        <AddButtonIcon icon={faPlus} />
+      </PositiveButton>
+    </Form>
+  );
+}

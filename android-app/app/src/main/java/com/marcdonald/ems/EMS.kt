@@ -4,6 +4,7 @@ import android.app.Application
 import com.amplifyframework.AmplifyException
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
 import com.amplifyframework.core.Amplify
+import com.amplifyframework.core.AmplifyConfiguration
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
@@ -19,7 +20,8 @@ class EMS : Application() {
 
 		try {
 			Amplify.addPlugin(AWSCognitoAuthPlugin())
-			Amplify.configure(applicationContext)
+			val amplifyConfiguration = AmplifyConfiguration.builder(applicationContext).devMenuEnabled(false).build()
+			Amplify.configure(amplifyConfiguration, applicationContext)
 			Timber.i("Log: onCreate: Initialized Amplify")
 		} catch(error: AmplifyException) {
 			Timber.e("Log: onCreate: Could not initialize Amplify $error")

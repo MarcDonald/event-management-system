@@ -1,10 +1,10 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
-import Home from './Views/Home';
-import NotFound from './Views/NotFound';
-import Login from './Views/Login';
-import Management, { ManagementPage } from './Views/Management';
-import Dashboard from './Views/Dashboard/Dashboard';
+import Home from './pages/Home';
+import NotFound from './pages/NotFound';
+import Login from './pages/Login';
+import Management, { ManagementPage } from './pages/Management';
+import Dashboard from './pages/Dashboard/Dashboard';
 
 /**
  * Application routing
