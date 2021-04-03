@@ -19,7 +19,8 @@ import timber.log.Timber
 class EventListViewModel @ViewModelInject constructor(private val repository: EventsRepository, private val authService: AuthService) :
 		ViewModel() {
 
-	val loggedInUserName: MutableState<String> = mutableStateOf("...")
+	val loggedInName: MutableState<String> = mutableStateOf("...")
+	val loggedInUserSub: MutableState<String> = mutableStateOf("")
 	val loggedInRole: MutableState<String> = mutableStateOf("...")
 	val events: MutableState<List<Event>> = mutableStateOf(listOf())
 	val showLoading: MutableState<Boolean> = mutableStateOf(true)
@@ -29,11 +30,12 @@ class EventListViewModel @ViewModelInject constructor(private val repository: Ev
 	init {
 		Amplify.Auth.fetchUserAttributes(
 			{ result ->
-				loggedInUserName.value =
+				loggedInName.value =
 					result.find { authUserAttribute -> authUserAttribute.key.keyString == "given_name" }?.value
 						.plus(" ")
 						.plus(result.find { authUserAttribute -> authUserAttribute.key.keyString == "family_name" }?.value)
 				loggedInRole.value = result.find { authUserAttribute -> authUserAttribute.key.keyString == "custom:jobRole" }?.value.toString()
+				loggedInUserSub.value = result.find { authUserAttribute ->  authUserAttribute.key.keyString == "sub" }?.value.toString()
 			},
 			{ error -> Timber.e("Log: $error") }
 		)

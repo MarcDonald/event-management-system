@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -13,8 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,7 +60,7 @@ class EventListScreen : Fragment() {
 							// Header Column
 							Column(modifier = Modifier.weight(1f)) {
 								EventListHeader(
-									name = viewModel.loggedInUserName.value,
+									name = viewModel.loggedInName.value,
 									role = viewModel.loggedInRole.value
 								)
 							}
@@ -145,16 +144,20 @@ class EventListScreen : Fragment() {
 
 	private fun onCardClick(eventId: String) {
 		try {
-			val position = viewModel.determinePositionAtEvent(eventId)
 			val supervisors = viewModel.getSupervisorsOfEvent(eventId)
-			Timber.i("Log: onCardClick: $position")
-			val args = Bundle().apply {
-				putString("positionName", position.name)
-				putString("positionId", position.positionId)
-				putString("eventId", eventId)
-				putParcelableArray("supervisors", supervisors)
+			if(supervisors.find { supervisor -> supervisor.staffMember.sub == viewModel.loggedInUserSub.value } != null) {
+				Toast.makeText(requireContext(), "You are a Supervisor for this Event", Toast.LENGTH_SHORT).show()
+			} else {
+				val position = viewModel.determinePositionAtEvent(eventId)
+				Timber.i("Log: onCardClick: $position")
+				val args = Bundle().apply {
+					putString("positionName", position.name)
+					putString("positionId", position.positionId)
+					putString("eventId", eventId)
+					putParcelableArray("supervisors", supervisors)
+				}
+				findNavController().navigate(R.id.eventSelected, args)
 			}
-			findNavController().navigate(R.id.eventSelected, args)
 		} catch(e: Exception) {
 			Timber.e("Log: onCardClick: $e")
 		}
