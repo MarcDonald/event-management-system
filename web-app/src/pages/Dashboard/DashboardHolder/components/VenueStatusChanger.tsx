@@ -4,8 +4,8 @@ import ColorDropdown, {
   ColorDropdownItem,
 } from '../../../../shared/components/ColorDropdown';
 import useVenueStatusColors from '../../../../shared/hooks/useVenueStatusColors';
-import { updateEventStatus } from '../../../../services/EventService';
 import styled from 'styled-components';
+import useEventApi from '../../../../shared/hooks/api/useEventApi';
 
 interface VenueStatusChangerProps {
   status: VenueStatus;
@@ -28,6 +28,7 @@ const DropdownContainer = styled.div`
  * Dropdown for a control room operator to change the status of a venue from the dashboard
  */
 export default function VenueStatusChanger(props: VenueStatusChangerProps) {
+  const eventApi = useEventApi();
   const colorCalculator = useVenueStatusColors();
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
@@ -65,7 +66,7 @@ export default function VenueStatusChanger(props: VenueStatusChangerProps) {
 
   const changeVenueStatus = async (newStatus: string) => {
     setIsUpdating(true);
-    const result = await updateEventStatus(
+    const result = await eventApi.updateEventStatus(
       props.eventId,
       newStatus as VenueStatus
     );

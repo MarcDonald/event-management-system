@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import Loading from '../../../shared/components/Loading';
 import Event from '../../../shared/models/Event';
 import { Card } from '../../../styles/GlobalStyles';
-import { getUpcomingEvents } from '../../../services/EventService';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import useEventApi from '../../../shared/hooks/api/useEventApi';
 
 const Container = styled.div`
   align-self: center;
@@ -60,13 +60,14 @@ const EventListContainer = styled.div`
  */
 export default function UpcomingEvents() {
   const history = useHistory();
+  const eventApi = useEventApi();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
 
   useEffect(() => {
     const setup = async () => {
-      const upcoming = await getUpcomingEvents();
+      const upcoming = await eventApi.getUpcomingEvents();
       setUpcomingEvents(upcoming);
       setIsLoading(false);
     };

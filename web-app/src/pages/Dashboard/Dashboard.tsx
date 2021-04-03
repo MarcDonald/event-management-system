@@ -3,14 +3,6 @@ import { useParams } from 'react-router-dom';
 import StatusHeader from './components/StatusHeader';
 import EventDetailsDrawer from './components/EventDetailsDrawer';
 import AssistanceRequestsDrawer from './components/AssistanceRequestDrawer';
-import {
-  connectToAssistanceRequestWebsocket,
-  connectToVenueStatusWebsocket,
-  getAssistanceRequests,
-  getEventInformation,
-  getEventVenueStatus,
-  handleAssistanceRequest,
-} from '../../services/EventService';
 import DashboardHolder from './DashboardHolder';
 import usePageProtection from '../../shared/hooks/usePageProtection';
 import StaffRole from '../../shared/models/StaffRole';
@@ -27,11 +19,13 @@ import {
   ContentContainer,
 } from './DashboardStyles';
 import Loading from '../../shared/components/Loading';
+import useEventApi from '../../shared/hooks/api/useEventApi';
 
 /**
  * Main dashboards page
  */
 export default function Dashboard() {
+  const eventApi = useEventApi();
   const { eventId } = useParams();
   const pageProtection = usePageProtection();
 
@@ -64,9 +58,9 @@ export default function Dashboard() {
       venueStatusSocket.close();
     }
 
-    const dbEventInformation = getEventInformation(eventId);
-    const dbAssistanceRequests = getAssistanceRequests(eventId);
-    const dbVenueStatus = getEventVenueStatus(eventId);
+    const dbEventInformation = eventApi.getEventInformation(eventId);
+    const dbAssistanceRequests = eventApi.getAssistanceRequests(eventId);
+    const dbVenueStatus = eventApi.getEventVenueStatus(eventId);
 
     Promise.all([dbEventInformation, dbAssistanceRequests, dbVenueStatus])
       .then((values) => {
@@ -88,30 +82,33 @@ export default function Dashboard() {
   };
 
   const openAssistanceRequestWebsocketConnection = async () => {
-    const socket = await connectToAssistanceRequestWebsocket(eventId, (e) => {
-      const event = JSON.parse(e.data);
-      if (event.type === 'NewAssistanceRequest') {
-        dispatch({
-          type: DashboardStateAction.NewAssistanceRequest,
-          parameters: {
-            newAssistanceRequest: event.assistanceRequest,
-          },
-        });
+    const socket = await eventApi.connectToAssistanceRequestWebSocket(
+      eventId,
+      (e) => {
+        const event = JSON.parse(e.data);
+        if (event.type === 'NewAssistanceRequest') {
+          dispatch({
+            type: DashboardStateAction.NewAssistanceRequest,
+            parameters: {
+              newAssistanceRequest: event.assistanceRequest,
+            },
+          });
+        }
+        if (event.type === 'AssistanceRequestHandled') {
+          dispatch({
+            type: DashboardStateAction.HandleAssistanceRequest,
+            parameters: {
+              id: event.assistanceRequestId,
+            },
+          });
+        }
       }
-      if (event.type === 'AssistanceRequestHandled') {
-        dispatch({
-          type: DashboardStateAction.HandleAssistanceRequest,
-          parameters: {
-            id: event.assistanceRequestId,
-          },
-        });
-      }
-    });
+    );
     setAssistanceRequestSocket(socket);
   };
 
   const openVenueStatusWebsocketConnection = async () => {
-    const socket = await connectToVenueStatusWebsocket(eventId, (e) =>
+    const socket = await eventApi.connectToVenueStatusWebSocket(eventId, (e) =>
       dispatch({
         type: DashboardStateAction.VenueStatusChange,
         parameters: {
@@ -133,20 +130,23 @@ export default function Dashboard() {
   }, [eventId]);
 
   const onHandleAssistanceRequest = async (assistanceRequestId: string) => {
-    await toast.promise(handleAssistanceRequest(eventId, assistanceRequestId), {
-      error: (e) => {
-        console.log(e);
-        return 'Error Handling Request';
-      },
-      loading: 'Handling Request',
-      success: () => {
-        dispatch({
-          type: DashboardStateAction.HandleAssistanceRequest,
-          parameters: { id: assistanceRequestId },
-        });
-        return 'Request Handled';
-      },
-    });
+    await toast.promise(
+      eventApi.handleAssistanceRequest(eventId, assistanceRequestId),
+      {
+        error: (e) => {
+          console.log(e);
+          return 'Error Handling Request';
+        },
+        loading: 'Handling Request',
+        success: () => {
+          dispatch({
+            type: DashboardStateAction.HandleAssistanceRequest,
+            parameters: { id: assistanceRequestId },
+          });
+          return 'Request Handled';
+        },
+      }
+    );
   };
 
   return (

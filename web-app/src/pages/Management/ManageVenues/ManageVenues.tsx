@@ -2,14 +2,6 @@ import React, { useEffect, useReducer } from 'react';
 import ManagementEditHeader from '../components/ManagementEditHeader';
 import ItemListDrawer from '../components/ItemListDrawer';
 import Venue from '../../../shared/models/Venue';
-import {
-  addVenuePositions,
-  createNewVenue,
-  deleteVenue,
-  deleteVenuePositions,
-  getAllVenues,
-  updateVenueInformation,
-} from '../../../services/VenueService';
 import Loading from '../../../shared/components/Loading';
 import VenueCard from './components/VenueCard';
 import NewPositionEntry from './components/NewPositionEntry';
@@ -30,11 +22,14 @@ import {
   PositionsTitle,
   LoadingContainer,
 } from './ManageVenuesStyles';
+import useVenueApi from '../../../shared/hooks/api/useVenueApi';
 
 /**
  * Venue management page
  */
 export default function ManageVenues() {
+  const api = useVenueApi();
+
   const [state, dispatch] = useReducer(
     ManageVenuesStateReducer,
     manageVenuesDefaultState
@@ -65,7 +60,7 @@ export default function ManageVenues() {
 
   useEffect(() => {
     const setup = async () => {
-      const venueList = await getAllVenues();
+      const venueList = await api.getAllVenues();
       dispatch({
         type: ManageVenuesStateActions.VenuesLoaded,
         parameters: {
@@ -111,11 +106,11 @@ export default function ManageVenues() {
 
   const updateVenue = async (): Promise<Venue> => {
     if (id) {
-      await updateVenueInformation(id, {
+      await api.updateVenueInformation(id, {
         name: name,
       });
-      await addVenuePositions(id, positionsToAdd);
-      await deleteVenuePositions(id, positionsToDelete);
+      await api.addVenuePositions(id, positionsToAdd);
+      await api.deleteVenuePositions(id, positionsToDelete);
     }
     return {
       venueId: id!,
@@ -135,7 +130,7 @@ export default function ManageVenues() {
         };
 
         if (!id) {
-          const newVenue = await toast.promise(createNewVenue(newDetails), {
+          const newVenue = await toast.promise(api.createNewVenue(newDetails), {
             error: 'Error Adding Venue',
             loading: 'Adding New Venue',
             success: 'New Venue Added',
@@ -171,7 +166,7 @@ export default function ManageVenues() {
     if (id) {
       dispatch({ type: ManageVenuesStateActions.DeleteVenue });
       try {
-        await toast.promise(deleteVenue(id), {
+        await toast.promise(api.deleteVenue(id), {
           error: 'Error Deleting Venue',
           loading: 'Deleting Venue',
           success: 'Venue Deleted',

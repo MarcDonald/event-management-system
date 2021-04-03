@@ -3,18 +3,8 @@ import ItemListDrawer from '../components/ItemListDrawer';
 import ManagementEditHeader from '../components/ManagementEditHeader';
 import Loading from '../../../shared/components/Loading';
 import EventCard from './components/EventCard';
-import {
-  createNewEvent,
-  deleteEvent,
-  getAllEvents,
-  updateEventInformation,
-  updateEventStaffMembers,
-  updateEventSupervisors,
-} from '../../../services/EventService';
 import Dropdown from '../../../shared/components/Dropdown';
-import { getAllVenues } from '../../../services/VenueService';
 import 'react-datepicker/dist/react-datepicker.css';
-import { getAllStaffMembers } from '../../../services/StaffService';
 import StaffMemberAssignmentSection from './components/StaffMemberAssignmentSection/StaffMemberAssignmentSection';
 import SupervisorAssignmentSection from './components/SupervisorAssignmentSection/SupervisorAssignmentSection';
 import ManageEventsStateReducer, {
@@ -36,11 +26,18 @@ import {
   SupervisorAssignmentSectionContainer,
   LoadingContainer,
 } from './ManageEventsStyles';
+import useStaffApi from '../../../shared/hooks/api/useStaffApi';
+import useVenueApi from '../../../shared/hooks/api/useVenueApi';
+import useEventApi from '../../../shared/hooks/api/useEventApi';
 
 /**
  * Events management page
  */
 export default function ManageEvents() {
+  const staffApi = useStaffApi();
+  const venueApi = useVenueApi();
+  const eventApi = useEventApi();
+
   const [state, dispatch] = useReducer(
     ManageEventsStateReducer,
     manageEventsDefaultState
@@ -55,9 +52,9 @@ export default function ManageEvents() {
 
   useEffect(() => {
     const setup = async () => {
-      const allEventsReq = getAllEvents();
-      const allVenuesReq = getAllVenues();
-      const allStaffReq = getAllStaffMembers();
+      const allEventsReq = eventApi.getAllEvents();
+      const allVenuesReq = venueApi.getAllVenues();
+      const allStaffReq = staffApi.getAllStaffMembers();
       Promise.all([allEventsReq, allVenuesReq, allStaffReq]).then((values) => {
         dispatch({
           type: ManageEventsStateActions.DataLoaded,
@@ -97,7 +94,7 @@ export default function ManageEvents() {
   };
 
   const saveNewEvent = async (): Promise<void> => {
-    const newEvent = await createNewEvent({
+    const newEvent = await eventApi.createNewEvent({
       name: state.name,
       // This is a safe non-null assertion because the form has already been validated
       venue: state.venue!,
@@ -121,11 +118,11 @@ export default function ManageEvents() {
         start: Math.floor(state.start.getTime() / 1000),
         end: Math.floor(state.end.getTime() / 1000),
       };
-      await updateEventInformation(state.id, updatedInformation);
+      await eventApi.updateEventInformation(state.id, updatedInformation);
       const updatedSupervisors = state.supervisors;
-      await updateEventSupervisors(state.id, updatedSupervisors);
+      await eventApi.updateEventSupervisors(state.id, updatedSupervisors);
       const updatedStaffMembers = state.staff;
-      await updateEventStaffMembers(state.id, updatedStaffMembers);
+      await eventApi.updateEventStaffMembers(state.id, updatedStaffMembers);
       dispatch({
         type: ManageEventsStateActions.ExistingEventUpdated,
         parameters: {
@@ -168,7 +165,7 @@ export default function ManageEvents() {
     if (state.id) {
       dispatch({ type: ManageEventsStateActions.Delete });
       try {
-        await toast.promise(deleteEvent(state.id), {
+        await toast.promise(eventApi.deleteEvent(state.id), {
           error: 'Error Deleting Event',
           loading: 'Deleting Event',
           success: 'Event Deleted',

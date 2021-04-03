@@ -1,7 +1,7 @@
 import StateAction from '../../../../utils/StateAction';
 import Venue from '../../../../shared/models/Venue';
 import Position from '../../../../shared/models/Position';
-import { NewPosition } from '../../../../services/VenueService';
+import { NewPosition } from '../../../../shared/hooks/api/useVenueApi';
 import ManageVenuesStateActions from './ManageVenuesStateActions';
 
 interface ManageVenuesState {

@@ -2,12 +2,6 @@ import React, { useEffect, useReducer } from 'react';
 import ManagementEditHeader from '../components/ManagementEditHeader';
 import StaffCard from './components/StaffCard';
 import StaffRole from '../../../shared/models/StaffRole';
-import {
-  createNewStaffMember,
-  deleteStaffMember,
-  getAllStaffMembers,
-  updateExistingStaffMember,
-} from '../../../services/StaffService';
 import Loading from '../../../shared/components/Loading';
 import Dropdown from '../../../shared/components/Dropdown';
 import ItemListDrawer from '../components/ItemListDrawer';
@@ -27,11 +21,13 @@ import {
   Label,
   LoadingContainer,
 } from './ManageStaffStyles';
+import useStaffApi from '../../../shared/hooks/api/useStaffApi';
 
 /**
  * Staff management page
  */
 export default function ManageStaff() {
+  const staffApi = useStaffApi();
   const [state, dispatch] = useReducer(
     ManageStaffStateReducer,
     manageStaffDefaultState
@@ -51,7 +47,7 @@ export default function ManageStaff() {
       dispatch({
         type: ManageStaffStateActions.Load,
       });
-      const staffList = await getAllStaffMembers();
+      const staffList = await staffApi.getAllStaffMembers();
       dispatch({
         type: ManageStaffStateActions.StaffMembersLoaded,
         parameters: {
@@ -117,7 +113,7 @@ export default function ManageStaff() {
       try {
         if (state.isNew) {
           const newStaffMember = await toast.promise(
-            createNewStaffMember(userDetails),
+            staffApi.createNewStaffMember(userDetails),
             {
               error: (e) => {
                 console.log(e);
@@ -135,7 +131,7 @@ export default function ManageStaff() {
           });
         } else {
           const updatedStaffMember = await toast.promise(
-            updateExistingStaffMember(userDetails),
+            staffApi.updateExistingStaffMember(userDetails),
             {
               error: (e) => {
                 console.error(e);
@@ -179,7 +175,7 @@ export default function ManageStaff() {
         toast.error('You cannot delete yourself');
       } else {
         dispatch({ type: ManageStaffStateActions.Delete });
-        await toast.promise(deleteStaffMember(state.username), {
+        await toast.promise(staffApi.deleteStaffMember(state.username), {
           error: 'Error Deleting Staff Member',
           loading: 'Deleting Staff Member',
           success: 'Staff Member Deleted',
