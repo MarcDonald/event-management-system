@@ -61,7 +61,7 @@ export default function RemovableListItem(props: RemovableListItemProps) {
           props.deleteAction(props.listKey);
         }}
       >
-        <RemoveButtonIcon icon={faTrash} />
+        <RemoveButtonIcon icon={faTrash} title="Remove" aria-label="Remove" />
       </RemoveButton>
     </Container>
   );

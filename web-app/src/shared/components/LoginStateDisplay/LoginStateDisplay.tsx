@@ -97,14 +97,18 @@ export default function LoginStateDisplay(props: LoginStateDisplayProps) {
       {props.showHomeButton && (
         <HomeButtonContainer>
           <HomeCard onClick={() => history.push('/')}>
-            <HomeIcon icon={faHome} />
+            <HomeIcon icon={faHome} title="Home" aria-label="Home" />
           </HomeCard>
         </HomeButtonContainer>
       )}
       <ActionContainer showHomeButton={props.showHomeButton}>
         {showLogout && (
           <ActionCard onClick={logout}>
-            <ActionIcon icon={faSignOutAlt} />
+            <ActionIcon
+              icon={faSignOutAlt}
+              title="Sign Out"
+              aria-label="Sign Out"
+            />
             <ActionText>Logout</ActionText>
           </ActionCard>
         )}

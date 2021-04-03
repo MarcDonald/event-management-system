@@ -80,7 +80,10 @@ export default function Dropdown(props: DropdownProps) {
         <span>
           {currentlySelected ? getCurrentlySelectedName() : props.title}
         </span>
-        <DropdownCaret icon={isOpen ? faCaretUp : faCaretDown} />
+        <DropdownCaret
+          icon={isOpen ? faCaretUp : faCaretDown}
+          aria-hidden={true}
+        />
       </SelectedTitleDisplay>
       {isOpen && <DropdownList>{displayList()}</DropdownList>}
     </Container>

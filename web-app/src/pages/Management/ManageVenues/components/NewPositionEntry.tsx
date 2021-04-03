@@ -74,7 +74,11 @@ export default function NewPositionEntry(props: NewPositionEntryProps) {
         value={name}
       />
       <SubmitButton type="submit">
-        <SubmitButtonIcon icon={faPlus} />
+        <SubmitButtonIcon
+          icon={faPlus}
+          title="Add Position"
+          aria-label="Add Position"
+        />
       </SubmitButton>
     </Form>
   );

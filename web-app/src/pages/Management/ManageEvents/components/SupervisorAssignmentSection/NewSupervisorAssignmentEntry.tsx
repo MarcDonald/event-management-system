@@ -71,7 +71,11 @@ export default function NewSupervisorAssignmentEntry(
         />
       </FormContainer>
       <PositiveButton type="submit">
-        <AddButtonIcon icon={faPlus} />
+        <AddButtonIcon
+          icon={faPlus}
+          title="Add Supervisor"
+          aria-label="Add Supervisor"
+        />
       </PositiveButton>
     </Form>
   );

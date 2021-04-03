@@ -71,7 +71,11 @@ export default function NewStaffAssignmentEntry(
         />
       </DropdownContainer>
       <PositiveButton type="submit">
-        <AddButtonIcon icon={faPlus} />
+        <AddButtonIcon
+          icon={faPlus}
+          title="Add Staff Member"
+          aria-label="Add Staff Member"
+        />
       </PositiveButton>
     </Form>
   );

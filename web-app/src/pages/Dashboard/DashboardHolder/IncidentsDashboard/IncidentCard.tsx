@@ -71,7 +71,11 @@ export default function IncidentCard({
       <HandledSection>
         {assistanceRequest.handled && (
           <HandledIconContainer>
-            <HandledIcon icon={faCheck} />
+            <HandledIcon
+              icon={faCheck}
+              title="Request Handled"
+              aria-label="Request Handled"
+            />
           </HandledIconContainer>
         )}
         {!assistanceRequest.handled && (

@@ -44,7 +44,7 @@ export default function ItemListDrawer<T, K>(props: ItemListDrawerProps<T>) {
       <SideNavTitle>{props.title}</SideNavTitle>
       <DrawerSearchBar search={props.onSearch} />
       <NewButton onClick={props.newButtonClick}>
-        <NewButtonIcon icon={faPlus} />
+        <NewButtonIcon icon={faPlus} title="New" aria-label="New" />
         <span>{props.newButtonText}</span>
       </NewButton>
       <List>{props.displayedList}</List>

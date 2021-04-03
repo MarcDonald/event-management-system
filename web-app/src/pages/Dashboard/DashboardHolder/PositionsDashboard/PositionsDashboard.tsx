@@ -58,6 +58,16 @@ export default function PositionsDashboard(props: PositionsDashboardProps) {
               icon={
                 hasAssistanceRequest ? faExclamationTriangle : faCheckCircle
               }
+              title={`${
+                hasAssistanceRequest
+                  ? 'Assistance Request'
+                  : 'No Assistance Requests'
+              }`}
+              aria-label={`${
+                hasAssistanceRequest
+                  ? 'Assistance Request'
+                  : 'No Assistance Requests'
+              }`}
             />
           </div>
           <div>
