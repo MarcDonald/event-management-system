@@ -12,6 +12,12 @@ export const ListHeaders = styled.div`
   font-size: 1.5rem;
 `;
 
+export const PositionsList = styled.div`
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 66vh;
+`;
+
 export const PositionListItem = styled.div.attrs(
   (props: { isFinal: boolean }) => ({
     isFinal: props.isFinal,

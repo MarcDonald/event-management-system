@@ -1,5 +1,5 @@
 enum DashboardStateAction {
-  Refresh,
+  LoadInfo,
   InitialDataLoaded,
   VenueStatusChange,
   NewAssistanceRequest,

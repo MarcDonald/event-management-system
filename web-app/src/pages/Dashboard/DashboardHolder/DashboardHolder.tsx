@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PositionsDashboard from './PositionsDashboard/PositionsDashboard';
 import Event from '../../../shared/models/Event';
 import AssistanceRequest from '../../../shared/models/AssistanceRequest';
 import VenueStatus from '../../../shared/models/VenueStatus';
-import DashboardSelectorTabs from './components/DashboardSelectorTabs';
+import DashboardSelectorTabs, {
+  Dashboards,
+} from './components/DashboardSelectorTabs';
 import StatusFooter from './components/StatusFooter';
 import VenueStatusChanger from './components/VenueStatusChanger';
 import styled from 'styled-components';
+import IncidentsDashboard from './IncidentsDashboard/IncidentsDashboard';
 
 interface DashboardHolderProps {
   eventInformation: Event;
   assistanceRequests: AssistanceRequest[];
   venueStatus: VenueStatus;
   onVenueStatusChange: (venueStatus: VenueStatus) => void;
+  onHandleAssistanceRequest: (id: string) => void;
 }
 
 const Container = styled.section`
@@ -29,15 +33,33 @@ const Container = styled.section`
  */
 export default function DashboardHolder(props: DashboardHolderProps) {
   const { eventInformation, assistanceRequests, venueStatus } = props;
+  const [currentDashboard, setCurrentDashboard] = useState<Dashboards>(
+    Dashboards.Positions
+  );
+
+  function onTabChange(dashboardChangedTo: Dashboards) {
+    setCurrentDashboard(dashboardChangedTo);
+  }
 
   return (
     <Container>
-      <DashboardSelectorTabs />
-      <PositionsDashboard
-        positions={eventInformation.venue.positions}
-        assignedStaff={eventInformation.staff}
-        assistanceRequests={assistanceRequests}
+      <DashboardSelectorTabs
+        onTabChange={onTabChange}
+        currentTab={currentDashboard}
       />
+      {currentDashboard === Dashboards.Incidents && (
+        <IncidentsDashboard
+          assistanceRequests={assistanceRequests}
+          onHandleAssistanceRequest={props.onHandleAssistanceRequest}
+        />
+      )}
+      {currentDashboard === Dashboards.Positions && (
+        <PositionsDashboard
+          positions={eventInformation.venue.positions}
+          assignedStaff={eventInformation.staff}
+          assistanceRequests={assistanceRequests}
+        />
+      )}
       <VenueStatusChanger
         eventId={eventInformation.eventId}
         status={venueStatus}

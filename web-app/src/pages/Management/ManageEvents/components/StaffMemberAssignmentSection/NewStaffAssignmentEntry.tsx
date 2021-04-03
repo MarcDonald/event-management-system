@@ -5,8 +5,7 @@ import Dropdown, {
   DropdownItem,
 } from '../../../../../shared/components/Dropdown';
 import styled from 'styled-components';
-import { Button, PositiveButton } from '../../../../../styles/GlobalStyles';
-import usePopperMarginModifiers from 'react-bootstrap/usePopperMarginModifiers';
+import { PositiveButton } from '../../../../../styles/GlobalStyles';
 
 interface NewStaffAssignmentEntryProps {
   onSave: (staffSelectedId: string, positionSelectedId: string) => any;

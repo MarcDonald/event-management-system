@@ -2,7 +2,6 @@ import React, { useEffect, useReducer } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Auth } from 'aws-amplify';
 import BrandHeader from '../../shared/components/BrandHeader';
-import AsyncButton from '../../shared/components/AsyncButton';
 import usePageProtection from '../../shared/hooks/usePageProtection';
 import LoginStateReducer, {
   loginInitialState,

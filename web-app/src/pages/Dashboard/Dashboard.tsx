@@ -54,8 +54,8 @@ export default function Dashboard() {
     null
   );
 
-  const refresh = async () => {
-    dispatch({ type: DashboardStateAction.Refresh });
+  const loadInfoAndConnectToWebSocket = async () => {
+    dispatch({ type: DashboardStateAction.LoadInfo });
 
     if (assistanceRequestSocket) {
       assistanceRequestSocket.close();
@@ -125,7 +125,7 @@ export default function Dashboard() {
   useEffect(() => {
     pageProtection
       .protectPage(StaffRole.ControlRoomOperator, StaffRole.Administrator)
-      .then(async () => await refresh());
+      .then(async () => await loadInfoAndConnectToWebSocket());
     return () => {
       venueStatusSocket?.close(1001);
       assistanceRequestSocket?.close(1001);
@@ -178,6 +178,7 @@ export default function Dashboard() {
                   eventInformation={eventInformation}
                   assistanceRequests={assistanceRequests}
                   venueStatus={venueStatus}
+                  onHandleAssistanceRequest={onHandleAssistanceRequest}
                   onVenueStatusChange={(newStatus) => {
                     dispatch({
                       type: DashboardStateAction.VenueStatusChange,
@@ -188,7 +189,6 @@ export default function Dashboard() {
                   }}
                 />
                 <AssistanceRequestsDrawer
-                  refresh={refresh}
                   isLoading={isLoading}
                   assistanceRequests={assistanceRequests}
                   onHandleAssistanceRequest={onHandleAssistanceRequest}

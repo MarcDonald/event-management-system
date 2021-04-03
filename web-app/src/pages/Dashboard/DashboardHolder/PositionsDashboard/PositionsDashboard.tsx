@@ -12,6 +12,7 @@ import {
   AssistanceRequestIcon,
   ListHeaders,
   PositionListItem,
+  PositionsList,
 } from './PositionsDashboardStyles';
 
 interface PositionsDashboardProps {
@@ -82,9 +83,9 @@ export default function PositionsDashboard(props: PositionsDashboardProps) {
   };
 
   return (
-    <div>
+    <section>
       {listHeaderDisplay()}
-      {positionDisplayList()}
-    </div>
+      <PositionsList>{positionDisplayList()}</PositionsList>
+    </section>
   );
 }

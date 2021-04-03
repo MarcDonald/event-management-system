@@ -9,27 +9,52 @@ const Container = styled.div`
   margin-bottom: 1rem;
 `;
 
-const DisabledOption = styled(Button)`
-  background-color: darkgray;
+export const TabOption = styled(Button).attrs(
+  (props: { enabled: boolean }) => ({
+    enabled: props.enabled,
+  })
+)`
   font-size: 1.5rem;
 
+  background-color: ${(props) => (props.enabled ? '' : 'darkgray')};
+  cursor: ${(props) => (props.enabled ? 'initial' : 'pointer')};
+
   :hover {
-    background-color: gray;
+    background-color: ${(props) => (props.enabled ? '' : 'darkgray')};
   }
 `;
 
-const EnabledOption = styled(Button)`
-  font-size: 1.5rem;
-`;
+export enum Dashboards {
+  Incidents,
+  Positions,
+}
+
+interface DashboardSelectorTabsProps {
+  onTabChange: (dashboardChangedTo: Dashboards) => void;
+  currentTab: Dashboards;
+}
 
 /**
  * Tabs for selecting a type of dashboard to display
  */
-export default function DashboardSelectorTabs() {
+export default function DashboardSelectorTabs({
+  onTabChange,
+  currentTab,
+}: DashboardSelectorTabsProps) {
   return (
     <Container>
-      <DisabledOption>Incidents</DisabledOption>
-      <EnabledOption>Positions</EnabledOption>
+      <TabOption
+        enabled={currentTab === Dashboards.Incidents}
+        onClick={() => onTabChange(Dashboards.Incidents)}
+      >
+        Incidents
+      </TabOption>
+      <TabOption
+        enabled={currentTab === Dashboards.Positions}
+        onClick={() => onTabChange(Dashboards.Positions)}
+      >
+        Positions
+      </TabOption>
     </Container>
   );
 }

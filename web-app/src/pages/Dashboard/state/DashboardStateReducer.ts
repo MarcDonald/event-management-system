@@ -24,7 +24,7 @@ export default function DashboardStateReducer(
 ): DashboardState {
   const { type, parameters } = action;
   switch (type) {
-    case DashboardStateAction.Refresh: {
+    case DashboardStateAction.LoadInfo: {
       return {
         ...state,
         isLoading: true,
@@ -77,11 +77,12 @@ export default function DashboardStateReducer(
       if (parameters?.id) {
         return {
           ...state,
-          assistanceRequests: [
-            ...state.assistanceRequests.filter(
-              (request) => request.assistanceRequestId !== parameters.id
-            ),
-          ],
+          assistanceRequests: state.assistanceRequests.map((request) => {
+            if (request.assistanceRequestId === parameters.id) {
+              request.handled = true;
+            }
+            return request;
+          }),
         };
       }
       return state;

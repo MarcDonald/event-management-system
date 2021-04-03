@@ -12,6 +12,7 @@ const Header = styled.header.attrs((props: { backgroundColor: string }) => ({
 }))`
   min-width: 100vw;
   width: 100vw;
+  height: 6vh;
   text-align: center;
   padding: 0.5rem 0;
   background-color: ${(props) => props.backgroundColor};

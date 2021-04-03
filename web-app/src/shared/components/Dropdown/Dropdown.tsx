@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
 import DropdownItem from './DropdownItem';
 import {
   Container,
-  SelectedTitleDisplay,
   DropdownCaret,
   DropdownList,
   DropdownListItem,
   DropdownListItemText,
+  SelectedTitleDisplay,
 } from './DropdownStyles';
 
 interface DropdownProps {

@@ -1,5 +1,4 @@
 import React from 'react';
-import AsyncButton from '../../../../shared/components/AsyncButton';
 import AssistanceRequest from '../../../../shared/models/AssistanceRequest';
 import AssistanceRequestCard from './AssistanceRequestCard';
 import Loading from '../../../../shared/components/Loading';
@@ -7,7 +6,6 @@ import { SideNavTitle } from '../../../../styles/GlobalStyles';
 import styled from 'styled-components';
 
 interface AssistanceRequestsDrawerProps {
-  refresh: () => void;
   isLoading: boolean;
   assistanceRequests: AssistanceRequest[];
   onHandleAssistanceRequest: (id: string) => void;
@@ -17,23 +15,21 @@ const Container = styled.div`
   grid-column-start: 6;
   display: grid;
   background-color: ${(props) => props.theme.surface};
+  max-height: 94vh;
+  height: 94vh;
 `;
 
-const RefreshButtonContainer = styled.div`
-  align-self: end;
-  margin: 0.5rem;
-  text-align: center;
-`;
-
-const RefreshButton = styled(AsyncButton)`
-  width: 90%;
+const RequestList = styled.section`
+  height: 90vh;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 `;
 
 /**
  * Displays a list of Assistance Requests in a side drawer
  */
 export default function AssistanceRequestsDrawer({
-  refresh,
   isLoading,
   assistanceRequests,
   onHandleAssistanceRequest,
@@ -67,19 +63,8 @@ export default function AssistanceRequestsDrawer({
 
   return (
     <Container>
-      <section>
-        <SideNavTitle>Assistance Requests</SideNavTitle>
-        {assistanceRequestListDisplay()}
-      </section>
-      <RefreshButtonContainer>
-        {!isLoading && (
-          <RefreshButton
-            onClick={refresh}
-            text="Refresh"
-            isLoading={isLoading}
-          />
-        )}
-      </RefreshButtonContainer>
+      <SideNavTitle>Assistance Requests</SideNavTitle>
+      <RequestList>{assistanceRequestListDisplay()}</RequestList>
     </Container>
   );
 }

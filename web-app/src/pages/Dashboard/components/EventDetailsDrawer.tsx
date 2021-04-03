@@ -37,8 +37,6 @@ const EventName = styled.p`
 
 const SupervisorCard = styled(Card)`
   margin: 0.5rem 0.75rem 0 0.75rem;
-  transition: none;
-  transform: none;
   cursor: auto;
 `;
 
@@ -48,6 +46,13 @@ const SupervisorName = styled.p`
 `;
 
 const SupervisorPosition = styled.p``;
+
+const SupervisorList = styled.div`
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 60vh;
+  max-height: 60vh;
+`;
 
 const LoginDetailsContainer = styled.div`
   align-self: end;
@@ -81,7 +86,7 @@ export default function EventDetailsDrawer(props: EventDetailsDrawerProps) {
           <EventName>{props.eventName}</EventName>
         </EventNameAndVenueCard>
         <SideNavTitle>Supervisors</SideNavTitle>
-        {supervisorDisplayList()}
+        <SupervisorList>{supervisorDisplayList()}</SupervisorList>
       </section>
       <LoginDetailsContainer>
         <LoginStateDisplay showHomeButton={true} />
