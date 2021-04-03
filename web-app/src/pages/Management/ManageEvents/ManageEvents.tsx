@@ -238,8 +238,8 @@ export default function ManageEvents() {
         />
         <LabelWithTopMargin htmlFor="venue">Venue</LabelWithTopMargin>
         <Dropdown
-          disabled={!!state.id}
-          title="Select a venue"
+          disabled={!!state.id || state.allVenues?.length === 0}
+          title="Select a Venue"
           currentlySelectedKey={state.venue?.venueId}
           list={state.dropdownVenues}
           onSelected={(venueId) =>

@@ -8,6 +8,7 @@ import {
   DropdownListItem,
   DropdownListItemText,
   SelectedTitleDisplay,
+  DropdownMask,
 } from './DropdownStyles';
 
 interface DropdownProps {
@@ -85,7 +86,11 @@ export default function Dropdown(props: DropdownProps) {
           aria-hidden={true}
         />
       </SelectedTitleDisplay>
-      {isOpen && <DropdownList>{displayList()}</DropdownList>}
+      {isOpen && (
+        <DropdownList>
+          <DropdownMask>{displayList()}</DropdownMask>
+        </DropdownList>
+      )}
     </Container>
   );
 }

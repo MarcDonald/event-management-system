@@ -1,17 +1,16 @@
 import styled from 'styled-components';
-import AsyncButton from '../../shared/components/AsyncButton';
 
 export const ContentContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: 1fr auto 1fr;
 `;
 
 export const LoginForm = styled.form`
   display: flex;
   flex-direction: column;
   margin-top: 1rem;
-  grid-column-start: 3;
-  grid-column-end: 4;
+  width: 20vw;
+  grid-column-start: 2;
 `;
 
 export const FormInput = styled.input`
@@ -26,10 +25,10 @@ export const FormInput = styled.input`
   }
 `;
 
-export const PasswordLabel = styled.label`
-  margin-top: 0.5rem;
+export const Label = styled.label`
+  text-align: center;
 `;
 
-export const LoginButton = styled(AsyncButton)`
-  margin-top: 1rem;
+export const LabelWithTopGap = styled(Label)`
+  margin-top: 0.5rem;
 `;

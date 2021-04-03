@@ -25,15 +25,6 @@ interface PositionsDashboardProps {
  * Dashboard showing the positions of an event in a list and the current status of each position
  */
 export default function PositionsDashboard(props: PositionsDashboardProps) {
-  const listHeaderDisplay = () => {
-    return (
-      <ListHeaders>
-        <span>Position</span>
-        <span>Status</span>
-      </ListHeaders>
-    );
-  };
-
   const checkForAssistanceRequest = (positionId: string): boolean => {
     const findResult = props.assistanceRequests.find((request) => {
       return request.position.positionId === positionId && !request.handled;
@@ -94,7 +85,10 @@ export default function PositionsDashboard(props: PositionsDashboardProps) {
 
   return (
     <section>
-      {listHeaderDisplay()}
+      <ListHeaders>
+        <span>Position</span>
+        <span>Status</span>
+      </ListHeaders>
       <PositionsList>{positionDisplayList()}</PositionsList>
     </section>
   );

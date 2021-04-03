@@ -19,6 +19,8 @@ interface DashboardHolderProps {
   onHandleAssistanceRequest: (id: string) => void;
 }
 
+// TODO better sizing of items depending on size of screen
+
 const Container = styled.section`
   grid-column-start: 2;
   grid-column: span 4 / span 4;

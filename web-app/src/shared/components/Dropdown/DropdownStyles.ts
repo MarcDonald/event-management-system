@@ -36,10 +36,19 @@ export const DropdownCaret = styled(FontAwesomeIcon)`
 
 export const DropdownList = styled.div`
   outline: none;
-  border-width: 1px;
-  border-color: ${(props) => props.theme.brand};
-  border-top: 0;
-  border-radius: 0 0 0.375rem 0.375rem;
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+`;
+
+export const DropdownMask = styled.div`
+  background-color: white;
+  position: absolute;
+  z-index: 1000;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  top: 0;
 `;
 
 export const DropdownListItem = styled.div.attrs(
@@ -48,6 +57,11 @@ export const DropdownListItem = styled.div.attrs(
   })
 )`
   border-radius: 0 0 ${(props) => (props.isFinal ? '0.375rem 0.375rem' : '0 0')};
+  border-width: 1px;
+  border-color: ${(props) => props.theme.brand};
+  border-top: 0;
+  border-bottom-width: ${(props) => (props.isFinal ? '1px' : 0)};
+  background-color: white;
 
   :hover {
     background-color: ${(props) => props.theme.lighterGray};

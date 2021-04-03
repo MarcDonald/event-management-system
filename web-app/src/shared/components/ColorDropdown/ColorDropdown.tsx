@@ -8,6 +8,7 @@ import {
   DropdownCaret,
   DropdownList,
   DropdownListItemText,
+  DropdownMask,
 } from './ColorDropdownStyles';
 
 interface ColorDropdownProps {
@@ -51,7 +52,7 @@ export default function ColorDropdown(props: ColorDropdownProps) {
           textColor={item.textColor}
           backgroundColor={item.backgroundColor}
           backgroundHoverColor={item.backgroundHoverColor}
-          isFinal={index === props.list.length - 1}
+          isFirst={index === 0}
           onClick={() => selectItem(item.key)}
         >
           <DropdownListItemText>{item.name}</DropdownListItemText>
@@ -103,6 +104,11 @@ export default function ColorDropdown(props: ColorDropdownProps) {
       id={props.id}
       isDisabled={props.disabled}
     >
+      {isOpen && (
+        <DropdownList>
+          <DropdownMask>{displayList()}</DropdownMask>
+        </DropdownList>
+      )}
       <SelectedTitleDisplay
         isOpen={isOpen}
         backgroundColor={getCurrentlySelectedColor()}
@@ -114,7 +120,6 @@ export default function ColorDropdown(props: ColorDropdownProps) {
         </span>
         <DropdownCaret icon={isOpen ? faCaretUp : faCaretDown} />
       </SelectedTitleDisplay>
-      {isOpen && <DropdownList>{displayList()}</DropdownList>}
     </Container>
   );
 }

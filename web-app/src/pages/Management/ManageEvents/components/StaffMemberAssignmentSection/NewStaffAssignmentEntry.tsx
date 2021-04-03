@@ -24,7 +24,7 @@ const Form = styled.form`
 `;
 
 const DropdownContainer = styled.div`
-  width: 50%;
+  width: 75%;
 `;
 
 const AddButtonIcon = styled(FontAwesomeIcon)`
@@ -32,7 +32,7 @@ const AddButtonIcon = styled(FontAwesomeIcon)`
   vertical-align: middle;
 `;
 
-const DropdownWithTopGap = styled(Dropdown)`
+const DivWithTopGap = styled.div`
   margin-top: 0.5rem;
 `;
 
@@ -63,12 +63,14 @@ export default function NewStaffAssignmentEntry(
           currentlySelectedKey={staffSelected}
           onSelected={setStaffSelected}
         />
-        <DropdownWithTopGap
-          title="Select Position"
-          list={props.positionsToShow}
-          currentlySelectedKey={positionSelected}
-          onSelected={setPositionSelected}
-        />
+        <DivWithTopGap>
+          <Dropdown
+            title="Select Position"
+            list={props.positionsToShow}
+            currentlySelectedKey={positionSelected}
+            onSelected={setPositionSelected}
+          />
+        </DivWithTopGap>
       </DropdownContainer>
       <PositiveButton type="submit">
         <AddButtonIcon

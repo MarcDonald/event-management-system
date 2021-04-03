@@ -32,7 +32,10 @@ const NewButtonIcon = styled(FontAwesomeIcon)`
 `;
 
 const List = styled.div`
-  width: 80%;
+  width: 83%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 82vh;
 `;
 
 /**

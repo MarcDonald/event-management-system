@@ -32,9 +32,8 @@ export const SelectedTitleDisplay = styled.div.attrs(
   border-width: 1px;
   border-color: ${(props) =>
     props.isOpen ? props.theme.brand : props.theme.darkerGray};
-  border-radius: 0.375rem 0.375rem
-    ${(props) => (props.isOpen ? '0rem' : '0.375rem')}
-    ${(props) => (props.isOpen ? '0rem' : '0.375rem')};
+  border-radius: ${(props) => (props.isOpen ? '0rem' : '0.375rem')}
+    ${(props) => (props.isOpen ? '0rem' : '0.375rem')} 0.375rem 0.375rem;
   background-color: ${(props) => props.backgroundColor};
   color: ${(props) => props.textColor};
 
@@ -51,26 +50,34 @@ export const DropdownCaret = styled(FontAwesomeIcon)`
 
 export const DropdownList = styled.div`
   outline: none;
-  border-width: 1px;
-  border-color: ${(props) => props.theme.brand};
-  border-top: 0;
-  border-radius: 0 0 0.375rem 0.375rem;
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+`;
+
+export const DropdownMask = styled.div`
+  background-color: white;
+  position: absolute;
+  z-index: 1000;
+  right: 0;
+  left: 0;
+  top: -105px;
 `;
 
 export const DropdownListItem = styled.div.attrs(
   (props: {
-    isFinal: boolean;
+    isFirst: boolean;
     textColor: string;
     backgroundColor: string;
     backgroundHoverColor: string;
   }) => ({
-    isFinal: props.isFinal,
+    isFirst: props.isFirst,
     textColor: props.textColor,
     backgroundColor: props.backgroundColor,
     backgroundHoverColor: props.backgroundHoverColor,
   })
 )`
-  border-radius: 0 0 ${(props) => (props.isFinal ? '0.375rem 0.375rem' : '0 0')};
+  border-radius: ${(props) => (props.isFirst ? '0.375rem 0.375rem' : '0 0')} 0 0;
   border-color: ${(props) => props.backgroundColor};
   color: ${(props) => props.textColor};
   background-color: ${(props) => props.backgroundColor};

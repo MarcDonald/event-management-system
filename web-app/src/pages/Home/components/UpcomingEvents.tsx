@@ -49,6 +49,12 @@ const UpcomingEventDate = styled.p`
   font-size: 1rem;
 `;
 
+const EventListContainer = styled.div`
+  max-height: 50vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+`;
+
 /**
  * Fetches a list of upcoming events and displays them
  */
@@ -94,7 +100,9 @@ export default function UpcomingEvents() {
           <Loading />
         </LoadingContainer>
       )}
-      {!isLoading && upcomingEvents.length > 0 && eventList()}
+      {!isLoading && upcomingEvents.length > 0 && (
+        <EventListContainer>{eventList()}</EventListContainer>
+      )}
       {!isLoading && upcomingEvents.length <= 0 && (
         <NoEventsSubtitle>No Upcoming Events</NoEventsSubtitle>
       )}

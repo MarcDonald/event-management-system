@@ -12,9 +12,10 @@ import {
   ContentContainer,
   LoginForm,
   FormInput,
-  PasswordLabel,
-  LoginButton,
+  Label,
+  LabelWithTopGap,
 } from './LoginStyles';
+import LoginButton from './LoginButton';
 
 /**
  * Login page
@@ -58,7 +59,7 @@ export default function Login() {
       <BrandHeader />
       <ContentContainer>
         <LoginForm onSubmit={submit}>
-          <label htmlFor="username">Username</label>
+          <Label htmlFor="username">Username</Label>
           <FormInput
             id="username"
             inputMode="text"
@@ -75,7 +76,7 @@ export default function Login() {
               })
             }
           />
-          <PasswordLabel htmlFor="password">Password</PasswordLabel>
+          <LabelWithTopGap htmlFor="password">Password</LabelWithTopGap>
           <FormInput
             id="password"
             inputMode="text"
