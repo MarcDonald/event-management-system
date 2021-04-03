@@ -17,7 +17,7 @@ class RequestsDialogViewModel @ViewModelInject constructor(private val eventsRep
 	fun passArguments(eventId: String, positionId: String) {
 		viewModelScope.launch {
 			isLoading.value = true
-			val result = eventsRepository.getAssistanceRequestsForPosition(eventId, positionId)
+			val result = eventsRepository.getAssistanceRequestsForPosition(eventId, positionId).sortedByDescending { it.time }
 			requests.value = result
 			isLoading.value = false
 		}

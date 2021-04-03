@@ -35,20 +35,20 @@ class MenuDialogSheet : BottomSheetDialogFragment() {
 						Text("Menu", modifier = Modifier
 							.fillMaxWidth()
 							.padding(8.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.h6, color = MaterialTheme.colors.onSurface)
-						Button(
-							modifier = Modifier.fillMaxWidth(),
-							shape = MaterialTheme.shapes.small,
-							onClick = { this@MenuDialogSheet.logout() }
-						) {
-							Text("Logout")
-						}
-						Spacer(modifier = Modifier.padding(8.dp))
-						Button(
+						OutlinedButton(
 							modifier = Modifier.fillMaxWidth(),
 							shape = MaterialTheme.shapes.small,
 							onClick = { this@MenuDialogSheet.goToEventSelection() }
 						) {
 							Text("Event Selection")
+						}
+						Spacer(modifier = Modifier.padding(8.dp))
+						TextButton(
+							modifier = Modifier.fillMaxWidth(),
+							shape = MaterialTheme.shapes.small,
+							onClick = { this@MenuDialogSheet.logout() }
+						) {
+							Text("Logout")
 						}
 						Spacer(modifier = Modifier.padding(8.dp))
 					}
