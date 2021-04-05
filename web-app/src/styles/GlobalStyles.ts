@@ -51,12 +51,7 @@ export const Button = styled.button`
   outline: none;
   ${smoothTransitionProperties};
 
-  :hover {
-    background-color: ${(props) => props.theme.brandLight};
-    transform: scale(1.02);
-  }
-
-  :focus {
+  :hover, :focus {
     outline: none;
     transform: scale(1.02);
     background-color: ${(props) => props.theme.brandLight};
@@ -73,10 +68,7 @@ export const Button = styled.button`
 export const NegativeButton = styled(Button)`
   background-color: ${(props) => props.theme.negative};
 
-  :hover {
-    background-color: ${(props) => props.theme.negativeLight};
-  }
-
+  :hover,
   :focus {
     background-color: ${(props) => props.theme.negativeLight};
   }
@@ -85,10 +77,7 @@ export const NegativeButton = styled(Button)`
 export const PositiveButton = styled(Button)`
   background-color: ${(props) => props.theme.positive};
 
-  :hover {
-    background-color: ${(props) => props.theme.positiveLight};
-  }
-
+  :hover,
   :focus {
     background-color: ${(props) => props.theme.positiveLight};
   }

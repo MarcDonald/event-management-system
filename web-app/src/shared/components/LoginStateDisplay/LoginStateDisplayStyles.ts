@@ -72,11 +72,7 @@ export const LoginDetailsCard = styled(Card)`
   padding: 0.5rem;
   cursor: default;
 
-  :hover {
-    transition: none;
-    transform: none;
-  }
-
+  :hover,
   :focus {
     transition: none;
     transform: none;

@@ -24,6 +24,7 @@ const EventNameAndVenueCard = styled.div`
   color: ${(props) => props.theme.onBrand};
   background-color: ${(props) => props.theme.brand};
   text-align: center;
+  cursor: default;
 `;
 
 const VenueName = styled.p`
@@ -37,7 +38,12 @@ const EventName = styled.p`
 
 const SupervisorCard = styled(Card)`
   margin: 0.5rem 0.75rem 0 0.75rem;
-  cursor: auto;
+  cursor: default;
+
+  :hover,
+  :focus {
+    transform: none;
+  }
 `;
 
 const SupervisorName = styled.p`

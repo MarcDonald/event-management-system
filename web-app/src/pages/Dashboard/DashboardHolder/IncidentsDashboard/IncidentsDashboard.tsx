@@ -35,6 +35,7 @@ export default function IncidentsDashboard({
         })
         .map((request) => (
           <IncidentCard
+            key={request.assistanceRequestId}
             assistanceRequest={request}
             onHandledClick={onHandleAssistanceRequest}
           />

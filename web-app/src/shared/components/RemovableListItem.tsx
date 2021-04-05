@@ -2,6 +2,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import styled from 'styled-components';
+import { NegativeButton } from '../../styles/GlobalStyles';
 
 interface RemovableListItemProps {
   listKey: string;
@@ -24,22 +25,17 @@ const ContentContainer = styled.div`
   font-size: 1.5rem;
 `;
 
-const RemoveButton = styled.button`
+const RemoveButton = styled(NegativeButton)`
   text-align: center;
-  background-color: ${(props) => props.theme.negative};
   border-radius: 0.375rem;
   padding: 0.25rem;
-  color: ${(props) => props.theme.onNegative};
   width: 2.5rem;
   height: 2.5rem;
 
-  :hover {
-    background-color: ${(props) => props.theme.negativeLight};
-  }
-
+  :hover,
   :focus {
-    background-color: ${(props) => props.theme.negativeLight};
-    outline: none;
+    transition: none;
+    transform: none;
   }
 `;
 

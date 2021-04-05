@@ -53,6 +53,7 @@ const EventListContainer = styled.div`
   max-height: 50vh;
   overflow-x: hidden;
   overflow-y: auto;
+  padding: 0 0.5rem;
 `;
 
 /**

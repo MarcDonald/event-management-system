@@ -12,10 +12,9 @@ interface AssistanceRequestCardProps {
 const HandledButton = styled(Button)`
   grid-column: span 2 / span 2;
   padding: 0.25rem;
+  margin-top: 0.25rem;
 
-  :hover {
-    transform: none;
-  }
+  :hover,
   :focus {
     transform: none;
   }
@@ -25,6 +24,12 @@ const CardContainer = styled(Card)`
   margin: 0.5rem 0.75rem;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  cursor: default;
+
+  :hover,
+  :focus {
+    transform: none;
+  }
 `;
 
 const PositionName = styled.p`

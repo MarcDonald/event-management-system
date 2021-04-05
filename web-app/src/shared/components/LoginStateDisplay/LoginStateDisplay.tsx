@@ -65,8 +65,8 @@ export default function LoginStateDisplay(props: LoginStateDisplayProps) {
           <ActionCard onClick={logout}>
             <FontAwesomeIcon
               icon={faSignOutAlt}
-              title="Sign Out"
-              aria-label="Sign Out"
+              title="Logout"
+              aria-label="Logout"
             />
             <span>Logout</span>
           </ActionCard>

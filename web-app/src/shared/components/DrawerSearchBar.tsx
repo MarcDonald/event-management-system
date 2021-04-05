@@ -45,7 +45,7 @@ export function DrawerSearchBar(props: DrawerSearchBarProps) {
       onSubmit={(event) => event.preventDefault()}
     >
       <SearchLabel htmlFor="staff-search">
-        <SearchIcon icon={faSearch} />
+        <SearchIcon icon={faSearch} title="Search" aria-hidden={true} />
       </SearchLabel>
       <SearchInput
         placeholder="Search"

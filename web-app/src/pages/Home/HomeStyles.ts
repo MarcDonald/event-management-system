@@ -52,6 +52,7 @@ export const UpcomingEventsSection = styled.section`
 export const ManagementSection = styled.section`
   display: flex;
   flex-direction: column;
+  padding: 0 0.5rem;
 `;
 
 export const ManagementTitle = styled.h2`

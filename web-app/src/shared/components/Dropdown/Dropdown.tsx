@@ -83,6 +83,7 @@ export default function Dropdown(props: DropdownProps) {
         </span>
         <DropdownCaret
           icon={isOpen ? faCaretUp : faCaretDown}
+          title={isOpen ? 'Close Dropdown' : 'Open Dropdown'}
           aria-hidden={true}
         />
       </SelectedTitleDisplay>

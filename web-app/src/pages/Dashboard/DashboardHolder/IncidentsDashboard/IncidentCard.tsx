@@ -14,6 +14,12 @@ const CardContainer = styled(Card)`
   margin: 1rem;
   display: grid;
   grid-template-columns: 1fr auto;
+  cursor: default;
+
+  :hover,
+  :focus {
+    transform: none;
+  }
 `;
 
 const Message = styled.h2`

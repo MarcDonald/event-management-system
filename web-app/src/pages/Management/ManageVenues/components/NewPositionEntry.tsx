@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { FormInput } from '../../../../styles/GlobalStyles';
+import { FormInput, PositiveButton } from '../../../../styles/GlobalStyles';
 import styled from 'styled-components';
 
 interface NewPositionEntryProps {
@@ -22,23 +22,13 @@ const PositionNameInput = styled(FormInput)`
   width: 75%;
 `;
 
-const SubmitButton = styled.button`
+const SubmitButton = styled(PositiveButton)`
   text-align: center;
-  background-color: ${(props) => props.theme.positive};
   border-radius: 0.375rem;
   padding: 0.25rem;
   color: white;
   width: 2.5rem;
   height: 2.5rem;
-
-  :hover {
-    background-color: ${(props) => props.theme.positiveLight};
-  }
-
-  :focus {
-    outline: none;
-    background-color: ${(props) => props.theme.positiveLight};
-  }
 `;
 
 const SubmitButtonIcon = styled(FontAwesomeIcon)`

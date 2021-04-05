@@ -36,6 +36,7 @@ const List = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 82vh;
+  padding: 0 0.5rem;
 `;
 
 /**
