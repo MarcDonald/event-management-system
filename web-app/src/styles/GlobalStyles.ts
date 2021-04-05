@@ -51,7 +51,8 @@ export const Button = styled.button`
   outline: none;
   ${smoothTransitionProperties};
 
-  :hover, :focus {
+  :hover,
+  :focus {
     outline: none;
     transform: scale(1.02);
     background-color: ${(props) => props.theme.brandLight};

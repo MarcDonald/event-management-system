@@ -1,11 +1,11 @@
 import React from 'react';
-import AssistanceRequest from '../../../../shared/models/AssistanceRequest';
-import { Card, Button } from '../../../../styles/GlobalStyles';
+import AssistanceRequest from '../models/AssistanceRequest';
+import { Card, Button } from '../../styles/GlobalStyles';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
-interface IncidentCardProps {
+interface AssistanceRequestCardProps {
   assistanceRequest: AssistanceRequest;
   onHandledClick: (id: string) => void;
 }
@@ -57,10 +57,10 @@ export const HandledIcon = styled(FontAwesomeIcon)`
 /**
  * Card to display Assistance Request information
  */
-export default function IncidentCard({
+export default function AssistanceRequestCard({
   assistanceRequest,
   onHandledClick,
-}: IncidentCardProps) {
+}: AssistanceRequestCardProps) {
   return (
     <CardContainer>
       <div>

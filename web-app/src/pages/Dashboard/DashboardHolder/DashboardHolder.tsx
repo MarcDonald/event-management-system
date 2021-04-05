@@ -60,6 +60,7 @@ export default function DashboardHolder(props: DashboardHolderProps) {
           positions={eventInformation.venue.positions}
           assignedStaff={eventInformation.staff}
           assistanceRequests={assistanceRequests}
+          onHandleAssistanceRequest={props.onHandleAssistanceRequest}
         />
       )}
       <VenueStatusChanger

@@ -1,6 +1,6 @@
 import React from 'react';
 import AssistanceRequest from '../../../../shared/models/AssistanceRequest';
-import AssistanceRequestCard from './AssistanceRequestCard';
+import AssistanceRequestDrawerCard from './AssistanceRequestDrawerCard';
 import Loading from '../../../../shared/components/Loading';
 import { SideNavTitle } from '../../../../styles/GlobalStyles';
 import styled from 'styled-components';
@@ -51,7 +51,7 @@ export default function AssistanceRequestsDrawer({
         .filter((request) => !request.handled)
         .map((assistanceRequest) => {
           return (
-            <AssistanceRequestCard
+            <AssistanceRequestDrawerCard
               assistanceRequest={assistanceRequest}
               key={assistanceRequest.assistanceRequestId}
               onHandledClick={onHandleAssistanceRequest}

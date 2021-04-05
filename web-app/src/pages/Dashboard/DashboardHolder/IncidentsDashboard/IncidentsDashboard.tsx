@@ -1,6 +1,6 @@
 import React from 'react';
 import AssistanceRequest from '../../../../shared/models/AssistanceRequest';
-import IncidentCard from './IncidentCard';
+import AssistanceRequestCard from '../../../../shared/components/AssistanceRequestCard';
 import styled from 'styled-components';
 
 interface IncidentsDashboardProps {
@@ -34,7 +34,7 @@ export default function IncidentsDashboard({
           }
         })
         .map((request) => (
-          <IncidentCard
+          <AssistanceRequestCard
             key={request.assistanceRequestId}
             assistanceRequest={request}
             onHandledClick={onHandleAssistanceRequest}

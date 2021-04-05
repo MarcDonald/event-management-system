@@ -4,7 +4,7 @@ import { Button } from '../../../../styles/GlobalStyles';
 import { Card } from '../../../../styles/GlobalStyles';
 import styled from 'styled-components';
 
-interface AssistanceRequestCardProps {
+interface AssistanceRequestDrawerCardProps {
   assistanceRequest: AssistanceRequest;
   onHandledClick: (id: string) => void;
 }
@@ -49,10 +49,10 @@ const Message = styled.p`
 /**
  * Card to display Assistance Request information
  */
-export default function AssistanceRequestCard({
+export default function AssistanceRequestDrawerCard({
   assistanceRequest,
   onHandledClick,
-}: AssistanceRequestCardProps) {
+}: AssistanceRequestDrawerCardProps) {
   return (
     <CardContainer>
       <PositionName>{assistanceRequest.position.name}</PositionName>
