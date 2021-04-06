@@ -13,6 +13,7 @@ const Header = styled.header<{ backgroundColor: string }>`
   height: 6vh;
   text-align: center;
   padding: 0.5rem 0;
+  display: flex;
   background-color: ${(props) => props.backgroundColor};
 `;
 
@@ -20,6 +21,7 @@ const HeaderText = styled.span`
   color: white;
   vertical-align: middle;
   font-size: 2.25rem;
+  margin: auto;
 `;
 
 const Status = styled.span`

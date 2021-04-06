@@ -118,7 +118,7 @@ export default function ColorDropdown(props: ColorDropdownProps) {
         <span>
           {currentlySelected ? getCurrentlySelectedName() : props.title}
         </span>
-        <DropdownCaret icon={isOpen ? faCaretUp : faCaretDown} />
+        <DropdownCaret icon={isOpen ? faCaretDown : faCaretUp} />
       </SelectedTitleDisplay>
     </Container>
   );

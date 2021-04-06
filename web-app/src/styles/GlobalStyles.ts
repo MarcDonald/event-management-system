@@ -19,6 +19,10 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
   }
+  
+  input {
+    font-size: 1rem;
+  }
 
   *,
   ::before,
@@ -41,6 +45,10 @@ export const GlobalStyle = createGlobalStyle`
 
     @media (min-width: ${size.desktop}) {
       font-size: ${px2vw(12)};
+    }
+    
+    @media (min-width: ${size.largeDesktop}) {
+      font-size: ${px2vw(10)};
     }
   }
 `;

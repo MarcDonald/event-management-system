@@ -17,7 +17,7 @@ const SearchLabel = styled.label`
 `;
 
 const SearchIcon = styled(FontAwesomeIcon)`
-  margin: 0.25rem 0.5rem 0 0.5rem;
+  margin: 0.55rem 0.5rem 0.5rem;
   color: ${(props) => props.theme.darkestGray};
   vertical-align: middle;
 `;
@@ -26,7 +26,7 @@ const SearchInput = styled.input`
   background-color: ${(props) => props.theme.lighterGray};
   appearance: none;
   outline: none;
-  padding: 0.25rem 2rem;
+  padding: 0.45rem 2rem;
   border-radius: 0.375rem;
   width: 80%;
 

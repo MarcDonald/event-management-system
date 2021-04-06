@@ -36,7 +36,7 @@ export default function App() {
 
   useEffect(() => {
     function handleResize() {
-      setScreenTooSmall(window.innerWidth < breakpoints.smallDesktop);
+      setScreenTooSmall(window.innerWidth < breakpoints.desktop);
     }
 
     window.addEventListener('resize', handleResize);
