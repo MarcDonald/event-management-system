@@ -1,4 +1,4 @@
-import StateAction from '../../../utils/StateAction';
+import StateAction from '../../../shared/utils/StateAction';
 import Event from '../../../shared/models/Event';
 import AssistanceRequest from '../../../shared/models/AssistanceRequest';
 import VenueStatus from '../../../shared/models/VenueStatus';

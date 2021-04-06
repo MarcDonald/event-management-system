@@ -1,5 +1,7 @@
 import styled, { createGlobalStyle } from 'styled-components';
 import DatePicker from 'react-datepicker';
+import { px2vw } from '../shared/utils/StyleUtils';
+import { size } from './Breakpoints';
 
 export const GlobalStyle = createGlobalStyle`
   * {
@@ -24,6 +26,22 @@ export const GlobalStyle = createGlobalStyle`
     border-width: 0;
     border-style: solid;
     border-color: theme('borderColor.default', currentColor);
+  }
+  
+  :root {
+    font-size: ${px2vw(52)};
+
+    @media (min-width: ${size.tablet}) {
+      font-size: ${px2vw(36)};
+    }
+
+    @media (min-width: ${size.smallDesktop}) {
+      font-size: ${px2vw(20)};
+    }
+
+    @media (min-width: ${size.desktop}) {
+      font-size: ${px2vw(12)};
+    }
   }
 `;
 

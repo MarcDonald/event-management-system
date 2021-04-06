@@ -1,5 +1,5 @@
 import ManageEventsStateActions from './ManageEventsStateActions';
-import StateAction from '../../../../utils/StateAction';
+import StateAction from '../../../../shared/utils/StateAction';
 import Venue from '../../../../shared/models/Venue';
 import AssignedSupervisor from '../../../../shared/models/AssignedSupervisor';
 import AssignedStaffMember from '../../../../shared/models/AssignedStaffMember';

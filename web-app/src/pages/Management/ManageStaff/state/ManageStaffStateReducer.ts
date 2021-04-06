@@ -1,4 +1,4 @@
-import StateAction from '../../../../utils/StateAction';
+import StateAction from '../../../../shared/utils/StateAction';
 import ManageStaffStateActions from './ManageStaffStateActions';
 import StaffRole from '../../../../shared/models/StaffRole';
 import StaffMember from '../../../../shared/models/StaffMember';

@@ -61,7 +61,7 @@ export const DropdownMask = styled.div`
   z-index: 1000;
   right: 0;
   left: 0;
-  top: -105px;
+  top: -6.5rem;
 `;
 
 export const DropdownListItem = styled.div.attrs(

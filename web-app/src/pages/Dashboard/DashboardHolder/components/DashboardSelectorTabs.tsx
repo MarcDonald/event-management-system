@@ -9,11 +9,7 @@ const Container = styled.div`
   margin-bottom: 1rem;
 `;
 
-export const TabOption = styled(Button).attrs(
-  (props: { enabled: boolean }) => ({
-    enabled: props.enabled,
-  })
-)`
+export const TabOption = styled(Button)<{ enabled: boolean }>`
   font-size: 1.5rem;
 
   background-color: ${(props) => (props.enabled ? '' : 'darkgray')};

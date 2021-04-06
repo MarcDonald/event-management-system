@@ -7,9 +7,7 @@ interface StatusHeaderProps {
   status: VenueStatus;
 }
 
-const Header = styled.header.attrs((props: { backgroundColor: string }) => ({
-  backgroundColor: props.backgroundColor,
-}))`
+const Header = styled.header<{ backgroundColor: string }>`
   min-width: 100vw;
   width: 100vw;
   height: 6vh;

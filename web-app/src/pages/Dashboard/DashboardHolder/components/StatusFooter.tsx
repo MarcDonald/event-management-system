@@ -7,9 +7,7 @@ interface StatusFooterProps {
   status: VenueStatus;
 }
 
-const Footer = styled.footer.attrs((props: { backgroundColor: string }) => ({
-  backgroundColor: props.backgroundColor,
-}))`
+const Footer = styled.footer<{ backgroundColor: string }>`
   text-align: center;
   height: 3rem;
   background-color: ${(props) => props.backgroundColor};

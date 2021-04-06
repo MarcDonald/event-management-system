@@ -1,4 +1,4 @@
-import StateAction from '../../../utils/StateAction';
+import StateAction from '../../../shared/utils/StateAction';
 import LoginStateActions from './LoginStateActions';
 
 interface LoginState {

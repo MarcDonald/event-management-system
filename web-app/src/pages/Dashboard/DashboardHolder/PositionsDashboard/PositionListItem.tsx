@@ -17,9 +17,7 @@ interface PositionListItemPropTypes {
   onHandleAssistanceRequest: (id: string) => void;
 }
 
-const Container = styled.div.attrs((props: { isFinal: boolean }) => ({
-  isFinal: props.isFinal,
-}))`
+const Container = styled.div<{ isFinal: boolean }>`
   border-bottom-width: ${(props) => (props.isFinal ? '1px' : 0)};
   border-color: ${(props) => props.theme.darkerGray};
   margin: 0 8rem;
@@ -30,14 +28,12 @@ const Container = styled.div.attrs((props: { isFinal: boolean }) => ({
   align-items: center;
 `;
 
-const AssistanceRequestIcon = styled(FontAwesomeIcon).attrs(
-  (props: { hasAssistanceRequest: boolean }) => ({
-    hasAssistanceRequest: props.hasAssistanceRequest,
-  })
-)`
+const AssistanceRequestIcon = styled(FontAwesomeIcon)<{
+  hasassistancerequest: any;
+}>`
   font-size: 1.5rem;
   color: ${(props) =>
-    props.hasAssistanceRequest ? props.theme.negative : props.theme.positive};
+    props.hasassistancerequest ? props.theme.negative : props.theme.positive};
   margin-right: 1rem;
 `;
 
@@ -71,7 +67,7 @@ export default function PositionListItem({
       <p>{position.name}</p>
       <div>
         <AssistanceRequestIcon
-          hasAssistanceRequest={hasAssistanceRequest}
+          hasassistancerequest={hasAssistanceRequest ? 1 : 0}
           icon={hasAssistanceRequest ? faExclamationTriangle : faCheckCircle}
           title={`${
             hasAssistanceRequest
