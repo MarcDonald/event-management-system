@@ -167,25 +167,22 @@ export default function ManageEventsStateReducer(
       };
     }
     case ManageEventsStateActions.ExistingEventUpdated: {
-      if (parameters?.updatedId && parameters?.updatedName) {
-        const indexOfEvent = state.allEvents.findIndex(
-          (event) => event.eventId === parameters.updatedId
-        );
-        // Updates the event in the list with the new details
-        const updatedAllEvents = [...state.allEvents];
-        updatedAllEvents[indexOfEvent] = {
-          ...updatedAllEvents[indexOfEvent],
-          name: parameters.updatedName,
-        };
-        return {
-          ...state,
-          allEvents: updatedAllEvents,
-          displayedEvents: updatedAllEvents,
-          disableButtons: false,
-        };
-      }
+      const indexOfEvent = state.allEvents.findIndex(
+        (event) => event.eventId === state.id
+      );
+      // Updates the event in the list with the new details
+      const updatedAllEvents = [...state.allEvents];
+      updatedAllEvents[indexOfEvent] = {
+        ...updatedAllEvents[indexOfEvent],
+        name: state.name,
+        supervisors: state.supervisors,
+        staff: state.staff,
+      };
       return {
         ...state,
+        allEvents: updatedAllEvents,
+        displayedEvents: updatedAllEvents,
+        disableButtons: false,
       };
     }
     case ManageEventsStateActions.NewEventSaved: {

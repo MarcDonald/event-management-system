@@ -125,10 +125,6 @@ export default function ManageEvents() {
       await eventApi.updateEventStaffMembers(state.id, updatedStaffMembers);
       dispatch({
         type: ManageEventsStateActions.ExistingEventUpdated,
-        parameters: {
-          updatedId: state.id,
-          updatedName: state.name,
-        },
       });
     } else {
       throw new Error('Trying to update without an event ID');
