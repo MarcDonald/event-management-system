@@ -36,7 +36,7 @@ export default function ManageVenuesStateReducer(
   switch (type) {
     case ManageVenuesStateActions.VenueSearch: {
       const searchContent = parameters?.searchContent.toLowerCase();
-      const searchResults = state.displayedVenues.filter((venue) => {
+      const searchResults = state.allVenues.filter((venue) => {
         if (venue.name.toLowerCase().includes(searchContent)) {
           return venue;
         }

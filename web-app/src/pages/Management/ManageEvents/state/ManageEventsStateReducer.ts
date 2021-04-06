@@ -96,7 +96,7 @@ export default function ManageEventsStateReducer(
         const searchContentLower = parameters.searchContent.toLowerCase();
         return {
           ...state,
-          displayedEvents: state.displayedEvents.filter((event) => {
+          displayedEvents: state.allEvents.filter((event) => {
             if (event.name.toLowerCase().includes(searchContentLower)) {
               return event;
             }

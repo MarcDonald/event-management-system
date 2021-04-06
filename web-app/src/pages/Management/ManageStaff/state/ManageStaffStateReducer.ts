@@ -58,13 +58,18 @@ export default function ManageStaffStateReducer(
         const searchContentLower = parameters.searchContent.toLowerCase();
         return {
           ...state,
-          displayedStaff: state.displayedStaff.filter((staffMember) => {
+          displayedStaff: state.allStaff.filter((staffMember) => {
             if (
               staffMember.username.toLowerCase().includes(searchContentLower) ||
               staffMember.familyName
                 .toLowerCase()
                 .includes(searchContentLower) ||
-              staffMember.givenName.toLowerCase().includes(searchContentLower)
+              staffMember.givenName
+                .toLowerCase()
+                .includes(searchContentLower) ||
+              `${staffMember.givenName} ${staffMember.familyName}`
+                .toLowerCase()
+                .includes(searchContentLower)
             ) {
               return staffMember;
             }
