@@ -43,11 +43,15 @@ export default function ManageStaff() {
   };
 
   useEffect(() => {
+    const cancelTokenSource = staffApi.getCancelTokenSource();
+
     const setup = async () => {
       dispatch({
         type: ManageStaffStateActions.Load,
       });
-      const staffList = await staffApi.getAllStaffMembers();
+      const staffList = await staffApi.getAllStaffMembers(
+        cancelTokenSource.token
+      );
       dispatch({
         type: ManageStaffStateActions.StaffMembersLoaded,
         parameters: {
@@ -55,7 +59,14 @@ export default function ManageStaff() {
         },
       });
     };
-    setup().then();
+    setup()
+      .then()
+      .catch((err) => {
+        if (err.message === 'Component unmounted') return;
+        else console.error(err);
+      });
+
+    return () => cancelTokenSource.cancel('Component unmounted');
   }, []);
 
   const selectStaffMemberToEdit = (username: string) => {

@@ -1,9 +1,14 @@
 import { Auth } from 'aws-amplify';
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosRequestConfig,
+  CancelToken,
+  CancelTokenSource,
+} from 'axios';
 import Sockette from 'sockette';
+import Api from './Api';
 
-interface UseApi {
-  get: (url: string) => Promise<any>;
+interface UseApi extends Api {
+  get: (url: string, cancelToken: CancelToken) => Promise<any>;
   post: (url: string, data: object) => Promise<any>;
   put: (url: string, data: object) => Promise<any>;
   del: (url: string, data?: object) => Promise<any>;
@@ -24,9 +29,13 @@ export default function useApi(): UseApi {
     return session.getIdToken().getJwtToken();
   };
 
-  const get = async (url: string): Promise<any> => {
+  const getCancelTokenSource = (): CancelTokenSource =>
+    axios.CancelToken.source();
+
+  const get = async (url: string, cancelToken: CancelToken): Promise<any> => {
     const token = await getIdToken();
     return axios.get(url, {
+      cancelToken: cancelToken,
       headers: {
         Authorization: token,
       },
@@ -93,5 +102,6 @@ export default function useApi(): UseApi {
     put,
     del,
     connectToWebsocket,
+    getCancelTokenSource,
   };
 }

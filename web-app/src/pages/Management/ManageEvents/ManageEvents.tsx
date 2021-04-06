@@ -51,10 +51,12 @@ export default function ManageEvents() {
   };
 
   useEffect(() => {
+    const cancelTokenSource = eventApi.getCancelTokenSource();
+
     const setup = async () => {
-      const allEventsReq = eventApi.getAllEvents();
-      const allVenuesReq = venueApi.getAllVenues();
-      const allStaffReq = staffApi.getAllStaffMembers();
+      const allEventsReq = eventApi.getAllEvents(cancelTokenSource.token);
+      const allVenuesReq = venueApi.getAllVenues(cancelTokenSource.token);
+      const allStaffReq = staffApi.getAllStaffMembers(cancelTokenSource.token);
       Promise.all([allEventsReq, allVenuesReq, allStaffReq]).then((values) => {
         dispatch({
           type: ManageEventsStateActions.DataLoaded,
@@ -66,7 +68,16 @@ export default function ManageEvents() {
         });
       });
     };
-    setup().then();
+    setup()
+      .then()
+      .catch((err) => {
+        if (err.message === 'Component unmounted') return;
+        else console.error(err);
+      });
+
+    return () => {
+      cancelTokenSource.cancel('Component unmounted');
+    };
   }, []);
 
   const validateForm = (): boolean => {

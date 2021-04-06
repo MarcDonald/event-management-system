@@ -7,6 +7,8 @@ import Event from '../../models/Event';
 import AssistanceRequest from '../../models/AssistanceRequest';
 import VenueStatus from '../../models/VenueStatus';
 import Sockette from 'sockette';
+import Api from './Api';
+import { CancelToken } from 'axios';
 
 interface NewEventDetails {
   name: string;
@@ -23,8 +25,8 @@ interface EditableEventInformation {
   end: number;
 }
 
-interface UseEventApi {
-  getAllEvents: () => Promise<Event[]>;
+interface UseEventApi extends Api {
+  getAllEvents: (cancelToken: CancelToken) => Promise<Event[]>;
   createNewEvent: (eventToCreate: NewEventDetails) => Promise<Event>;
   updateEventInformation: (
     eventId: string,
@@ -39,14 +41,26 @@ interface UseEventApi {
     staff: AssignedStaffMember[]
   ) => Promise<any>;
   deleteEvent: (eventId: string) => Promise<string>;
-  getUpcomingEvents: (count?: number) => Promise<Event[]>;
-  getAssistanceRequests: (eventId: string) => Promise<AssistanceRequest[]>;
+  getUpcomingEvents: (
+    cancelToken: CancelToken,
+    count?: number
+  ) => Promise<Event[]>;
+  getAssistanceRequests: (
+    eventId: string,
+    cancelToken: CancelToken
+  ) => Promise<AssistanceRequest[]>;
   handleAssistanceRequest: (
     eventId: string,
     assistanceRequestId: string
   ) => Promise<void>;
-  getEventInformation: (eventId: string) => Promise<Event>;
-  getEventVenueStatus: (eventId: string) => Promise<VenueStatus>;
+  getEventInformation: (
+    eventId: string,
+    cancelToken: CancelToken
+  ) => Promise<Event>;
+  getEventVenueStatus: (
+    eventId: string,
+    cancelToken: CancelToken
+  ) => Promise<VenueStatus>;
   updateEventStatus: (
     eventId: string,
     venueStatus: VenueStatus
@@ -70,16 +84,26 @@ export default function useEventApi(): UseEventApi {
   const api = useApi();
   const { get, put, post, del, connectToWebsocket } = api;
 
-  const getAllEvents = async (): Promise<Array<Event>> => {
-    const result = await get(baseUrl);
-    return result.data;
+  const getAllEvents = async (
+    cancelToken: CancelToken
+  ): Promise<Array<Event>> => {
+    try {
+      const result = await get(baseUrl, cancelToken);
+      return result.data;
+    } catch (e) {
+      throw e;
+    }
   };
 
   const createNewEvent = async (
     eventToCreate: NewEventDetails
   ): Promise<Event> => {
-    const result = await post(baseUrl, eventToCreate);
-    return result.data;
+    try {
+      const result = await post(baseUrl, eventToCreate);
+      return result.data;
+    } catch (e) {
+      throw e;
+    }
   };
 
   const updateEventInformation = async (
@@ -109,17 +133,30 @@ export default function useEventApi(): UseEventApi {
   };
 
   const getUpcomingEvents = async (
+    cancelToken: CancelToken,
     count: number = 5
   ): Promise<Array<Event>> => {
-    const result = await get(`${baseUrl}/upcoming?count=${count}`);
-    return result.data;
+    try {
+      const result = await get(
+        `${baseUrl}/upcoming?count=${count}`,
+        cancelToken
+      );
+      return result.data;
+    } catch (e) {
+      throw e;
+    }
   };
 
   const getAssistanceRequests = async (
-    eventId: string
+    eventId: string,
+    cancelToken: CancelToken
   ): Promise<AssistanceRequest[]> => {
-    const result = await get(`${baseUrl}/${eventId}/assistance`);
-    return result.data;
+    try {
+      const result = await get(`${baseUrl}/${eventId}/assistance`, cancelToken);
+      return result.data;
+    } catch (e) {
+      throw e;
+    }
   };
 
   const handleAssistanceRequest = async (
@@ -132,24 +169,45 @@ export default function useEventApi(): UseEventApi {
     );
   };
 
-  const getEventInformation = async (eventId: string): Promise<Event> => {
-    const result = await get(`${baseUrl}/${eventId}/information`);
-    return result.data;
+  const getEventInformation = async (
+    eventId: string,
+    cancelToken: CancelToken
+  ): Promise<Event> => {
+    try {
+      const result = await get(
+        `${baseUrl}/${eventId}/information`,
+        cancelToken
+      );
+      return result.data;
+    } catch (e) {
+      throw e;
+    }
   };
 
-  const getEventVenueStatus = async (eventId: string): Promise<VenueStatus> => {
-    const result = await get(`${baseUrl}/${eventId}/status`);
-    return result.data.venueStatus;
+  const getEventVenueStatus = async (
+    eventId: string,
+    cancelToken: CancelToken
+  ): Promise<VenueStatus> => {
+    try {
+      const result = await get(`${baseUrl}/${eventId}/status`, cancelToken);
+      return result.data.venueStatus;
+    } catch (e) {
+      throw e;
+    }
   };
 
   const updateEventStatus = async (
     eventId: string,
     venueStatus: VenueStatus
   ): Promise<VenueStatus> => {
-    const result = await put(`${baseUrl}/${eventId}/status`, {
-      venueStatus: venueStatus.toString(),
-    });
-    return result.data.venueStatus;
+    try {
+      const result = await put(`${baseUrl}/${eventId}/status`, {
+        venueStatus: venueStatus.toString(),
+      });
+      return result.data.venueStatus;
+    } catch (e) {
+      throw e;
+    }
   };
 
   const connectToVenueStatusWebSocket = async (
@@ -191,5 +249,6 @@ export default function useEventApi(): UseEventApi {
     getEventVenueStatus,
     getUpcomingEvents,
     handleAssistanceRequest,
+    getCancelTokenSource: api.getCancelTokenSource,
   };
 }

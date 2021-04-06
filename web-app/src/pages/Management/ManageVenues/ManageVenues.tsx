@@ -59,8 +59,10 @@ export default function ManageVenues() {
   };
 
   useEffect(() => {
+    const cancelTokenSource = api.getCancelTokenSource();
+
     const setup = async () => {
-      const venueList = await api.getAllVenues();
+      const venueList = await api.getAllVenues(cancelTokenSource.token);
       dispatch({
         type: ManageVenuesStateActions.VenuesLoaded,
         parameters: {
@@ -68,7 +70,15 @@ export default function ManageVenues() {
         },
       });
     };
-    setup().then();
+
+    setup()
+      .then()
+      .catch((err) => {
+        if (err.message === 'Component unmounted') return;
+        else console.error(err);
+      });
+
+    return () => cancelTokenSource.cancel('Component unmounted');
   }, []);
 
   const setupNewVenue = () => {

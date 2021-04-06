@@ -20,6 +20,7 @@ import {
 } from './DashboardStyles';
 import Loading from '../../shared/components/Loading';
 import useEventApi from '../../shared/hooks/api/useEventApi';
+import { CancelToken } from 'axios';
 
 /**
  * Main dashboards page
@@ -48,7 +49,7 @@ export default function Dashboard() {
     null
   );
 
-  const loadInfoAndConnectToWebSocket = async () => {
+  const loadInfoAndConnectToWebSocket = async (cancelToken: CancelToken) => {
     dispatch({ type: DashboardStateAction.LoadInfo });
 
     if (assistanceRequestSocket) {
@@ -58,9 +59,15 @@ export default function Dashboard() {
       venueStatusSocket.close();
     }
 
-    const dbEventInformation = eventApi.getEventInformation(eventId);
-    const dbAssistanceRequests = eventApi.getAssistanceRequests(eventId);
-    const dbVenueStatus = eventApi.getEventVenueStatus(eventId);
+    const dbEventInformation = eventApi.getEventInformation(
+      eventId,
+      cancelToken
+    );
+    const dbAssistanceRequests = eventApi.getAssistanceRequests(
+      eventId,
+      cancelToken
+    );
+    const dbVenueStatus = eventApi.getEventVenueStatus(eventId, cancelToken);
 
     Promise.all([dbEventInformation, dbAssistanceRequests, dbVenueStatus])
       .then((values) => {
@@ -78,6 +85,10 @@ export default function Dashboard() {
       })
       .then(async () => {
         await openVenueStatusWebsocketConnection();
+      })
+      .catch((err) => {
+        if (err.message === 'Component unmounted') return;
+        else console.error(err);
       });
   };
 
@@ -120,10 +131,18 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    const cancelTokenSource = eventApi.getCancelTokenSource();
     pageProtection
       .protectPage(StaffRole.ControlRoomOperator, StaffRole.Administrator)
-      .then(async () => await loadInfoAndConnectToWebSocket());
+      .then(
+        async () => await loadInfoAndConnectToWebSocket(cancelTokenSource.token)
+      );
     return () => {
+      try {
+        cancelTokenSource.cancel('Component unmounted');
+      } catch (err) {
+        console.error(`ERROR ${JSON.stringify(err, null, 2)}`);
+      }
       venueStatusSocket?.close(1001);
       assistanceRequestSocket?.close(1001);
     };

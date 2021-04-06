@@ -3,6 +3,8 @@ import config from '../../../config.json';
 import useApi from './useApi';
 import Venue from '../../models/Venue';
 import Position from '../../models/Position';
+import Api from './Api';
+import { CancelToken } from 'axios';
 
 interface NewVenueDetails {
   name: string;
@@ -17,8 +19,8 @@ export interface NewPosition {
   name: string;
 }
 
-interface UseVenueApi {
-  getAllVenues: () => Promise<Array<Venue>>;
+interface UseVenueApi extends Api {
+  getAllVenues: (cancelToken: CancelToken) => Promise<Array<Venue>>;
   createNewVenue: (venueToCreate: NewVenueDetails) => Promise<Venue>;
   updateVenueInformation: (
     venueId: string,
@@ -48,16 +50,26 @@ export default function useVenueApi(): UseVenueApi {
   const api = useApi();
   const { get, put, post, del } = api;
 
-  const getAllVenues = async (): Promise<Array<Venue>> => {
-    const result = await get(baseUrl);
-    return result.data;
+  const getAllVenues = async (
+    cancelToken: CancelToken
+  ): Promise<Array<Venue>> => {
+    try {
+      const result = await get(baseUrl, cancelToken);
+      return result.data;
+    } catch (e) {
+      throw e;
+    }
   };
 
   const createNewVenue = async (
     venueToCreate: NewVenueDetails
   ): Promise<Venue> => {
-    const result = await post(baseUrl, venueToCreate);
-    return result.data;
+    try {
+      const result = await post(baseUrl, venueToCreate);
+      return result.data;
+    } catch (e) {
+      throw e;
+    }
   };
 
   const updateVenueInformation = async (
@@ -101,5 +113,6 @@ export default function useVenueApi(): UseVenueApi {
     updateVenuePositions,
     deleteVenue,
     deleteVenuePositions,
+    getCancelTokenSource: api.getCancelTokenSource,
   };
 }

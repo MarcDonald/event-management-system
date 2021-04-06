@@ -2,6 +2,8 @@ import config from '../../../config.json';
 import StaffRole from '../../models/StaffRole';
 import StaffMember from '../../models/StaffMember';
 import useApi from './useApi';
+import Api from './Api';
+import { CancelToken } from 'axios';
 
 interface EditableStaffDetails {
   username: string;
@@ -11,8 +13,8 @@ interface EditableStaffDetails {
   password: string;
 }
 
-interface UseStaffApi {
-  getAllStaffMembers: () => Promise<Array<StaffMember>>;
+interface UseStaffApi extends Api {
+  getAllStaffMembers: (cancelToken: CancelToken) => Promise<Array<StaffMember>>;
   createNewStaffMember: (
     staffMemberToCreate: EditableStaffDetails
   ) => Promise<StaffMember>;
@@ -31,22 +33,32 @@ export default function useStaffApi(): UseStaffApi {
   const api = useApi();
   const { get, put, post, del } = api;
 
-  const getAllStaffMembers = async (): Promise<Array<StaffMember>> => {
-    const result = await get(baseUrl);
-    return result.data;
+  const getAllStaffMembers = async (
+    cancelToken: CancelToken
+  ): Promise<Array<StaffMember>> => {
+    try {
+      const result = await get(baseUrl, cancelToken);
+      return result.data;
+    } catch (e) {
+      throw e;
+    }
   };
 
   const createNewStaffMember = async (
     staffMemberToCreate: EditableStaffDetails
   ): Promise<StaffMember> => {
-    const result = await post(baseUrl, {
-      username: staffMemberToCreate.username,
-      password: staffMemberToCreate.password,
-      role: staffMemberToCreate.role,
-      givenName: staffMemberToCreate.givenName,
-      familyName: staffMemberToCreate.familyName,
-    });
-    return result.data;
+    try {
+      const result = await post(baseUrl, {
+        username: staffMemberToCreate.username,
+        password: staffMemberToCreate.password,
+        role: staffMemberToCreate.role,
+        givenName: staffMemberToCreate.givenName,
+        familyName: staffMemberToCreate.familyName,
+      });
+      return result.data;
+    } catch (e) {
+      throw e;
+    }
   };
 
   const updateExistingStaffMember = async (
@@ -72,5 +84,6 @@ export default function useStaffApi(): UseStaffApi {
     createNewStaffMember,
     updateExistingStaffMember,
     deleteStaffMember,
+    getCancelTokenSource: api.getCancelTokenSource,
   };
 }

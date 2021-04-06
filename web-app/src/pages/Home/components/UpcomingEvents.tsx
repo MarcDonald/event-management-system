@@ -67,12 +67,20 @@ export default function UpcomingEvents() {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
 
   useEffect(() => {
+    const reqCts = eventApi.getCancelTokenSource();
     const setup = async () => {
-      const upcoming = await eventApi.getUpcomingEvents();
+      const upcoming = await eventApi.getUpcomingEvents(reqCts.token);
       setUpcomingEvents(upcoming);
       setIsLoading(false);
     };
-    setup().then();
+    setup()
+      .then()
+      .catch((err) => {
+        if (err.message === 'Component unmounted') return;
+        else console.error(err);
+      });
+
+    return () => reqCts.cancel('Component unmounted');
   }, []);
 
   const eventList = () => {

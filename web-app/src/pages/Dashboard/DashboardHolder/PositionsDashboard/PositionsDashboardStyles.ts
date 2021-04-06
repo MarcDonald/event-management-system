@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { size } from '../../../../styles/Breakpoints';
 
 export const ListHeaders = styled.div`
