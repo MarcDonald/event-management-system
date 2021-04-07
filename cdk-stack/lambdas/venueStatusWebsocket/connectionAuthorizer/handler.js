@@ -25,7 +25,7 @@ module.exports = (dependencies) => async (event, context, callback) => {
     const decodedToken = await verify(token, key.pem);
 
     if (
-      decodedToken['custom:jobRole'] === 'Control Room Operator' ||
+      decodedToken['custom:jobRole'] === 'ControlRoomOperator' ||
       decodedToken['custom:jobRole'] === 'Administrator' ||
       decodedToken['custom:jobRole'] === 'Steward'
     ) {

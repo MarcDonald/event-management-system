@@ -17,7 +17,7 @@ const addIdToPositions = (positions, generateUUID) => {
   positions.forEach((venuePosition) => {
     processedPositions.push({
       positionId: generateUUID().toString(),
-      name: venuePosition.name,
+      name: venuePosition.name.trim(),
     });
   });
   return processedPositions;
@@ -32,7 +32,6 @@ module.exports = (dependencies) => async (event) => {
 
   const { name, positions } = JSON.parse(event.body);
 
-  // TODO trim name and position names
   if (!name || !positions) {
     return badBodyResponse;
   }
@@ -55,7 +54,7 @@ module.exports = (dependencies) => async (event) => {
     const itemToAdd = {
       id: venueId,
       metadata: 'venue',
-      name,
+      name: name.trim(),
       positions: processedPositions,
     };
 

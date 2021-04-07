@@ -83,7 +83,6 @@ module.exports = (dependencies) => async (event) => {
   const start = Math.floor(parsedBody.start);
   const end = Math.floor(parsedBody.end);
 
-  // TODO trim name
   try {
     if (start && end) {
       if (start > end) {
@@ -108,7 +107,7 @@ module.exports = (dependencies) => async (event) => {
 
     if (name) {
       setActions.push('#name = :name');
-      expressionAttributeValues[':name'] = name;
+      expressionAttributeValues[':name'] = name.trim();
       expressionAttributeNames['#name'] = 'name';
     }
     if (start) {

@@ -21,7 +21,7 @@ module.exports = (dependencies) => async (event) => {
   const parsedBody = JSON.parse(event.body);
   const { name, venue, supervisors, staff } = parsedBody;
 
-  // TODO trim name and position names
+  // TODO trim position names
   // TODO verify all positions and staff have IDs
   if (
     !name ||
@@ -72,7 +72,7 @@ module.exports = (dependencies) => async (event) => {
       TableName: tableName,
       Item: {
         id: eventId,
-        name,
+        name: name.trim(),
         metadata: 'event',
         venue,
         start,

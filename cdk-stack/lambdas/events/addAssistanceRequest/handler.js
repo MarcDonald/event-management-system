@@ -83,7 +83,6 @@ module.exports = (dependencies) => async (event) => {
 
   const { position, message } = JSON.parse(event.body);
 
-  // TODO trim message and position names
   if (!position || !message) {
     return badBodyResponse;
   }
@@ -91,6 +90,8 @@ module.exports = (dependencies) => async (event) => {
   if (!position.positionId || !position.name) {
     return badBodyResponse;
   }
+
+  position.name = position.name.trim();
 
   try {
     const assistanceRequestId = generateUUID().toString();
@@ -100,7 +101,7 @@ module.exports = (dependencies) => async (event) => {
       id: eventId,
       metadata: `assistanceRequest_${assistanceRequestId}`,
       position,
-      message,
+      message: message.trim(),
       time,
       handled: false,
     };

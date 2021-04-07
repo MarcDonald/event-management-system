@@ -146,7 +146,7 @@ test('Should return 200 when the user has the Control Room Operator role', async
   });
 
   verifyMock.mockReturnValue({
-    'custom:jobRole': 'Control Room Operator',
+    'custom:jobRole': 'ControlRoomOperator',
   });
 
   const { statusCode, isAuthorized } = await handler(event);

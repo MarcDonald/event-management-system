@@ -40,7 +40,6 @@ module.exports = (dependencies) => async (event) => {
     };
   }
 
-  // TODO trim name
   try {
     const updateParams = {
       TableName: tableName,
@@ -55,7 +54,7 @@ module.exports = (dependencies) => async (event) => {
       // Adding this condition prevents a new venue being made if the venue doesn't already exist
       ConditionExpression: 'id = :id and metadata = :metadata',
       ExpressionAttributeValues: {
-        ':name': name,
+        ':name': name.trim(),
         ':id': venueId,
         ':metadata': 'venue',
       },

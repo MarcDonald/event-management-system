@@ -200,7 +200,7 @@ test('Should return authorized when the user has the Control Room Operator role'
   });
 
   verifyMock.mockReturnValue({
-    'custom:jobRole': 'Control Room Operator',
+    'custom:jobRole': 'ControlRoomOperator',
   });
 
   generateAllowPolicyMock.mockReturnValueOnce(validAllowPolicy);
