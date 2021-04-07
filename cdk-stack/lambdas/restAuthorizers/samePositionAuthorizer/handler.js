@@ -6,9 +6,6 @@ module.exports = (dependencies) => async (event) => {
   const requestedPositionId = event.pathParameters.positionId;
   const requestedEventId = event.pathParameters.eventId;
 
-  console.log(requestedEventId);
-  console.log(requestedPositionId);
-
   if (requestedPositionId && requestedEventId) {
     const { verify, getPublicKeys, Dynamo, tableName } = dependencies;
 
@@ -45,18 +42,18 @@ module.exports = (dependencies) => async (event) => {
           Limit: 1,
         }).promise();
 
-        console.log(result);
-
         if (result.Items[0]) {
-          const assignedPosition = result.Items[0].staff.find(
+          const requestedPositions = result.Items[0].staff.filter(
             (assignedStaff) =>
               assignedStaff.position.positionId === requestedPositionId
           );
-          if (assignedPosition) {
-            if (
-              assignedPosition.staffMember.username ===
-              decodedToken['cognito:username']
-            ) {
+          if (requestedPositions.length > 0) {
+            const assignedPosition = requestedPositions.find(
+              (assignedPosition) =>
+                assignedPosition.staffMember.username ===
+                decodedToken['cognito:username']
+            );
+            if (assignedPosition) {
               return {
                 statusCode: 200,
                 isAuthorized: true,

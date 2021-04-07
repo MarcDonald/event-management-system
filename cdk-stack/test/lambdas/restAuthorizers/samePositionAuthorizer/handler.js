@@ -481,7 +481,7 @@ test('Should return 401 when user is not assigned to the requested position', as
   });
 });
 
-test('Should return 200 when user is assigned to the requested position', async () => {
+test('Should return 200 when user is only user to be assigned to the requested position', async () => {
   const event = {
     pathParameters: {
       eventId: validEventId,
@@ -516,6 +516,97 @@ test('Should return 200 when user is assigned to the requested position', async 
                 role: validRole + '2',
                 givenName: validGivenName + '2',
                 familyName: validFamilyName + '2',
+              },
+              position: {
+                positionId: validPositionId,
+                name: validPositionName + '1',
+              },
+            },
+            {
+              staffMember: {
+                username: validUsername + '2',
+                sub: validSub + '2',
+                role: validRole + '2',
+                givenName: validGivenName + '2',
+                familyName: validFamilyName + '2',
+              },
+              position: {
+                positionId: validPositionId + '1',
+                name: validPositionName + '1',
+              },
+            },
+          ],
+        },
+      ]);
+    },
+  });
+
+  const { statusCode, isAuthorized } = await handler(event);
+
+  expect(statusCode).toBe(200);
+  expect(isAuthorized).toBe(true);
+  expect(getPublicKeysMock).toBeCalledTimes(1);
+  expect(verifyMock).toBeCalledTimes(1);
+  expect(queryMock).toBeCalledTimes(1);
+  expect(queryMock).toBeCalledWith({
+    TableName: validTableName,
+    KeyConditionExpression: 'id = :eventId and metadata = :metadata',
+    ExpressionAttributeValues: {
+      ':eventId': validEventId,
+      ':metadata': 'event',
+    },
+    Limit: 1,
+  });
+});
+
+test('Should return 200 when user is one of multiple assigned to the requested position', async () => {
+  const event = {
+    pathParameters: {
+      eventId: validEventId,
+      positionId: validPositionId,
+    },
+    identitySource: [validJwt],
+  };
+
+  getPublicKeysMock.mockReturnValue({
+    akid: 'validkid',
+  });
+
+  verifyMock.mockReturnValue({
+    'cognito:username': validUsername,
+  });
+
+  queryMock.mockReturnValue({
+    promise: () => {
+      return dynamoQueryResponseBuilder([
+        {
+          id: validEventId,
+          metadata: 'event',
+          venue: validVenue,
+          start: validStart,
+          end: validEnd,
+          supervisors: validSupervisors,
+          staff: [
+            {
+              staffMember: {
+                username: validUsername,
+                sub: validSub + '2',
+                role: validRole + '2',
+                givenName: validGivenName + '2',
+                familyName: validFamilyName + '2',
+              },
+              position: {
+                positionId: validPositionId,
+                name: validPositionName + '1',
+              },
+            },
+            {
+              staffMember: {
+                username: validUsername + '1',
+                sub: validSub + '1',
+                role: validRole + '1',
+                givenName: validGivenName + '1',
+                familyName: validFamilyName + '1',
               },
               position: {
                 positionId: validPositionId,
