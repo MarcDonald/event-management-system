@@ -19,6 +19,7 @@ import com.marcdonald.ems.ui.theme.supervisorColor
 
 @Composable
 fun AssistanceRequestActions(
+	isMakingRequest: Boolean,
 	onAssistanceRequestClick: (AssistanceRequestType) -> Unit,
 ) =
 	Column(modifier = Modifier
@@ -28,16 +29,19 @@ fun AssistanceRequestActions(
 		AssistanceRequestActionButton(
 			text = "Supervisor",
 			color = supervisorColor,
+			disabled = isMakingRequest,
 			onClick = { onAssistanceRequestClick(AssistanceRequestType.Supervisor) }
 		)
 		AssistanceRequestActionButton(
 			text = "Cleaner",
 			color = cleanerColor,
+			disabled = isMakingRequest,
 			onClick = { onAssistanceRequestClick(AssistanceRequestType.Cleaner) }
 		)
 		AssistanceRequestActionButton(
 			text = "Security",
 			color = securityColor,
+			disabled = isMakingRequest,
 			onClick = { onAssistanceRequestClick(AssistanceRequestType.Security) }
 		)
 	}
@@ -46,6 +50,7 @@ fun AssistanceRequestActions(
 fun AssistanceRequestActionButton(
 	text: String,
 	color: Color,
+	disabled: Boolean,
 	onClick: () -> Unit
 ) =
 	Button(
@@ -53,6 +58,7 @@ fun AssistanceRequestActionButton(
 			.fillMaxWidth()
 			.padding(vertical = 24.dp),
 		onClick = { onClick() },
+		enabled = !disabled,
 		colors = ButtonDefaults.buttonColors(
 			backgroundColor = color,
 		),

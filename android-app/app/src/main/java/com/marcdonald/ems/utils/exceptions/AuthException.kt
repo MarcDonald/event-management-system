@@ -1,4 +1,3 @@
 package com.marcdonald.ems.utils.exceptions
 
-class AuthException {
-}
+class AuthException(message: String?): Exception(message)

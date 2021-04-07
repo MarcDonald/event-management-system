@@ -49,16 +49,25 @@ class RequestsDialogSheet : BottomSheetDialogFragment() {
 								.align(Alignment.CenterHorizontally)
 							)
 						} else {
-							if(viewModel.requests.value.isEmpty()) {
-								Text("You haven't made any requests", modifier = Modifier
-									.fillMaxWidth()
-									.padding(8.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.body1, color = MaterialTheme.colors.onSurface)
-							} else {
-								LazyColumn {
-									itemsIndexed(viewModel.requests.value) { index, request ->
-										RequestCard(request)
-										if(index != viewModel.requests.value.size - 1) {
-											Spacer(modifier = Modifier.padding(8.dp))
+							when {
+								viewModel.error.value != null      -> {
+									Text(viewModel.error.value.toString(), modifier = Modifier
+										.fillMaxWidth()
+										.padding(8.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.body1, color = MaterialTheme.colors.error)
+
+								}
+								viewModel.requests.value.isEmpty() -> {
+									Text("You haven't made any requests", modifier = Modifier
+										.fillMaxWidth()
+										.padding(8.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.body1, color = MaterialTheme.colors.onSurface)
+								}
+								else                               -> {
+									LazyColumn {
+										itemsIndexed(viewModel.requests.value) { index, request ->
+											RequestCard(request)
+											if(index != viewModel.requests.value.size - 1) {
+												Spacer(modifier = Modifier.padding(8.dp))
+											}
 										}
 									}
 								}

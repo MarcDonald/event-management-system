@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amplifyframework.auth.AuthChannelEventName
+import com.marcdonald.ems.utils.exceptions.AuthException
 import com.amplifyframework.core.Amplify
 import com.amplifyframework.core.InitializationStatus
 import com.amplifyframework.hub.HubChannel
@@ -26,6 +27,7 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 		ViewModel() {
 
 	val isLoading = mutableStateOf(true)
+	val isMakingRequest = mutableStateOf(false)
 	val venueStatus: MutableState<VenueStatus> = mutableStateOf(VenueStatus.Low())
 	val position: MutableState<Position?> = mutableStateOf(null)
 	var supervisors: Array<Supervisor> = emptyArray()
@@ -69,6 +71,8 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 				this@AssistanceRequestViewModel.supervisors = supervisors
 				eventId.let { venueStatus.value = eventsRepository.getStatus(it) }
 				connectToVenueStatusWebsocket()
+			} catch (e: AuthException) {
+				logout()
 			} catch(e: Exception) {
 				Timber.e("Log: passArguments: $e")
 			}
@@ -76,16 +80,29 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 		}
 	}
 
+	private fun logout() {
+		authService.clearDetails()
+		Amplify.Auth.signOut(
+			{ _signedOut.postValue(true) },
+			{ error -> Timber.e("Log: logout: $error") }
+		)
+	}
+
 	fun requestAssistance(type: AssistanceRequestType) {
 		viewModelScope.launch {
+			isMakingRequest.value = true
 			try {
 				eventId?.let { eventId ->
 					position.value?.let { pos ->
 						eventsRepository.sendAssistanceRequest(eventId, pos, type)
 					}
 				}
+			} catch (e: AuthException) {
+				logout()
 			} catch(e: Exception) {
 				Timber.e("Log: requestAssistance: $e")
+			} finally {
+				isMakingRequest.value = false
 			}
 		}
 		Timber.i("Log: requestAssistance: ${type.name}")
@@ -93,8 +110,14 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 
 	fun connectToVenueStatusWebsocket() {
 		if(eventId != null && venueStatusWebsocket == null) {
-			venueStatusWebsocket = eventsRepository.connectToVenueStatusWebsocket(eventId!!) { newVenueStatus ->
-				venueStatus.value = newVenueStatus
+			try {
+				venueStatusWebsocket = eventsRepository.connectToVenueStatusWebsocket(eventId!!) { newVenueStatus ->
+					venueStatus.value = newVenueStatus
+				}
+			} catch (e: AuthException) {
+				logout()
+			} catch (e: Exception) {
+				Timber.e("Log: connectToVenueStatusWebsocket: $e")
 			}
 		}
 	}

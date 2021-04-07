@@ -87,7 +87,7 @@ class AssistanceRequestScreen : Fragment() {
 										verticalArrangement = Arrangement.SpaceBetween
 									) {
 										InfoBar()
-										AssistanceRequestActions { type ->
+										AssistanceRequestActions(isMakingRequest = viewModel.isMakingRequest.value) { type ->
 											viewModel.requestAssistance(type)
 											Toast.makeText(requireContext(), "Requesting $type", Toast.LENGTH_LONG).show()
 										}

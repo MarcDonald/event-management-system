@@ -13,8 +13,10 @@ import com.marcdonald.ems.model.Position
 import com.marcdonald.ems.model.Supervisor
 import com.marcdonald.ems.network.AuthService
 import com.marcdonald.ems.repository.EventsRepository
+import com.marcdonald.ems.utils.exceptions.AuthException
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import kotlin.reflect.typeOf
 
 class EventListViewModel @ViewModelInject constructor(private val repository: EventsRepository, private val authService: AuthService) :
 		ViewModel() {
@@ -44,9 +46,18 @@ class EventListViewModel @ViewModelInject constructor(private val repository: Ev
 	fun loadEvents() {
 		viewModelScope.launch {
 			showLoading.value = true
-			val response = repository.getUpcoming()
-			events.value = response
-			showLoading.value = false
+			try {
+				val response = repository.getUpcoming()
+				events.value = response
+			} catch (e: Exception) {
+				if(e is AuthException) {
+					logout()
+				} else {
+					Timber.e("Log: loadEvents: $e")
+				}
+			} finally {
+				showLoading.value = false
+			}
 		}
 	}
 
