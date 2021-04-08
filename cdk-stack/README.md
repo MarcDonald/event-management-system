@@ -1,18 +1,46 @@
 # CDK Stack
 
-CDK definition of the AWS stack
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+CDK code describing the infrastructure of the AWS backend as well as the code and tests for each Lambda.
 
 ## Note
+
 Before deploying make sure you run `npm install` in any lambda directory with a `package.json` such as `adminAuthorizer`
 and `addVenue`
 
-## Useful commands
+## Open Source Libraries
 
-- `yarn run build` compile typescript to JavaScript
-- `yarn run watch` watch for changes and compile
-- `yarn run test` perform the jest unit tests
-- `cdk deploy` deploy this stack to your default AWS account/region
-- `cdk diff` compare deployed stack with current state
-- `cdk synth` emits the synthesized CloudFormation template
+### [AWS CDK](https://github.com/aws/aws-cdk)
+
+Apache 2.0 License
+
+### [AWS SDK](https://github.com/aws/aws-sdk)
+
+[See LICENSE file](https://github.com/aws/aws-sdk)
+
+### [Jest](https://github.com/facebook/jest)
+
+MIT License
+
+### [Prettier](https://github.com/prettier/prettier)
+
+MIT License
+
+### [TS-node](https://github.com/TypeStrong/ts-node)
+
+MIT License
+
+### [TypeScript](https://github.com/microsoft/TypeScript)
+
+Apache 2.0 License
+
+### [Axios](https://github.com/axios/axios)
+
+MIT License
+
+### [JsonWebToken](https://github.com/auth0/node-jsonwebtoken)
+
+MIT License
+
+### [Jwk-To-Pem](https://github.com/Brightspace/node-jwk-to-pem)
+
+Apache 2.0 License
