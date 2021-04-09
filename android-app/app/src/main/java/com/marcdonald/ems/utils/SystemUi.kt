@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.toArgb
 
 /**
  * From https://github.com/android/compose-samples/blob/7da64ff119990df23bd5a026be8c2757ebbd2a82/Jetsnack/app/src/main/java/com/example/jetsnack/ui/utils/SystemUi.kt
+ * (Butcher, 2020)
  */
 interface SystemUiController {
 

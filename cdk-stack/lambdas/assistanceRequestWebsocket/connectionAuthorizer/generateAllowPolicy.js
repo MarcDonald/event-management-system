@@ -1,5 +1,6 @@
 // Based on official AWS Documentation
 // https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-websocket-api-lambda-auth.html
+// (Creating a Lambda REQUEST authorizer function, n.d.)
 
 const generatePolicy = (principalId, effect, resource) => {
   const authResponse = {};
