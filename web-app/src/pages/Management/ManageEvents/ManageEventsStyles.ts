@@ -14,7 +14,9 @@ export const MainSection = styled.section`
 export const FormGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: auto 1fr;
   max-height: 84vh;
+  height: 84vh;
   overflow-y: auto;
 `;
 

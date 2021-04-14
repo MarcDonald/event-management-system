@@ -7,7 +7,7 @@ import { DropdownItem } from '../../../../shared/components/Dropdown';
 import StaffMember from '../../../../shared/models/StaffMember';
 import Position from '../../../../shared/models/Position';
 import Event from '../../../../shared/models/Event';
-
+import StaffRole from '../../../../shared/models/StaffRole'
 interface ManageEventsState {
   id: string | null;
   name: string;
@@ -71,7 +71,7 @@ export default function ManageEventsStateReducer(
             };
           }),
           allStaff: parameters.staffList,
-          selectableStaff: parameters.staffList,
+          selectableStaff: (parameters.staffList as StaffMember[]).filter(staffMember => staffMember.role === StaffRole.Steward),
         };
       }
       return {

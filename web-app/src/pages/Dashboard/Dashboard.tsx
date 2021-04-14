@@ -29,6 +29,8 @@ export default function Dashboard() {
   const eventApi = useEventApi();
   const { eventId } = useParams();
   const pageProtection = usePageProtection();
+  let assistanceRequestSocket: Sockette | null = null;
+  let venueStatusSocket: Sockette | null = null;
 
   const [state, dispatch] = useReducer(
     DashboardStateReducer,
@@ -41,23 +43,10 @@ export default function Dashboard() {
     venueStatus,
   } = state;
 
-  const [
-    assistanceRequestSocket,
-    setAssistanceRequestSocket,
-  ] = useState<Sockette | null>(null);
-  const [venueStatusSocket, setVenueStatusSocket] = useState<Sockette | null>(
-    null
-  );
-
   const loadInfoAndConnectToWebSocket = async (cancelToken: CancelToken) => {
     dispatch({ type: DashboardStateAction.LoadInfo });
 
-    if (assistanceRequestSocket) {
-      assistanceRequestSocket.close();
-    }
-    if (venueStatusSocket) {
-      venueStatusSocket.close();
-    }
+    closeWebSocketConnections()
 
     const dbEventInformation = eventApi.getEventInformation(
       eventId,
@@ -93,7 +82,7 @@ export default function Dashboard() {
   };
 
   const openAssistanceRequestWebsocketConnection = async () => {
-    const socket = await eventApi.connectToAssistanceRequestWebSocket(
+    assistanceRequestSocket = await eventApi.connectToAssistanceRequestWebSocket(
       eventId,
       (e) => {
         const event = JSON.parse(e.data);
@@ -115,11 +104,10 @@ export default function Dashboard() {
         }
       }
     );
-    setAssistanceRequestSocket(socket);
   };
 
   const openVenueStatusWebsocketConnection = async () => {
-    const socket = await eventApi.connectToVenueStatusWebSocket(eventId, (e) =>
+    venueStatusSocket = await eventApi.connectToVenueStatusWebSocket(eventId, (e) =>
       dispatch({
         type: DashboardStateAction.VenueStatusChange,
         parameters: {
@@ -127,8 +115,12 @@ export default function Dashboard() {
         },
       })
     );
-    setVenueStatusSocket(socket);
   };
+
+  const closeWebSocketConnections = () => {
+    venueStatusSocket?.close(1000);
+    assistanceRequestSocket?.close(1000);
+  }
 
   useEffect(() => {
     const cancelTokenSource = eventApi.getCancelTokenSource();
@@ -140,11 +132,10 @@ export default function Dashboard() {
     return () => {
       try {
         cancelTokenSource.cancel('Component unmounted');
+        closeWebSocketConnections();
       } catch (err) {
         console.error(`ERROR ${JSON.stringify(err, null, 2)}`);
       }
-      venueStatusSocket?.close(1001);
-      assistanceRequestSocket?.close(1001);
     };
   }, [eventId]);
 
