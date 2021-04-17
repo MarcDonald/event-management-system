@@ -60,8 +60,7 @@ class EventListScreen : Fragment() {
 							// Header Column
 							Column(modifier = Modifier.weight(1f)) {
 								EventListHeader(
-									name = viewModel.loggedInName.value,
-									role = viewModel.loggedInRole.value
+									name = viewModel.loggedInName.value
 								)
 							}
 							// Body

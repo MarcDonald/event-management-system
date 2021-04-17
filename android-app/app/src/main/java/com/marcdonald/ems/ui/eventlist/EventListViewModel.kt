@@ -16,14 +16,12 @@ import com.marcdonald.ems.repository.EventsRepository
 import com.marcdonald.ems.utils.exceptions.AuthException
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import kotlin.reflect.typeOf
 
 class EventListViewModel @ViewModelInject constructor(private val repository: EventsRepository, private val authService: AuthService) :
 		ViewModel() {
 
 	val loggedInName: MutableState<String> = mutableStateOf("...")
 	val loggedInUserSub: MutableState<String> = mutableStateOf("")
-	val loggedInRole: MutableState<String> = mutableStateOf("...")
 	val events: MutableState<List<Event>> = mutableStateOf(listOf())
 	val showLoading: MutableState<Boolean> = mutableStateOf(true)
 	private val _signedOut: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -36,7 +34,6 @@ class EventListViewModel @ViewModelInject constructor(private val repository: Ev
 					result.find { authUserAttribute -> authUserAttribute.key.keyString == "given_name" }?.value
 						.plus(" ")
 						.plus(result.find { authUserAttribute -> authUserAttribute.key.keyString == "family_name" }?.value)
-				loggedInRole.value = result.find { authUserAttribute -> authUserAttribute.key.keyString == "custom:jobRole" }?.value.toString()
 				loggedInUserSub.value = result.find { authUserAttribute ->  authUserAttribute.key.keyString == "sub" }?.value.toString()
 			},
 			{ error -> Timber.e("Log: $error") }

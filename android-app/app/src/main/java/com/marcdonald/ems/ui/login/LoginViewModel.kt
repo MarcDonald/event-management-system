@@ -34,7 +34,7 @@ class LoginViewModel @ViewModelInject constructor(private val authService: AuthS
 				InitializationStatus.FAILED.toString()    -> Timber.e("Log: onViewCreated: Auth failed")
 				else                                      -> {
 					when(AuthChannelEventName.valueOf(hubEvent.name)) {
-						AuthChannelEventName.SIGNED_IN       -> initAuthService()
+						AuthChannelEventName.SIGNED_IN       -> onSignIn()
 						AuthChannelEventName.SIGNED_OUT      -> _signedIn.postValue(false)
 						AuthChannelEventName.SESSION_EXPIRED -> _signedIn.postValue(false)
 					}
@@ -68,18 +68,41 @@ class LoginViewModel @ViewModelInject constructor(private val authService: AuthS
 			{ error ->
 				Timber.e("Log: login: $error")
 				if(error.cause is NotAuthorizedException) {
-					validationState.rejectedReason.value = "Invalid username or password"
+					setNotAuthorized("Invalid username or password")
 				} else {
-					validationState.rejectedReason.value = "Unknown Error"
+					setNotAuthorized("Unknown Error")
 				}
-				password.value = ""
-				validationState.passwordValid.value = false
-				isLoading.value = false
 			}
 		)
 	}
 
-	private fun initAuthService() {
+	private fun setNotAuthorized(errorMessage: String) {
+		validationState.rejectedReason.value = errorMessage
+		password.value = ""
+		validationState.passwordValid.value = false
+		isLoading.value = false
+	}
+
+	private fun onSignIn() {
+		Amplify.Auth.fetchUserAttributes(
+			{ result ->
+				val jobRole = result.find { authUserAttribute -> authUserAttribute.key.keyString == "custom:jobRole" }?.value.toString()
+				if(jobRole == "Steward") {
+					initAuthSession()
+				} else {
+					Amplify.Auth.signOut({
+						Timber.i("Log: onSignIn: Signed out")
+					}, { error ->
+						Timber.e("Log: onSignIn: Sign out error $error")
+					})
+					setNotAuthorized("Only Stewards can log into this app")
+				}
+			},
+			{ error -> Timber.e("Log: $error") }
+		)
+	}
+
+	private fun initAuthSession() {
 		Amplify.Auth.fetchAuthSession(
 			{ result ->
 				val cognitoAuthSession = result as AWSCognitoAuthSession

@@ -15,8 +15,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun EventListHeader(
-	name: String,
-	role: String,
+	name: String
 ) =
 	Column(
 		modifier = Modifier
@@ -41,7 +40,7 @@ fun EventListHeader(
 			fontWeight = FontWeight.Bold
 		)
 		Text(
-			text = role,
+			text = "Steward",
 			modifier = Modifier.fillMaxWidth(),
 			style = MaterialTheme.typography.h5,
 			textAlign = TextAlign.Center,
