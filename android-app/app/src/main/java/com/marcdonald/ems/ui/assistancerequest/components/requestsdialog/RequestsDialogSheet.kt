@@ -42,6 +42,7 @@ class RequestsDialogSheet : BottomSheetDialogFragment() {
 						Text("Requests", modifier = Modifier
 							.fillMaxWidth()
 							.padding(8.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.h6, color = MaterialTheme.colors.onSurface)
+
 						if(viewModel.isLoading.value) {
 							CircularProgressIndicator(modifier = Modifier
 								.size(64.dp)

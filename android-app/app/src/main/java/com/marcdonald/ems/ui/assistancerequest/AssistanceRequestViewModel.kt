@@ -39,6 +39,7 @@ class AssistanceRequestViewModel @ViewModelInject constructor(private val authSe
 		private set;
 
 	init {
+		// Setup handling for Auth events
 		Amplify.Hub.subscribe(HubChannel.AUTH) { hubEvent: HubEvent<*> ->
 			when(hubEvent.name) {
 				InitializationStatus.SUCCEEDED.toString() -> Timber.i("Log: assistanceRequestViewModel: Auth Hub initialized")

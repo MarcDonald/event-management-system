@@ -60,6 +60,8 @@ class StartupScreen : Fragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		viewModel.isLoggedIn.observe(viewLifecycleOwner, { value ->
 			value?.let { isLoggedIn ->
+				// If the user is logged in redirect them to the home screen, 
+				// otherwise redirect them to the login screen
 				if(isLoggedIn) {
 					findNavController().navigate(R.id.isLoggedIn)
 				} else {

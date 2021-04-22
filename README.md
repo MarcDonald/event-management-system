@@ -1,6 +1,6 @@
 # Event Management System
 
-An system for the management of event security and stewards.
+A system for the management of event security and stewards.
 The system consists of three main pieces:
 
 - An [Android app](android-app/) for Stewards to request assistance from the control room

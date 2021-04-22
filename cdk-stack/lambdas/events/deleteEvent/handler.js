@@ -20,7 +20,6 @@ module.exports = (dependencies) => async (event) => {
       TableName: tableName,
       Key: {
         id: eventId,
-        // TODO in the future we want to remove all references to the event no matter what the metadata type is
         metadata: 'event',
       },
     }).promise();

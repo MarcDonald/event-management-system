@@ -11,7 +11,6 @@ const badBodyResponse = {
   }),
 };
 
-// TODO maybe invoke the addVenuePositions lambda instead of doing the same code twice
 const addIdToPositions = (positions, generateUUID) => {
   const processedPositions = [];
   positions.forEach((venuePosition) => {

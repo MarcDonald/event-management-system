@@ -30,6 +30,7 @@ class EventListViewModel @ViewModelInject constructor(private val repository: Ev
 	init {
 		Amplify.Auth.fetchUserAttributes(
 			{ result ->
+				// Format name correctly for displaying on the UI
 				loggedInName.value =
 					result.find { authUserAttribute -> authUserAttribute.key.keyString == "given_name" }?.value
 						.plus(" ")

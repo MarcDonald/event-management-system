@@ -3,6 +3,9 @@ import WebsocketConnectionTable from './WebsocketConnectionTable';
 import Websocket from './Websocket';
 import CognitoResources from '../CognitoResources';
 
+/**
+ * Both WebSocket APIs for the system
+ */
 export default class WebsocketResources {
   readonly assistanceRequestsWebsocket: Websocket;
   readonly venueStatusWebsocket: Websocket;

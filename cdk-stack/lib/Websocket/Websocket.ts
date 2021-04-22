@@ -26,6 +26,9 @@ interface WebsocketRoute {
   codePath: string;
 }
 
+/**
+ * A WebSocket API with connect, disconnect routes and an authorizer
+ */
 export default class Websocket {
   public readonly api: CfnApi;
 

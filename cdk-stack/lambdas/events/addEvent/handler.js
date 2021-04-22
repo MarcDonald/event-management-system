@@ -21,8 +21,6 @@ module.exports = (dependencies) => async (event) => {
   const parsedBody = JSON.parse(event.body);
   const { name, venue, supervisors, staff } = parsedBody;
 
-  // TODO trim position names
-  // TODO verify all positions and staff have IDs
   if (
     !name ||
     !venue ||

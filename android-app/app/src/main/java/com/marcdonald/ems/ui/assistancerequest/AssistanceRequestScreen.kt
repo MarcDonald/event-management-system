@@ -51,6 +51,8 @@ class AssistanceRequestScreen : Fragment() {
 		return ComposeView(requireContext()).apply {
 			setContent {
 				EMSTheme(darkTheme = isSystemInDarkTheme()) {
+
+					// Hide content and display spinner while network requests are completed
 					if(viewModel.isLoading.value) {
 						(requireActivity() as MainActivity).systemUi.setSystemBarsColor(MaterialTheme.colors.background)
 						CircularProgressIndicator(modifier = Modifier
@@ -184,7 +186,6 @@ class AssistanceRequestScreen : Fragment() {
 			modifier = Modifier
 				.fillMaxWidth()
 		) {
-			// TODO the dialogs should probably be injected in via Dagger
 			BottomNavigation(backgroundColor = MaterialTheme.colors.surface) {
 				BottomNavigationItem(
 					label = { Text("Supervisors") },

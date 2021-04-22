@@ -47,6 +47,9 @@ const NoRequestsDisplay = styled.h3`
   text-align: center;
 `;
 
+/**
+ * Representation of an individual position on the Positions dashboard
+ */
 export default function PositionListItem({
   isFinal,
   position,

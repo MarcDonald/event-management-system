@@ -85,6 +85,7 @@ class LoginScreen : Fragment() {
 	}
 
 	private fun login() {
+		// Hide keyboard after entering details
 		val view = requireActivity().currentFocus ?: View(requireActivity())
 		imm.hideSoftInputFromWindow(view.windowToken, 0)
 		viewModel.login()

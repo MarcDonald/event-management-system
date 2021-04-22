@@ -9,6 +9,9 @@ import {
 } from '@aws-cdk/aws-cloudfront';
 import { PolicyStatement } from '@aws-cdk/aws-iam';
 
+/**
+ * S3 Bucket and CloudFront deployment required to deploy the WebApp
+ */
 export default class WebAppResources {
   constructor(private scope: cdk.Construct) {
     this.createWebsiteDeployment();

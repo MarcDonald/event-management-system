@@ -1,12 +1,13 @@
 {
   "name": "event-management-system",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.29",
     "@fortawesome/free-solid-svg-icons": "^5.13.1",
     "@fortawesome/react-fontawesome": "^0.1.11",
     "aws-amplify": "^3.3.3",
+    "axios": "^0.21.1",
     "bootstrap": "^4.5.3",
     "react": "^16.13.1",
     "react-bootstrap": "^1.4.0",
@@ -47,6 +48,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.5",
     "@types/styled-components": "^5.1.7",
+    "@types/axios": "^0.14.0",
     "prettier": "^2.0.5"
   }
 }
