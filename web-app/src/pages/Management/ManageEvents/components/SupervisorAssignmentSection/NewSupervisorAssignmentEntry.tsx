@@ -62,6 +62,7 @@ export default function NewSupervisorAssignmentEntry(
           list={props.staffToShow}
           currentlySelectedKey={supervisorSelected}
           onSelected={setSupervisorSelected}
+          disabled={props.staffToShow.length === 0}
         />
         <AreaOfSupervisionInput
           id="area-of-supervision"

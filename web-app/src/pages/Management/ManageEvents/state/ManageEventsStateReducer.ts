@@ -7,7 +7,7 @@ import { DropdownItem } from '../../../../shared/components/Dropdown';
 import StaffMember from '../../../../shared/models/StaffMember';
 import Position from '../../../../shared/models/Position';
 import Event from '../../../../shared/models/Event';
-import StaffRole from '../../../../shared/models/StaffRole'
+import StaffRole from '../../../../shared/models/StaffRole';
 interface ManageEventsState {
   id: string | null;
   name: string;
@@ -71,7 +71,9 @@ export default function ManageEventsStateReducer(
             };
           }),
           allStaff: parameters.staffList,
-          selectableStaff: (parameters.staffList as StaffMember[]).filter(staffMember => staffMember.role === StaffRole.Steward),
+          selectableStaff: (parameters.staffList as StaffMember[]).filter(
+            (staffMember) => staffMember.role === StaffRole.Steward
+          ),
         };
       }
       return {
@@ -86,7 +88,9 @@ export default function ManageEventsStateReducer(
         allEvents: state.allEvents,
         displayedEvents: state.displayedEvents,
         dropdownVenues: state.dropdownVenues,
-        selectableStaff: state.allStaff,
+        selectableStaff: (state.allStaff as StaffMember[]).filter(
+          (staffMember) => staffMember.role === StaffRole.Steward
+        ),
         selectablePositions: [],
         isLoadingEvents: false,
       };
@@ -128,9 +132,11 @@ export default function ManageEventsStateReducer(
             ...assignedStaffMembers,
             ...assignedSupervisors,
           ];
-          const selectableStaff = [...state.allStaff].filter((staffMember) => {
-            return !allAssignedStaff.includes(staffMember.username);
-          });
+          const selectableStaff = [...state.selectableStaff].filter(
+            (staffMember) => {
+              return !allAssignedStaff.includes(staffMember.username);
+            }
+          );
 
           return {
             ...state,

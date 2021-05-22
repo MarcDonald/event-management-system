@@ -62,6 +62,7 @@ export default function NewStaffAssignmentEntry(
           list={props.staffToShow}
           currentlySelectedKey={staffSelected}
           onSelected={setStaffSelected}
+          disabled={props.staffToShow.length === 0}
         />
         <DivWithTopGap>
           <Dropdown
@@ -69,6 +70,7 @@ export default function NewStaffAssignmentEntry(
             list={props.positionsToShow}
             currentlySelectedKey={positionSelected}
             onSelected={setPositionSelected}
+            disabled={props.positionsToShow.length === 0}
           />
         </DivWithTopGap>
       </DropdownContainer>
